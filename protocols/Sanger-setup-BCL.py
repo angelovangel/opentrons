@@ -69,20 +69,6 @@ def run(ctx: protocol_api.ProtocolContext):
     m20 = ctx.load_instrument(
         'p20_multi_gen2', mount=p20_multi_mount, tip_racks=tips20_multi)
     
-    
-    # def mytransfer(vol, src_type, src_well, dst_type, dst_well, air_gap = 0):
-    #     for i in range(len(src_well)):
-    #         volume = vol[i]
-    #         if volume <= 0: continue
-
-    #         s20.transfer(
-    #             volume,
-    #             src_type.wells_by_name()[src_well[i]],
-    #             dst_type.wells_by_name()[dst_well[i]],
-    #             new_tip = 'always', 
-    #             air_gap = air_gap
-    #     )
-    
     # first take primer then air gap then sample, all in one mmove
     def mytransfer_multi(vol1, src_type1, src_well1, vol2, src_type2, src_well2, dest_type, dest_well):
         
@@ -114,15 +100,6 @@ def run(ctx: protocol_api.ProtocolContext):
             volume2[i], sourcestrip, sourcewells2[i], 
             destplate, destwells2[i]
             )
-
-    # if len(sourcewells1)!=0: 
-    #     mytransfer(volume1, sourceplate, sourcewells1, destplate, destwells1)
-
-    # if len(sourcewells2)!=0:
-    #     mytransfer(volume2, sourcestrip, sourcewells2, destplate, destwells2)
-
-    # if len(sourcewells3)!=0:
-    #     mytransfer(volume3, sourcetube, sourcewells3, destplate, destwells3, air_gap=1)
 
     # pause here, prompt adding reservoir with PCR master mix
     # try to attract attention too!

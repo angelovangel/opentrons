@@ -10,8 +10,9 @@ parser = argparse.ArgumentParser(description='Replace lines defining lists (in a
 parser.add_argument('xlfile',  type = str, help = 'path to excel file, will be used replacements')
 parser.add_argument('txtfile', type = str, help = 'path to txt file, lines matching col headers in the excel file will be replaced')
 parser.add_argument('-f', '--fillna', help = 'fill NaN values, will be parsed as str')
-parser.add_argument('-c', '--confirm', action='store_true', help='ask for confirmation for each replacement')
-parser.add_argument('-o', '--overwrite', action = 'store_true', help='overwrite original txt file? (default is write to a new file with a datetime stamp)')
+parser.add_argument('-c', '--confirm', action = 'store_true', help = 'ask for confirmation for each replacement')
+parser.add_argument('-o', '--overwrite', action = 'store_true', help = 'overwrite original txt file? (default is write to a new file with a datetime stamp)')
+parser.add_argument('-r', '--repair_wells', action = 'store_true', help = 'repair well names to fit Opentrons, e.g. A01 to A1')
 
 args = parser.parse_args()
 
@@ -39,6 +40,9 @@ for i, v in df.iteritems():
     search_pattern = "^" + i + "=\[.*"
     replacement = i + "=" + str(v.tolist())
     
+    if args.repair_wells:
+        replacement = re.sub(r'([A-Z])0+(\d+)', r'\1\2', replacement)
+
     found = re.search(search_pattern, txt, flags=re.MULTILINE)
     if found:
         print(f"Found  : {found.group()}") # the group method returns the actual match

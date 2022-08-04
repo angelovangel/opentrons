@@ -7,8 +7,11 @@ import time
 
 parser = argparse.ArgumentParser(description='Replace lines defining lists (in a python file) with data read from Excel. Uses column headers as search pattern. Useful for changing wells/volumes in Opentrons scripts.', 
                                 epilog='author: aangeloo@gmail.com')
-parser.add_argument('xlfile',  type = str, help = 'path to excel file, will be used replacements')
+parser.add_argument('xlfile',  type = str, help = 'path to excel file, will be used for replacements')
 parser.add_argument('txtfile', type = str, help = 'path to txt file, lines matching col headers in the excel file will be replaced')
+parser.add_argument('-n', '--sheet', 
+                    help='Excel sheet to be used for reading data, default is 0. Sheet numbering is 0-based.', 
+                    default = 0, type = int)
 parser.add_argument('-f', '--fillna', help = 'fill NaN values, will be parsed as str')
 parser.add_argument('-c', '--confirm', action = 'store_true', help = 'ask for confirmation for each replacement')
 parser.add_argument('-o', '--overwrite', action = 'store_true', help = 'overwrite original txt file? (default is write to a new file with a datetime stamp)')
@@ -17,7 +20,7 @@ parser.add_argument('-r', '--repair_wells', action = 'store_true', help = 'repai
 args = parser.parse_args()
 
 # read excel in df
-df = pd.read_excel(args.xlfile, header = 0)
+df = pd.read_excel(args.xlfile, header = 0, sheet_name=args.sheet)
 if args.fillna:
     df.fillna(args.fillna, inplace = True)
 

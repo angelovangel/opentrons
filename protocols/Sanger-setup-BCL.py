@@ -1,13 +1,15 @@
 # this file serves as a template only, Run-this-first.py is used to change the wells and volumes
 from opentrons import protocol_api
 
+########################## metadata ##########################
 metadata = {
     'protocolName': 'Sanger sequencing setup',
     'author': 'BCL <xiang.zhao@kaust.edu.sa>, <angel.angelov@kaust.edu.sa>',
     'description': 'Transfer templates and primers to destination plate, add Sequencing master mix',
     'apiLevel': '2.8'
 }
-sourcewells1=["A1", "C1", "A2"] # fixed line, if this changes also Run-this-first.py has to be changed
+
+sourcewells1=["A1", "C1", "A2"]
 destwells1=["A1","A10", "A12"]
 volume1=[4.00, 6.00, 7.00]
 sourcewells2=["A1","B1","B1"]
@@ -53,21 +55,19 @@ def run(ctx: protocol_api.ProtocolContext):
         " destination plate columns).\nHave a coffee..."
         )
 
-    p20_single_mount ='left'
-    p20_multi_mount='right' 
-
+    # stack of 96 well base plate and PCR plate
     destplate = ctx.load_labware('pcrplate_96_wellplate_200ul', '5', 'Destination plate') # stack of 96 well base plate and PCR plate
-    sourceplate= ctx.load_labware('pcrplate_96_wellplate_200ul', '4', 'Source plate') # stack of 96 well base plate and PCR plate
-    sourcestrip= ctx.load_labware('pcrstrip_96_wellplate_200ul', '8', 'Source strip') # stack of 96 well base plate and strips
+    sourceplate = ctx.load_labware('pcrplate_96_wellplate_200ul', '4', 'Source plate') # stack of 96 well base plate and PCR plate
+    sourcestrip = ctx.load_labware('pcrstrip_96_wellplate_200ul', '8', 'Source strip') # stack of 96 well base plate and strips
+    mmstrip = ctx.load_labware('pcrstrip_96_wellplate_200ul', '2', 'Sequencing master mix in strip') # stack of 96 well base plate and strips
     sourcetube = ctx.load_labware('opentrons_24_tuberack_eppendorf_1.5ml_safelock_snapcap', '7', 'Primers in tube rack')
+    
     tips20_single = [ctx.load_labware('opentrons_96_filtertiprack_20ul', slot) for slot in ['10', '11']]
     tips20_multi = [ctx.load_labware('opentrons_96_filtertiprack_20ul', slot) for slot in ['3']]
-    mmstrip = ctx.load_labware('pcrstrip_96_wellplate_200ul', '2', label='Sequencing master mix in strip')
+    
 
-    s20 = ctx.load_instrument(
-        'p20_single_gen2', mount=p20_single_mount, tip_racks=tips20_single)
-    m20 = ctx.load_instrument(
-        'p20_multi_gen2', mount=p20_multi_mount, tip_racks=tips20_multi)
+    s20 = ctx.load_instrument('p20_single_gen2', mount='left', tip_racks=tips20_single)
+    m20 = ctx.load_instrument('p20_multi_gen2', mount='right', tip_racks=tips20_multi)
     
     # first take primer then air gap then sample, all in one mmove
     def mytransfer_multi(vol1, src_type1, src_well1, vol2, src_type2, src_well2, dest_type, dest_well):

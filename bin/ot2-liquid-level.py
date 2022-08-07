@@ -45,30 +45,30 @@ def run(ctx: protocol_api.ProtocolContext):
         ########### measure exactly #########
 
         # get tube type from location
-        print(str(location))
+        #print(str(location))
         if re.search('pcrstrip', str(location)):
             cutoff_vol = 100
-            small_radius = 3
+            small_radius = 3/2
         elif re.search('Eppendorf 1.5 mL', str(location)):
             print('using 1.5 ml epi for liquid depth calculation')
             cutoff_vol = 500
-            small_radius = 5.4
+            small_radius = 4.4/2
         elif re.search('Falcon 15 mL', str(location)):
             print('using 15 mL Falcon for liquid depth calculation')
-            cutoff_vol = 1250
-            small_radius = 6.4
+            cutoff_vol = 1750
+            small_radius = 5.4/2
         elif re.search('Falcon 50 mL', str(location)):
             print('using 50 mL Falcon for liquid depth calculation')
             cutoff_vol = 3850
-            small_radius = 6.9
+            small_radius = 6.9/2
         else:
             print('can not determine tube type, will skip depth calculation')
             return
         ########### measure exactly #########
 
         well_radius = location.diameter/2
-        print(small_radius)
-        print(well_radius)
+        #print(small_radius)
+        #print(well_radius)
 
         
         if vol <= cutoff_vol:
@@ -78,27 +78,32 @@ def run(ctx: protocol_api.ProtocolContext):
             depth1 = (vol-cutoff_vol)/(3.14*pow(well_radius, 2))
             depth2 = (3*cutoff_vol)/(3.14*(pow(small_radius, 2) + pow(well_radius, 2) + (small_radius*well_radius)))
             depth = depth1 + depth2
-            print(depth1)
-            print(depth2)
+            #print(depth1)
+            #print(depth2)
         return round(depth, 2)
 
-    sourcewells=["A1", "A2", "A3"]
-    destwells=["A1","A3", "B2"]
-    volumes=[10.00, 6.00, 5.00]
+    sourcewells=["A1", "A1", "A1"]
+    destwells=["A2","B2", "B2"]
+    volumes=[15.00, 20.00, 15.00]
     
     # initialise to track these
-    epiwells = init_volumes(falcontubes, 15000)
+    epiwells = init_volumes(epitubes, 1000)
     #epiwells_liquid_depth = calculate_depth(falcontubes['A1'], 100, 'falcon15')
         
-    for i, v in enumerate(sourcewells):
+    # for i, v in enumerate(sourcewells):
         
-        mytransfer(volumes[i], falcontubes, sourcewells[i], epitubes, destwells[i])
-        epiwells[v] = epiwells[v] - volumes[i]
-        liquid_depth = calculate_depth(falcontubes.wells_by_name()[v], epiwells[v])
+    #     mytransfer(volumes[i], epitubes, sourcewells[i], epitubes, destwells[i])
+    #     epiwells[v] = epiwells[v] - volumes[i]
+    #     liquid_depth = calculate_depth(epitubes.wells_by_name()[v], epiwells[v])
 
-        #print(f'{v} curr_volume: {epiwells[v]} total_depth: {falcontubes.wells_by_name()[v].depth} liquid depth: {liquid_depth}')
+    #     print(f'{v} curr_volume: {epiwells[v]} total_depth: {epitubes.wells_by_name()[v].depth} liquid depth: {liquid_depth}')
         
-    print(epiwells)
+    for i in range(20):
+        liquid_depth = calculate_depth(epitubes['A1'], epiwells['A1'])
+        mytransfer(20, epitubes, 'A1', epitubes, 'A2', z = liquid_depth-1)
+        epiwells['A1'] = epiwells['A1'] - 20
+        
+        print(liquid_depth)
 
         
 

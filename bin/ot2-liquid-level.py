@@ -10,12 +10,12 @@ metadata = {
 }
 
 def run(ctx: protocol_api.ProtocolContext):
-    #! dont use labels in load_labware, the default labels are used to decide tube_type in calculate_depth !!!
-    epitubes = ctx.load_labware('opentrons_24_tuberack_eppendorf_1.5ml_safelock_snapcap', '5')
-    falcontubes = ctx.load_labware('opentrons_15_tuberack_falcon_15ml_conical', '4')
+    # dont use labels in load_labware, the default labels are used to decide tube_type in calculate_depth !!!
+    epitubes = ctx.load_labware('opentrons_24_tuberack_eppendorf_1.5ml_safelock_snapcap', '2')
+    falcontubes = ctx.load_labware('opentrons_15_tuberack_falcon_15ml_conical', '1')
     #falcontubes = ctx.load_labware('opentrons_6_tuberack_falcon_50ml_conical', '4')
     
-    tips20_single = [ctx.load_labware('opentrons_96_filtertiprack_20ul', slot) for slot in ['1']]
+    tips20_single = [ctx.load_labware('opentrons_96_filtertiprack_20ul', slot) for slot in ['10']]
     s20 = ctx.load_instrument('p20_single_gen2', 'left', tip_racks=tips20_single)
 
     def mytransfer(vol, srctype, srcwell, desttype, destwell, z = 0):
@@ -28,12 +28,6 @@ def run(ctx: protocol_api.ProtocolContext):
         s20.dispense(vol, desttype.wells_by_name()[destwell].bottom(z + 1)) # default depth for dispense 
         s20.drop_tip()
     
-    def init_volumes(labware, init_vol):
-        if init_vol <= 0: return
-        wells = dict(labware.wells_by_name())
-        for i in wells:
-            wells[i] = init_vol
-        return wells
 
     def calculate_depth(location, vol):
         # calculate depth based on available volume in well
@@ -52,11 +46,11 @@ def run(ctx: protocol_api.ProtocolContext):
         elif re.search('Eppendorf 1.5 mL', str(location)):
             print('using 1.5 ml epi for liquid depth calculation')
             cutoff_vol = 500
-            small_radius = 4.4/2
+            small_radius = 3.4/2
         elif re.search('Falcon 15 mL', str(location)):
             print('using 15 mL Falcon for liquid depth calculation')
-            cutoff_vol = 1750
-            small_radius = 5.4/2
+            cutoff_vol = 1250
+            small_radius = 4.4/2
         elif re.search('Falcon 50 mL', str(location)):
             print('using 50 mL Falcon for liquid depth calculation')
             cutoff_vol = 3850
@@ -73,22 +67,29 @@ def run(ctx: protocol_api.ProtocolContext):
         
         if vol <= cutoff_vol:
             depth = (3*vol)/(3.14*(pow(small_radius, 2) + pow(well_radius, 2) + (small_radius*well_radius)))
-            print(depth)
+            #print(depth)
         else:
             depth1 = (vol-cutoff_vol)/(3.14*pow(well_radius, 2))
             depth2 = (3*cutoff_vol)/(3.14*(pow(small_radius, 2) + pow(well_radius, 2) + (small_radius*well_radius)))
             depth = depth1 + depth2
             #print(depth1)
             #print(depth2)
+        if depth < 0:
+            depth = 0
         return round(depth, 2)
 
+    
+    def init_volumes(labware, init_vol):
+        if init_vol < 0: return
+        wells = dict(labware.wells_by_name())
+        for i in wells:
+            wells[i] = init_vol
+        return wells
+    
     sourcewells=["A1", "A1", "A1"]
     destwells=["A2","B2", "B2"]
     volumes=[15.00, 20.00, 15.00]
     
-    # initialise to track these
-    epiwells = init_volumes(epitubes, 1000)
-    #epiwells_liquid_depth = calculate_depth(falcontubes['A1'], 100, 'falcon15')
         
     # for i, v in enumerate(sourcewells):
         
@@ -97,13 +98,30 @@ def run(ctx: protocol_api.ProtocolContext):
     #     liquid_depth = calculate_depth(epitubes.wells_by_name()[v], epiwells[v])
 
     #     print(f'{v} curr_volume: {epiwells[v]} total_depth: {epitubes.wells_by_name()[v].depth} liquid depth: {liquid_depth}')
-        
-    for i in range(20):
-        liquid_depth = calculate_depth(epitubes['A1'], epiwells['A1'])
-        mytransfer(20, epitubes, 'A1', epitubes, 'A2', z = liquid_depth-1)
-        epiwells['A1'] = epiwells['A1'] - 20
-        
-        print(liquid_depth)
+    
+    # initialise to track these
+    src_levels = init_volumes(epitubes, 500)
+    dest_levels = init_volumes(falcontubes, 1250)
+    
+
+    s20.pick_up_tip()
+    for w in ['D3', 'D4']:
+        for i in range(10):
+            src_depth = calculate_depth(epitubes[w], src_levels[w])
+            dest_depth = calculate_depth(falcontubes['A1'], dest_levels['A1'])
+            #mytransfer(20, epitubes, 'A1', epitubes, 'A2', z = liquid_depth-1)
+            # safe lock
+            if src_depth >= 0 and dest_depth >= 0:
+                s20.aspirate(20, epitubes[w].bottom(src_depth))
+                s20.dispense(20, falcontubes['A1'].bottom(dest_depth))
+
+                # update levels
+                src_levels[w] = src_levels[w] - 20
+                dest_levels['A1'] = dest_levels['A1'] + 20
+                print(src_depth)
+                print(dest_depth)
+    
+    s20.drop_tip()
 
         
 

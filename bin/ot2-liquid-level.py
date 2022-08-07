@@ -47,27 +47,29 @@ def run(ctx: protocol_api.ProtocolContext):
         # get tube type from location
         print(str(location))
         if re.search('pcrstrip', str(location)):
-            cutoff_vol = 50
-            small_radius = 5
+            cutoff_vol = 100
+            small_radius = 3
         elif re.search('Eppendorf 1.5 mL', str(location)):
             print('using 1.5 ml epi for liquid depth calculation')
             cutoff_vol = 500
-            small_radius = 2
+            small_radius = 5.4
         elif re.search('Falcon 15 mL', str(location)):
             print('using 15 mL Falcon for liquid depth calculation')
-            cutoff_vol = 1500
-            small_radius = 2
+            cutoff_vol = 1250
+            small_radius = 6.4
         elif re.search('Falcon 50 mL', str(location)):
             print('using 50 mL Falcon for liquid depth calculation')
-            cutoff_vol = 4000
-            small_radius = 10
+            cutoff_vol = 3850
+            small_radius = 6.9
         else:
             print('can not determine tube type, will skip depth calculation')
             return
         ########### measure exactly #########
 
         well_radius = location.diameter/2
-        
+        print(small_radius)
+        print(well_radius)
+
         
         if vol <= cutoff_vol:
             depth = (3*vol)/(3.14*(pow(small_radius, 2) + pow(well_radius, 2) + (small_radius*well_radius)))
@@ -76,8 +78,10 @@ def run(ctx: protocol_api.ProtocolContext):
             depth1 = (vol-cutoff_vol)/(3.14*pow(well_radius, 2))
             depth2 = (3*cutoff_vol)/(3.14*(pow(small_radius, 2) + pow(well_radius, 2) + (small_radius*well_radius)))
             depth = depth1 + depth2
+            print(depth1)
+            print(depth2)
         return round(depth, 2)
-    
+
     sourcewells=["A1", "A2", "A3"]
     destwells=["A1","A3", "B2"]
     volumes=[10.00, 6.00, 5.00]

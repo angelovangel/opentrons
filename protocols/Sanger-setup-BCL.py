@@ -16,14 +16,14 @@ sourcewells2=["A1","B1","B1"]
 destwells2=["A1","A2","B12"]
 volume2=[2.00,10.00,1.00]
 sourcewells3=["A1","A3","A1"]
-destwells3=["A1","A3","C2"] # these are primers, so no MM added here
+destwells3=["A1","A3","C2"] 
 volume3=[2.00,5.00,1.00]
 
 # get number of rxns, to use in calculating MM
 rxns = len(
     list(filter(lambda n: n > 0, volume1)) + 
     list(filter(lambda n: n > 0, volume2))
-    #list(filter(lambda n: n > 0, volume3))
+    #list(filter(lambda n: n > 0, volume3)) # these are primers, so no MM added here
     )
 
 # get non-emty dest columns, by using the index of the volumes

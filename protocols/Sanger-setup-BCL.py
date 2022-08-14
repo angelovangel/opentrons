@@ -11,11 +11,11 @@ metadata = {
 }
 
 sourcewells1=["A1", "C1", "A2"]
-destwells1=["A1","B1", "A12"]
+destwells1=["A1","A2", "A12"]
 volume1=[4.00, 6.00, 7.00]
 sourcewells2=["A1","B1","B1"]
 destwells2=["A1","C1","B12"]
-volume2=[2.00,10.00,1.00]
+volume2=[0, 0, 0]
 sourcewells3=["A1","A3","A1"]
 destwells3=["A1","A3","C2"] 
 volume3=[2.00,5.00,1.00]
@@ -47,10 +47,11 @@ destcolumns_pcr = ['A' + str(x) for x in destcolumns_num_sorted_pcr] # restore w
 mastermix = len(destcolumns_pcr) * 44
 mm_pertube = round(mastermix/8, 1)
 print(destwells_all_pcr)
-row_counts = Counter(destwells_all_pcr)
-print(row_counts['A1'])
-
-exit()
+rows_mm_vols = {'A': 0, 'B': 0, 'C': 0, 'D': 0, 'E': 0, 'F': 0, 'G': 0, 'H': 0}
+row_counts = Counter([row[:1] for row in destwells_all_pcr]) # count how many A, B ... to determine MM needed in each row
+rows_mm_vols.update(row_counts)
+rows_mm_vols.update((x, y * 5.5) for x, y in rows_mm_vols.items()) # 5.5 ul per reaction
+#print(rows_mm_vols.values())
 
 def run(ctx: protocol_api.ProtocolContext):
 
@@ -117,7 +118,7 @@ def run(ctx: protocol_api.ProtocolContext):
 
     # distribute master mix to col 1 
     s20.distribute(
-        mm_pertube, 
+        list(rows_mm_vols.values()), 
         sourcetube.wells_by_name()['D6'], # fixed position, place MM in D6 of Epi tuberack
         mmstrip.columns()[0],
         new_tip = 'once', disposal_volume = 0, blow_out = False)

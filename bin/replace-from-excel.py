@@ -69,6 +69,8 @@ timestring = time.strftime("%Y%m%d-%H%M%S")
 if args.overwrite:
     with open(args.txtfile, 'w') as file:
         file.write(txt)
+        print(f"{args.txtfile} was updated with values from {args.xlfile}")
 else:
-    with open(timestring + '-out.py', 'x') as file:
+    with open(timestring + '-protocol.py', 'x') as file:
         file.write(txt)
+        print(f"New protocol file created: {timestring}-protocol.py")

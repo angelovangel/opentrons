@@ -1,5 +1,6 @@
 # this file serves as a template only, Run-this-first.py is used to change the wells and volumes
 from opentrons import protocol_api
+from collections import Counter
 
 ########################## metadata ##########################
 metadata = {
@@ -10,10 +11,10 @@ metadata = {
 }
 
 sourcewells1=["A1", "C1", "A2"]
-destwells1=["A1","A10", "A12"]
+destwells1=["A1","B1", "A12"]
 volume1=[4.00, 6.00, 7.00]
 sourcewells2=["A1","B1","B1"]
-destwells2=["A1","A2","B12"]
+destwells2=["A1","C1","B12"]
 volume2=[2.00,10.00,1.00]
 sourcewells3=["A1","A3","A1"]
 destwells3=["A1","A3","C2"] 
@@ -44,15 +45,21 @@ destcolumns_pcr = ['A' + str(x) for x in destcolumns_num_sorted_pcr] # restore w
 
 # 5 ul per reaction, 40 ul per column needed (44 with overhead)
 mastermix = len(destcolumns_pcr) * 44
+mm_pertube = round(mastermix/8, 1)
+print(destwells_all_pcr)
+row_counts = Counter(destwells_all_pcr)
+print(row_counts['A1'])
+
+exit()
 
 def run(ctx: protocol_api.ProtocolContext):
 
     ctx.comment(
         "Starting setup of " + 
         str(rxns) +
-         " reactions (in " + 
+         " reactions in " + 
         str(len(destcolumns_pcr)) + 
-        " destination plate columns).\nHave a coffee..."
+        " destination plate columns.\nHave a coffee..."
         )
 
     # stack of 96 well base plate and PCR plate
@@ -108,6 +115,13 @@ def run(ctx: protocol_api.ProtocolContext):
     message = str(f"{rxns} reactions were transferred.\nPlease prepare {mastermix} ul Sequencing mastermix, pipet {mastermix/8:.1f} ul in each tube of the strip (deck position 2, column 1) and resume.\nThe mastermix will be distributed to columns {destcolumns_pcr} in the destination plate.")
     ctx.pause(msg = message)
 
+    # distribute master mix to col 1 
+    s20.distribute(
+        mm_pertube, 
+        sourcetube.wells_by_name()['D6'], # fixed position, place MM in D6 of Epi tuberack
+        mmstrip.columns()[0],
+        new_tip = 'once', disposal_volume = 0, blow_out = False)
+    
     # transfer master mix
     m20.transfer(
         5,

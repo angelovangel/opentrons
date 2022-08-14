@@ -1,4 +1,5 @@
 # this file serves as a template only, Run-this-first.py is used to change the wells and volumes
+from doctest import master
 from opentrons import protocol_api
 from collections import Counter
 
@@ -38,20 +39,20 @@ destwells2_pcr = [destwells2[i] for i in destwells2_ne_index]
 # get columns with at least one rxn, use this to transfer PCR mm for the whole column
 # e.g. wet lab has to try to fill columns with reactions
 destwells_all_pcr = destwells1_pcr + destwells2_pcr
-destcolumns_num_pcr = list(set([int(col[1:]) for col in destwells_all_pcr])) # converting the list to a set gives unique elements
-destcolumns_num_sorted_pcr = sorted(destcolumns_num_pcr)
+destcolumns_num_sorted_pcr = sorted(list(set([int(col[1:]) for col in destwells_all_pcr]))) # converting the list to a set gives unique elements
 destcolumns_pcr = ['A' + str(x) for x in destcolumns_num_sorted_pcr] # restore well names to use with p20_multi
 # print(destcolumns)
 
 # 5 ul per reaction, 40 ul per column needed (44 with overhead)
-mastermix = len(destcolumns_pcr) * 44
-mm_pertube = round(mastermix/8, 1)
-print(destwells_all_pcr)
+# mastermix = len(destcolumns_pcr) * 44
+
+# determine volumes per row for the MM strip col 1 in position 2
 rows_mm_vols = {'A': 0, 'B': 0, 'C': 0, 'D': 0, 'E': 0, 'F': 0, 'G': 0, 'H': 0}
-row_counts = Counter([row[:1] for row in destwells_all_pcr]) # count how many A, B ... to determine MM needed in each row
-rows_mm_vols.update(row_counts)
+rows_counts = Counter([row[:1] for row in destwells_all_pcr]) # count how many A, B ... to determine MM needed in each row
+rows_mm_vols.update(rows_counts)
 rows_mm_vols.update((x, y * 5.5) for x, y in rows_mm_vols.items()) # 5.5 ul per reaction
-#print(rows_mm_vols.values())
+mastermix = sum(rows_mm_vols.values()) # or rxns * 5.5
+
 
 def run(ctx: protocol_api.ProtocolContext):
 
@@ -113,7 +114,8 @@ def run(ctx: protocol_api.ProtocolContext):
     # try to attract attention too!
     ctx.set_rail_lights(False)
     ctx.set_rail_lights(True)
-    message = str(f"{rxns} reactions were transferred.\nPlease prepare {mastermix} ul Sequencing mastermix, pipet {mastermix/8:.1f} ul in each tube of the strip (deck position 2, column 1) and resume.\nThe mastermix will be distributed to columns {destcolumns_pcr} in the destination plate.")
+    #message = str(f"{rxns} reactions were transferred.\nPlease prepare {mastermix} ul Sequencing mastermix, pipet {mastermix/8:.1f} ul in each tube of the strip (deck position 2, column 1) and resume.\nThe mastermix will be distributed to columns {destcolumns_pcr} in the destination plate.")
+    message = str(f"{rxns} reactions were transferred.\nPlease prepare {mastermix} ul mastermix and place it in D6 of Eppendorf tube rack. The mastermix will be distributed first to the A1 strip in position 2, and then to columns {destcolumns_pcr} in the destination plate.")
     ctx.pause(msg = message)
 
     # distribute master mix to col 1 

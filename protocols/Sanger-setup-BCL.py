@@ -1,4 +1,4 @@
-# this file serves as a template only, Run-this-first.py is used to change the wells and volumes
+# this file serves as a template only, replace-from-excel.py and the template excel file is used to change the wells and volumes
 from doctest import master
 from opentrons import protocol_api
 from collections import Counter
@@ -11,16 +11,22 @@ metadata = {
     'apiLevel': '2.8'
 }
 
-sourcewells1=["A1", "C1", "A2"]
-destwells1=["A1","A2", "A12"]
-volume1=[4.00, 6.00, 7.00]
-sourcewells2=["A1","B1","B1"]
-destwells2=["A1","C1","B12"]
-volume2=[0, 0, 0]
-sourcewells3=["A1","A3","A1"]
-destwells3=["A1","A3","C2"] 
-volume3=[2.00,5.00,1.00]
+sourcewells1=['A2', 'B2', 'C2', 'D2', 'E2', 'F2', 'G2', 'H2', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
+destwells1=['A1', 'B1', 'C1', 'D1', 'E1', 'F1', 'G1', 'H1', 'A2', 'B2', 'C2', 'D2', 'E2', 'F2', 'G2', 'H2', 'A3', 'B3', 'C3', 'D3', 'E3', 'F3', 'G3', 'H3', 'A4', 'B4', 'C4', 'D4', 'E4', 'F4', 'G4', 'H4', 'A5', 'B5', 'C5', 'D5', 'E5', 'F5', 'G5', 'H5', 'A6', 'B6', 'C6', 'D6', 'E6', 'F6', 'G6', 'H6', 'A7', 'B7', 'C7', 'D7', 'E7', 'F7', 'G7', 'H7', 'A8', 'B8', 'C8', 'D8', 'E8', 'F8', 'G8', 'H8', 'A9', 'B9', 'C9', 'D9', 'E9', 'F9', 'G9', 'H9', 'A10', 'B10', 'C10', 'D10', 'E10', 'F10', 'G10', 'H10', 'A11', 'B11', 'C11', 'D11', 'E11', 'F11', 'G11', 'H11', 'A12', 'B12', 'C12', 'D12', 'E12', 'F12', 'G12', 'H12']
+volume1=[15, 15, 15, 15, 15, 15, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+sourcewells2=[' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'E2', 'B5', ' ', ' ', ' ', ' ', 'A1', 'B1', 'C1', 'D1', 'E1', 'F1', 'G1', 'H1', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
+destwells2=['A1', 'B1', 'C1', 'D1', 'E1', 'F1', 'G1', 'H1', 'A2', 'B2', 'C2', 'D2', 'E2', 'F2', 'G2', 'H2', 'A3', 'B3', 'C3', 'D3', 'E3', 'F3', 'G3', 'H3', 'A4', 'B4', 'C4', 'D4', 'E4', 'F4', 'G4', 'H4', 'A5', 'B5', 'C5', 'D5', 'E5', 'F5', 'G5', 'H5', 'A6', 'B6', 'C6', 'D6', 'E6', 'F6', 'G6', 'H6', 'A7', 'B7', 'C7', 'D7', 'E7', 'F7', 'G7', 'H7', 'A8', 'B8', 'C8', 'D8', 'E8', 'F8', 'G8', 'H8', 'A9', 'B9', 'C9', 'D9', 'E9', 'F9', 'G9', 'H9', 'A10', 'B10', 'C10', 'D10', 'E10', 'F10', 'G10', 'H10', 'A11', 'B11', 'C11', 'D11', 'E11', 'F11', 'G11', 'H11', 'A12', 'B12', 'C12', 'D12', 'E12', 'F12', 'G12', 'H12']
+volume2=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 0, 0, 0, 0, 10, 10, 10, 10, 10, 10, 10, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+sourcewells3=[' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'A1', 'A1', 'A1', 'A1', 'A1', 'A1', 'A1', 'A1', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
+destwells3=['A1', 'B1', 'C1', 'D1', 'E1', 'F1', 'G1', 'H1', 'A2', 'B2', 'C2', 'D2', 'E2', 'F2', 'G2', 'H2', 'A3', 'B3', 'C3', 'D3', 'E3', 'F3', 'G3', 'H3', 'A4', 'B4', 'C4', 'D4', 'E4', 'F4', 'G4', 'H4', 'A5', 'B5', 'C5', 'D5', 'E5', 'F5', 'G5', 'H5', 'A6', 'B6', 'C6', 'D6', 'E6', 'F6', 'G6', 'H6', 'A7', 'B7', 'C7', 'D7', 'E7', 'F7', 'G7', 'H7', 'A8', 'B8', 'C8', 'D8', 'E8', 'F8', 'G8', 'H8', 'A9', 'B9', 'C9', 'D9', 'E9', 'F9', 'G9', 'H9', 'A10', 'B10', 'C10', 'D10', 'E10', 'F10', 'G10', 'H10', 'A11', 'B11', 'C11', 'D11', 'E11', 'F11', 'G11', 'H11', 'A12', 'B12', 'C12', 'D12', 'E12', 'F12', 'G12', 'H12']
+volume3=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 5, 5, 5, 5, 5, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
+# exit early if there is something wrong with the dest wells
+if len(destwells1) != 96:
+    exit("Please make sure that there are 96 destination wells! Check the excel template is correct...")
+
+
+######################## Master mix calculations ########################
 # get number of rxns, to use in calculating MM
 rxns = len(
     list(filter(lambda n: n > 0, volume1)) + 
@@ -28,7 +34,7 @@ rxns = len(
     #list(filter(lambda n: n > 0, volume3)) # these are primers, so no MM added here
     )
 
-# get non-emty dest columns, by using the index of the volumes
+# get non-empty dest columns, by using the index of the volumes
 # these are used to decide where to distribute PCR mm
 destwells1_ne_index = [index for index, value in enumerate(volume1) if value > 0]
 destwells1_pcr = [destwells1[i] for i in destwells1_ne_index]
@@ -51,8 +57,52 @@ rows_mm_vols = {'A': 0, 'B': 0, 'C': 0, 'D': 0, 'E': 0, 'F': 0, 'G': 0, 'H': 0}
 rows_counts = Counter([row[:1] for row in destwells_all_pcr]) # count how many A, B ... to determine MM needed in each row
 rows_mm_vols.update(rows_counts)
 rows_mm_vols.update((x, y * 5.5) for x, y in rows_mm_vols.items()) # 5.5 ul per reaction
-mastermix = sum(rows_mm_vols.values()) # or rxns * 5.5
+mastermix = sum(rows_mm_vols.values()) * 1.1 # or rxns * 5.5
+######################## Master mix calculations ########################
 
+######################## Calculations for full column transfer ########################
+# the requirement is that for ONE source column all rows go to ONE dest column AND there has to be a correspondence A-A, B-B...H-H 
+# first check for correspondence in each column (destwells are coming as full 96 list always)
+scols1_fulltransfer = []
+dcols1_fulltransfer = []
+scols2_fulltransfer = []
+dcols2_fulltransfer = []
+
+for i in range(0, 95, 8):
+
+    scols1 = [col[1:] for col in sourcewells1[i:i + 8]]
+    dcols1 = [col[1:] for col in destwells1[i:i + 8]]
+    scols2 = [col[1:] for col in sourcewells2[i:i + 8]]
+    dcols2 = [col[1:] for col in destwells2[i:i + 8]]
+
+   # elegant solution to see if requirements are met
+    if( [row[:1] for row in sourcewells1[i:i + 8]] ==  [row[:1] for row in destwells1[i:i + 8]] and scols1.count(scols1[0]) == len(scols1) ):
+        # collect cols for transfer
+        scols1_fulltransfer.append( scols1[0] )
+        dcols1_fulltransfer.append( dcols1[0] )
+        
+        print( scols1_fulltransfer, ": ", dcols1_fulltransfer)
+
+    if( [row[:1] for row in sourcewells2[i:i + 8]] ==  [row[:1] for row in destwells2[i:i + 8]] and scols2.count(scols2[0]) == len(scols2) ):
+        scols2_fulltransfer.append( scols2[0] )
+        dcols2_fulltransfer.append( dcols2[0] )
+        
+        # collect cols for transfer
+        print( scols2_fulltransfer, ": ", dcols2_fulltransfer)
+
+# set the vol1 and vol2 for the whole col transfers to 0, this way they are skipped by the single transfers but the primers are added in case
+for i, v in enumerate(destwells1):
+    if v[1:] in dcols1_fulltransfer:
+        volume1[i] = 0
+    
+for i, v in enumerate(destwells2):
+    if v[1:] in dcols2_fulltransfer:
+        volume2[i] = 0
+
+#exit
+
+
+######################## Calculations for full column transfer ########################
 
 def run(ctx: protocol_api.ProtocolContext):
 
@@ -78,6 +128,21 @@ def run(ctx: protocol_api.ProtocolContext):
     s20 = ctx.load_instrument('p20_single_gen2', mount='left', tip_racks=tips20_single)
     m20 = ctx.load_instrument('p20_multi_gen2', mount='right', tip_racks=tips20_multi)
     
+    # full column transfers first
+    # plate
+    for i, v in enumerate(scols1_fulltransfer):
+        ctx.comment("Full column transfer plate : " + v + " to " + dcols1_fulltransfer[i])
+        m20.transfer(15, 
+        sourceplate.wells_by_name()['A' + scols1_fulltransfer[i]], 
+        destplate.wells_by_name()['A' + dcols1_fulltransfer[i]])
+    
+    # strip
+    for i, v in enumerate(scols2_fulltransfer):
+        ctx.comment("Full column transfer strip : " + v + " to " + dcols2_fulltransfer[i])
+        m20.transfer(15, 
+        sourceplate.wells_by_name()['A' + scols2_fulltransfer[i]], 
+        destplate.wells_by_name()['A' + dcols2_fulltransfer[i]])
+
     # first take primer then air gap then sample, all in one mmove
     def mytransfer_multi(vol1, src_type1, src_well1, vol2, src_type2, src_well2, dest_type, dest_well):
         
@@ -105,8 +170,8 @@ def run(ctx: protocol_api.ProtocolContext):
     # for strips as source
     for i, v in enumerate(destwells2):
         mytransfer_multi(
-            volume3[i], sourcetube, sourcewells3[i], 
-            volume2[i], sourcestrip, sourcewells2[i], 
+            volume3[i], sourcetube, sourcewells3[i],
+            volume2[i], sourcestrip, sourcewells2[i],
             destplate, destwells2[i]
             )
 
@@ -115,7 +180,7 @@ def run(ctx: protocol_api.ProtocolContext):
     ctx.set_rail_lights(False)
     ctx.set_rail_lights(True)
     #message = str(f"{rxns} reactions were transferred.\nPlease prepare {mastermix} ul Sequencing mastermix, pipet {mastermix/8:.1f} ul in each tube of the strip (deck position 2, column 1) and resume.\nThe mastermix will be distributed to columns {destcolumns_pcr} in the destination plate.")
-    message = str(f"{rxns} reactions were transferred.\nPlease prepare {mastermix} ul mastermix and place it in D6 of Eppendorf tube rack. The mastermix will be distributed first to the A1 strip in position 2, and then to columns {destcolumns_pcr} in the destination plate.")
+    message = str(f"{rxns} reactions were transferred.\nPlease prepare {mastermix:.1f} ul mastermix and place it in D6 of Eppendorf tube rack. The mastermix will be distributed first to the A1 strip in position 2, and then to columns {destcolumns_pcr} in the destination plate.")
     ctx.pause(msg = message)
 
     # distribute master mix to col 1 

@@ -140,39 +140,38 @@ def run(ctx: protocol_api.ProtocolContext):
     for i, v in enumerate(scols2_fulltransfer):
         ctx.comment("Full column transfer strip : " + v + " to " + dcols2_fulltransfer[i])
         m20.transfer(15, 
-        sourceplate.wells_by_name()['A' + scols2_fulltransfer[i]], 
+        sourcestrip.wells_by_name()['A' + scols2_fulltransfer[i]], 
         destplate.wells_by_name()['A' + dcols2_fulltransfer[i]])
 
     # first take primer then air gap then sample, all in one mmove
-    def mytransfer_multi(vol1, src_type1, src_well1, vol2, src_type2, src_well2, dest_type, dest_well):
+    # process both source1 and source2!!
+    def mytransfer_multistep(vol1, src_type1, src_well1, # plate
+                             vol2, src_type2, src_well2, # strip
+                             vol3, src_type3, src_well3, # primer
+                             dest_type, dest_well):
         
-        # only do something if there is template to be pipetted
-        if vol2 <= 0: return
+        if vol1 <= 0 and vol2 <= 0 and vol3 <= 0: return
         s20.pick_up_tip()
         # dont try to get wells which are '', will error
-        if vol1 > 0:    
-            s20.aspirate(vol1, src_type1.wells_by_name()[src_well1])
+        # primer
+        if vol3 > 0:    
+            s20.aspirate(vol3, src_type3.wells_by_name()[src_well3])
             s20.air_gap(1)
-        
-        s20.aspirate(vol2, src_type2.wells_by_name()[src_well2])
+        if vol1 > 0:
+            s20.aspirate(vol1, src_type1.wells_by_name()[src_well1])
+        if vol2 > 0:
+            s20.aspirate(vol2, src_type2.wells_by_name()[src_well2])
+
         s20.dispense(location = dest_type.wells_by_name()[dest_well])
         s20.drop_tip()
 
     # use it e.g. first primer then template
-    # for plate as source
-    for i, v in enumerate(destwells1):
-        mytransfer_multi(
-            volume3[i], sourcetube, sourcewells3[i], 
+    for i, v in enumerate(destwells1): # could be any destwells
+        mytransfer_multistep(
             volume1[i], sourceplate, sourcewells1[i], 
+            volume2[i], sourcestrip, sourcewells2[i], 
+            volume3[i], sourcetube, sourcewells3[i], 
             destplate, destwells1[i]
-            )
-
-    # for strips as source
-    for i, v in enumerate(destwells2):
-        mytransfer_multi(
-            volume3[i], sourcetube, sourcewells3[i],
-            volume2[i], sourcestrip, sourcewells2[i],
-            destplate, destwells2[i]
             )
 
     # pause here, prompt adding reservoir with PCR master mix

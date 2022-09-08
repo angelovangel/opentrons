@@ -64,31 +64,36 @@ mastermix = sum(rows_mm_vols.values()) * 1.1 # or rxns * 5.5
 # the requirement is that for ONE source column all rows go to ONE dest column AND there has to be a correspondence A-A, B-B...H-H 
 # first check for correspondence in each column (destwells are coming as full 96 list always)
 scols1_fulltransfer = []
+svol1_fulltransfer = []
 dcols1_fulltransfer = []
+
 scols2_fulltransfer = []
+svol2_fulltransfer = []
 dcols2_fulltransfer = []
 
 for i in range(0, 95, 8):
 
     scols1 = [col[1:] for col in sourcewells1[i:i + 8]]
+    svol1 = [vol for vol in volume1[i:i + 8]]
     dcols1 = [col[1:] for col in destwells1[i:i + 8]]
+
     scols2 = [col[1:] for col in sourcewells2[i:i + 8]]
+    svol2 = [vol for vol in volume2[i:i + 8]]
     dcols2 = [col[1:] for col in destwells2[i:i + 8]]
 
    # elegant solution to see if requirements are met
     if( [row[:1] for row in sourcewells1[i:i + 8]] ==  [row[:1] for row in destwells1[i:i + 8]] and scols1.count(scols1[0]) == len(scols1) ):
         # collect cols for transfer
         scols1_fulltransfer.append( scols1[0] )
+        svol1_fulltransfer.append( svol1[0])
         dcols1_fulltransfer.append( dcols1[0] )
-        
-        print( scols1_fulltransfer, ": ", dcols1_fulltransfer)
+        #print( scols1_fulltransfer, ": ", dcols1_fulltransfer, "volume: ", svol1_fulltransfer)
 
     if( [row[:1] for row in sourcewells2[i:i + 8]] ==  [row[:1] for row in destwells2[i:i + 8]] and scols2.count(scols2[0]) == len(scols2) ):
         scols2_fulltransfer.append( scols2[0] )
+        svol2_fulltransfer.append( svol2[0])
         dcols2_fulltransfer.append( dcols2[0] )
-        
-        # collect cols for transfer
-        print( scols2_fulltransfer, ": ", dcols2_fulltransfer)
+        #print( scols2_fulltransfer, ": ", dcols2_fulltransfer, "volume: ")
 
 # set the vol1 and vol2 for the whole col transfers to 0, this way they are skipped by the single transfers but the primers are added in case
 for i, v in enumerate(destwells1):
@@ -131,18 +136,22 @@ def run(ctx: protocol_api.ProtocolContext):
     # full column transfers first
     # plate
     for i, v in enumerate(scols1_fulltransfer):
-        ctx.comment("Full column transfer plate : " + v + " to " + dcols1_fulltransfer[i])
-        m20.transfer(15, 
+        ctx.comment("--------------------------------------")
+        ctx.comment("Full column transfer plate : " + str(svol1_fulltransfer[i]) + " ul from " + v + " to " + dcols1_fulltransfer[i])
+        m20.transfer(
+        svol1_fulltransfer[i], 
         sourceplate.wells_by_name()['A' + scols1_fulltransfer[i]], 
-        destplate.wells_by_name()['A' + dcols1_fulltransfer[i]])
+        destplate.wells_by_name()['A' + dcols1_fulltransfer[i]]
+        )
     
     # strip
     for i, v in enumerate(scols2_fulltransfer):
-        ctx.comment("Full column transfer strip : " + v + " to " + dcols2_fulltransfer[i])
-        m20.transfer(15, 
+        ctx.comment("Full column transfer strip : " + str(svol2_fulltransfer[i]) + " ul from " + v + " to " + dcols2_fulltransfer[i])
+        m20.transfer(
+        svol2_fulltransfer[i], 
         sourcestrip.wells_by_name()['A' + scols2_fulltransfer[i]], 
         destplate.wells_by_name()['A' + dcols2_fulltransfer[i]])
-
+    
     # first take primer then air gap then sample, all in one mmove
     # process both source1 and source2!!
     def mytransfer_multistep(vol1, src_type1, src_well1, # plate
@@ -150,22 +159,26 @@ def run(ctx: protocol_api.ProtocolContext):
                              vol3, src_type3, src_well3, # primer
                              dest_type, dest_well):
         
-        if vol1 <= 0 and vol2 <= 0 and vol3 <= 0: return
+        if vol1 <= 0 and vol2 <= 0 and vol3 <= 0: 
+            return
+        ctx.comment("--------------------------------------")
         s20.pick_up_tip()
         # dont try to get wells which are '', will error
         # primer
         if vol3 > 0:    
             s20.aspirate(vol3, src_type3.wells_by_name()[src_well3])
             s20.air_gap(1)
+        # plate
         if vol1 > 0:
             s20.aspirate(vol1, src_type1.wells_by_name()[src_well1])
+        #strip
         if vol2 > 0:
             s20.aspirate(vol2, src_type2.wells_by_name()[src_well2])
 
         s20.dispense(location = dest_type.wells_by_name()[dest_well])
         s20.drop_tip()
 
-    # use it e.g. first primer then template
+    # use it
     for i, v in enumerate(destwells1): # could be any destwells
         mytransfer_multistep(
             volume1[i], sourceplate, sourcewells1[i], 
@@ -173,7 +186,7 @@ def run(ctx: protocol_api.ProtocolContext):
             volume3[i], sourcetube, sourcewells3[i], 
             destplate, destwells1[i]
             )
-
+    ctx.comment("--------------------------------------")
     # pause here, prompt adding reservoir with PCR master mix
     # try to attract attention too!
     ctx.set_rail_lights(False)
@@ -188,6 +201,7 @@ def run(ctx: protocol_api.ProtocolContext):
         sourcetube.wells_by_name()['D6'], # fixed position, place MM in D6 of Epi tuberack
         mmstrip.columns()[0],
         new_tip = 'once', disposal_volume = 0, blow_out = False)
+    ctx.comment("--------------------------------------")
     
     # transfer master mix
     m20.transfer(

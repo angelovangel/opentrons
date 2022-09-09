@@ -6,7 +6,7 @@ from collections import Counter
 ########################## metadata ##########################
 metadata = {
     'protocolName': 'Sanger sequencing setup',
-    'author': 'BCL <xiang.zhao@kaust.edu.sa>, <angel.angelov@kaust.edu.sa>',
+    'author': 'BCL <angel.angelov@kaust.edu.sa>',
     'description': 'Transfer templates and primers to destination plate, add Sequencing master mix',
     'apiLevel': '2.8'
 }
@@ -84,9 +84,9 @@ for i in range(0, 95, 8):
     dcols2 = [col[1:] for col in destwells2[i:i + 8]]
 
    # elegant solution to see if requirements are met
-    if( [row[:1] for row in sourcewells1[i:i + 8]] ==  [row[:1] for row in destwells1[i:i + 8]] and
-        scols1.count(scols1[0]) == len(scols1) and 
-        svol1.count(svol1[0]) == len(svol1)
+    if( [row[:1] for row in sourcewells1[i:i + 8]] ==  [row[:1] for row in destwells1[i:i + 8]] and # there is row correspondence
+        scols1.count(scols1[0]) == len(scols1) and # all wells in the batch of 8 are the same column
+        svol1.count(svol1[0]) == len(svol1) # all volumes in column are equal
         ):
         # collect data for transfer
         scols1_fulltransfer.append( scols1[0] )
@@ -145,7 +145,7 @@ def run(ctx: protocol_api.ProtocolContext):
     # plate
     for i, v in enumerate(scols1_fulltransfer):
         ctx.comment("--------------------------------------")
-        ctx.comment("Full column transfer plate : " + str(svol1_fulltransfer[i]) + " ul from " + v + " to " + dcols1_fulltransfer[i])
+        ctx.comment("Full column transfer plate : " + str(svol1_fulltransfer[i]) + " ul from A" + v + " to A" + dcols1_fulltransfer[i])
         m20.transfer(
         svol1_fulltransfer[i], 
         sourceplate.wells_by_name()['A' + scols1_fulltransfer[i]], 
@@ -154,7 +154,7 @@ def run(ctx: protocol_api.ProtocolContext):
     
     # strip
     for i, v in enumerate(scols2_fulltransfer):
-        ctx.comment("Full column transfer strip : " + str(svol2_fulltransfer[i]) + " ul from " + v + " to " + dcols2_fulltransfer[i])
+        ctx.comment("Full column transfer strip : " + str(svol2_fulltransfer[i]) + " ul from A" + v + " to A" + dcols2_fulltransfer[i])
         m20.transfer(
         svol2_fulltransfer[i], 
         sourcestrip.wells_by_name()['A' + scols2_fulltransfer[i]], 

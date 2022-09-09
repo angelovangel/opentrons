@@ -61,8 +61,10 @@ mastermix = sum(rows_mm_vols.values()) * 1.1 # or rxns * 5.5
 ######################## Master mix calculations ########################
 
 ######################## Calculations for full column transfer ########################
-# the requirement is that for ONE source column all rows go to ONE dest column AND there has to be a correspondence A-A, B-B...H-H 
-# first check for correspondence in each column (destwells are coming as full 96 list always)
+# the requirement is that:
+# for ONE source column all rows go to ONE dest column AND 
+# there has to be a row correspondence A-A, B-B...H-H 
+# AND the volumes are the same for the whole column
 scols1_fulltransfer = []
 svol1_fulltransfer = []
 dcols1_fulltransfer = []
@@ -82,14 +84,20 @@ for i in range(0, 95, 8):
     dcols2 = [col[1:] for col in destwells2[i:i + 8]]
 
    # elegant solution to see if requirements are met
-    if( [row[:1] for row in sourcewells1[i:i + 8]] ==  [row[:1] for row in destwells1[i:i + 8]] and scols1.count(scols1[0]) == len(scols1) ):
-        # collect cols for transfer
+    if( [row[:1] for row in sourcewells1[i:i + 8]] ==  [row[:1] for row in destwells1[i:i + 8]] and
+        scols1.count(scols1[0]) == len(scols1) and 
+        svol1.count(svol1[0]) == len(svol1)
+        ):
+        # collect data for transfer
         scols1_fulltransfer.append( scols1[0] )
         svol1_fulltransfer.append( svol1[0])
         dcols1_fulltransfer.append( dcols1[0] )
         #print( scols1_fulltransfer, ": ", dcols1_fulltransfer, "volume: ", svol1_fulltransfer)
 
-    if( [row[:1] for row in sourcewells2[i:i + 8]] ==  [row[:1] for row in destwells2[i:i + 8]] and scols2.count(scols2[0]) == len(scols2) ):
+    if( [row[:1] for row in sourcewells2[i:i + 8]] ==  [row[:1] for row in destwells2[i:i + 8]] and 
+        scols2.count(scols2[0]) == len(scols2) and 
+        svol2.count(svol2[0]) == len(svol2) ):
+        # collect data for transfer
         scols2_fulltransfer.append( scols2[0] )
         svol2_fulltransfer.append( svol2[0])
         dcols2_fulltransfer.append( dcols2[0] )

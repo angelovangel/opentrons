@@ -1,5 +1,5 @@
 # this file serves as a template only, replace-from-excel.py and the template excel file is used to change the wells and volumes
-from doctest import master
+# from doctest import master
 from opentrons import protocol_api
 from collections import Counter
 

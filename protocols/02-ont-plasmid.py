@@ -138,4 +138,9 @@ def run(ctx: protocol_api.ProtocolContext):
         sourcetube.wells_by_name()[finaltube]
     )
 
+    poolvol = len([v for v in volume1 if v > 0]) * 5
+
+    ctx.comment("Final volume of pool: " + str(poolvol) + " ul")
+    ctx.comment("Add " + str(poolvol) + " ul SPRI beads, incubate 5 minutes. Wash beads 2x with 80 EtOH, aspirate all EtOH and dry 30 sec. Resuspend in 15 ul EB, incubate 10 minutes, take out library in new tube")
+    
     ctx.comment("================= End =========================")

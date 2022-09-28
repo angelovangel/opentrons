@@ -117,13 +117,13 @@ def run(ctx: protocol_api.ProtocolContext):
     # indicate it is ready
     for _ in range(3):
         ctx.set_rail_lights(False)
-        ctx.delay(3)
+        ctx.delay(1)
         ctx.set_rail_lights(True)
-        ctx.delay(3)
+        ctx.delay(1)
 
     ctx.comment("Please incubate the destination plate at 30°C for 2 minutes and 80°C for 2 minutes")
     ctx.comment("When incubations are ready place back the plate on 5")
-    ctx.pause()
+    ctx.pause("Please incubate the destination plate at 30°C for 2 minutes and 80°C for 2 minutes. When incubations are ready place back the plate on 5")
 
     # Pool
     ctx.comment("================= Pool samples =========================")

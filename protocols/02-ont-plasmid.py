@@ -74,7 +74,7 @@ def run(ctx: protocol_api.ProtocolContext):
         volume2,
         sourcetube.wells_by_name()[watersource], 
         [ destplate.wells_by_name()[i] for i in destwells2 ], 
-        new_tip = 'once',
+        new_tip = 'always',
     )
     
 

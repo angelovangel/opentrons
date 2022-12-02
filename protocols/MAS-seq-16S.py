@@ -16,13 +16,9 @@ primers2=['A3', 'B3', 'C3', 'D3', 'A4', 'B4', 'C4', 'D4', 'A5', 'B5', 'C5']
 destcols2=[str(n) for n in list(range(1,12))] # gives cols 1 to 11
 
 barcodes_left=['A1', 'B1', 'C1', 'D1', 'A2', 'B2', 'C2', 'D2']
-barcodes_left_dest=['A1', 'B1', 'C1', 'D1', 'E1', 'F1', 'G1', 'H1']
 barcodes_right=['A1', 'B1', 'C1', 'D1', 'A2', 'B2', 'C2', 'D2']
-barcodes_right_dest=['A12', 'B12', 'C12', 'D12', 'E12', 'F12', 'G12', 'H12']
 
-# sourcewells2=['A3', 'A3', 'A3', 'A3', 'A3', 'A3']
-# destwells2=['A1', 'B1', 'C1', 'D1', 'E1', 'F1']
-# vol=[3, 3, 3, 3, 3, 3]
+
 
 def run(ctx: protocol_api.ProtocolContext): 
     ctx.comment('Starting primer transfer')
@@ -57,8 +53,8 @@ def run(ctx: protocol_api.ProtocolContext):
     s20.transfer(
         3,
         [source1.wells_by_name()[v] for v in barcodes_left],
-        [destplate.wells_by_name()[v] for v in barcodes_left_dest], 
-        air_gap = 1,
+        destplate.columns_by_name()['1'], 
+        #air_gap = 1,
         new_tip = 'always'
     )
 
@@ -66,8 +62,8 @@ def run(ctx: protocol_api.ProtocolContext):
     s20.transfer(
         3,
         [source2.wells_by_name()[v] for v in barcodes_right],
-        [destplate.wells_by_name()[v] for v in barcodes_right_dest], 
-        air_gap = 1,
+        destplate.columns_by_name()['12'],
+        #air_gap = 1,
         new_tip = 'always'
     )
    

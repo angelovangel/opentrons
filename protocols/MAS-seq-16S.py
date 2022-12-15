@@ -23,8 +23,8 @@ barcodes_right=['A1', 'B1', 'C1', 'D1', 'A2', 'B2', 'C2', 'D2']
 def run(ctx: protocol_api.ProtocolContext): 
     ctx.comment('Starting primer transfer')
 
-    source1 = ctx.load_labware('opentrons_24_tuberack_eppendorf_1.5ml_safelock_snapcap', '7', 'Tube rack 1')
-    source2 = ctx.load_labware('opentrons_24_tuberack_eppendorf_1.5ml_safelock_snapcap', '9', 'Tube rack 2') # spaced like this to avoid contamination
+    source1 = ctx.load_labware('opentrons_24_tuberack_generic_2ml_screwcap', '7', 'Tube rack 1')
+    source2 = ctx.load_labware('opentrons_24_tuberack_generic_2ml_screwcap', '9', 'Tube rack 2') # spaced like this to avoid contamination
     destplate = ctx.load_labware('biorad_96_wellplate_200ul_pcr', '11', 'Destination plate 25 uM')
     finalplate = ctx.load_labware('biorad_96_wellplate_200ul_pcr', '10', 'Destination plate 2.5 uM')
     water = ctx.load_labware('nest_12_reservoir_15ml', '8', 'Water reservoir')

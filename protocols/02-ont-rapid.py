@@ -21,8 +21,10 @@ volume3=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0,
 
 watersource = 'A1'
 finaltube = 'B1'
-barcode_vol = 1
-total_rxn_vol = 11
+# use 1 ul barcode and 11 ul total rxn vol if it is gDNA, for plasmid use half volumes
+# the decision is based on the barcode volumes (volume3) 
+barcode_vol = 1 if max(volume3) == 1 else 0.5
+total_rxn_vol = 11 if max(volume3) == 1 else 5.5
 
 ######################## Calculations for full column transfer  - for rapid barcode plate #######################
 # the requirement is that:

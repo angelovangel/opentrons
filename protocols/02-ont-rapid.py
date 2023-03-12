@@ -22,7 +22,7 @@ volume3=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0,
 watersource = 'A1'
 finaltube = 'B1'
 barcode_vol = 1
-total_rxn_vol = 10
+total_rxn_vol = 11
 
 ######################## Calculations for full column transfer  - for rapid barcode plate #######################
 # the requirement is that:
@@ -93,7 +93,7 @@ def run(ctx: protocol_api.ProtocolContext):
     # add barcodes, full columns if possible, has to be as fast as possible
     ctx.comment("================= Starting barcode transfer ==========================")
     for i, v in enumerate(scols3_fulltransfer):
-        ctx.comment("Full column transfer barcode plate : 0.5 ul from A" + v + " to A" + dcols3_fulltransfer[i])
+        ctx.comment("Full column transfer barcode plate: " + str(barcode_vol) + "ul from A" + v + " to A" + dcols3_fulltransfer[i])
         m20.transfer(
         barcode_vol, 
         barcodeplate.wells_by_name()['A' + scols3_fulltransfer[i]], 

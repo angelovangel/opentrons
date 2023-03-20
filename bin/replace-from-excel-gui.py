@@ -1,4 +1,5 @@
 # this script reads the xlsx and writes the source/dest wells and volumes to protocol.py, gui version
+# execute from within the bin folder!
 
 from easygui import *
 import tkinter
@@ -6,12 +7,20 @@ from tkinter import filedialog
 import pandas as pd
 import time
 import re
+import os
     
+cwd = os.getcwd()
+
 
 tkinter.Tk().withdraw() 
-protocolpath=filedialog.askopenfilename(title="Select file - python protocol template", defaultextension= '*.py')
+protocolpath=filedialog.askopenfilename(title="Select file - python protocol template", 
+                                        defaultextension= '*.py', 
+                                        initialdir = '../protocols')
 #protocolpath = fileopenbox("Select python protocol template", "Select file", default='*.py') # crashes!!!
-xlpath = fileopenbox("excel file with data for the protocol", "Select file", default='*.xlsx')
+xlpath = filedialog.askopenfilename(title='Select file - excel file with data for the protocol', 
+                                    defaultextension= '*.xlsx', 
+                                    initialdir= '../templates',)
+#xlpath = fileopenbox("excel file with data for the protocol", "Select file", default='*.xlsx', )
 sheet = integerbox("Select which excel sheet to read", "Select sheet", default= 5, lowerbound=0, upperbound=10)
 #print(protocolpath)
 
@@ -45,7 +54,7 @@ for i, v in df.iteritems():
      
 timestring = time.strftime("%Y%m%d-%H%M%S")
 
-with open(timestring + '-protocol.py', 'x') as file:
+with open('../runprotocols/' + timestring + '-protocol.py', 'x') as file:
         file.write(txt)
 
-msgbox( "Done. Use " +  timestring + "-protocol.py to run the OT2" )
+msgbox( "Done. Use runprotocols/" +  timestring + "-protocol.py to run the OT2" )

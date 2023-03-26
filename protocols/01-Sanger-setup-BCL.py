@@ -195,10 +195,15 @@ def run(ctx: protocol_api.ProtocolContext):
             destplate, destwells1[i]
             )
     ctx.comment("--------------------------------------")
-    # pause here, prompt adding reservoir with PCR master mix
+    
+	# pause here, prompt adding reservoir with PCR master mix
     # try to attract attention too!
-    ctx.set_rail_lights(False)
-    ctx.set_rail_lights(True)
+    
+    for _ in range(3):
+        ctx.set_rail_lights(False)
+        ctx.delay(1)
+        ctx.set_rail_lights(True)
+        ctx.delay(1)
     #message = str(f"{rxns} reactions were transferred.\nPlease prepare {mastermix} ul Sequencing mastermix, pipet {mastermix/8:.1f} ul in each tube of the strip (deck position 2, column 1) and resume.\nThe mastermix will be distributed to columns {destcolumns_pcr} in the destination plate.")
     message = str(f"{rxns} reactions were transferred.\nPlease prepare {mastermix:.1f} ul mastermix and place it in D6 of Eppendorf tube rack. The mastermix will be distributed first to the A1 strip in position 2, and then to columns {destcolumns_pcr} in the destination plate.")
     ctx.pause(msg = message)

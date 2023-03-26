@@ -135,7 +135,7 @@ def run(ctx: protocol_api.ProtocolContext):
     sourcetube = ctx.load_labware('opentrons_24_tuberack_eppendorf_1.5ml_safelock_snapcap', '7', 'Primers in tube rack')
     
     tips20_single = [ctx.load_labware('opentrons_96_filtertiprack_20ul', slot) for slot in ['10', '11']]
-    tips20_multi = [ctx.load_labware('opentrons_96_filtertiprack_20ul', slot) for slot in ['3']]
+    tips20_multi = [ctx.load_labware('opentrons_96_filtertiprack_20ul', slot) for slot in ['3', '6']]
     
 
     s20 = ctx.load_instrument('p20_single_gen2', mount='left', tip_racks=tips20_single)

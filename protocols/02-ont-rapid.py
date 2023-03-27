@@ -76,7 +76,7 @@ def run(ctx: protocol_api.ProtocolContext):
         volume2,
         sourcetube.wells_by_name()[watersource], 
         [ destplate.wells_by_name()[i] for i in destwells2 ], 
-        new_tip = 'always',
+        new_tip = 'always', 
     )
     
 
@@ -88,7 +88,9 @@ def run(ctx: protocol_api.ProtocolContext):
         [ sourceplate.wells_by_name()[v] for i, v in enumerate(sourcewells1) if volume1[i] > 0],
         [ destplate.wells_by_name()[v] for i, v in enumerate(destwells1) if volume1[i] > 0], 
         new_tip = 'always',
-        mix_after = (3, 3)
+        mix_after = (3, 3), 
+        blow_out = True, 
+        blowout_location = 'destination well'
         )
             
 
@@ -101,7 +103,9 @@ def run(ctx: protocol_api.ProtocolContext):
         barcodeplate.wells_by_name()['A' + scols3_fulltransfer[i]], 
         destplate.wells_by_name()['A' + dcols3_fulltransfer[i]], 
         new_tip = 'always', 
-        mix_after = (3, 4)
+        mix_after = (3, 4), 
+        blow_out = True, 
+        blowout_location = 'destination well' 
         )
         ctx.comment("--------------------------------------")
 
@@ -114,7 +118,9 @@ def run(ctx: protocol_api.ProtocolContext):
                 barcodeplate.wells_by_name()[sourcewells3[i]], 
                 destplate.wells_by_name()[destwells3[i]], 
                 new_tip = 'always', 
-                mix_after = (3, 4)
+                mix_after = (3, 4), 
+                blow_out = True, 
+        		blowout_location = 'destination well'
             )
             ctx.comment("--------------------------------------")
     

@@ -72,11 +72,12 @@ def run(ctx: protocol_api.ProtocolContext):
 
     # distribute water without tip change first
     ctx.comment("================= Starting water transfer ==========================")
-    s20.distribute(
+    s20.distribute(	
         volume2,
         sourcetube.wells_by_name()[watersource], 
         [ destplate.wells_by_name()[i] for i in destwells2 ], 
         new_tip = 'always', 
+        touch_tip = False
     )
     
 

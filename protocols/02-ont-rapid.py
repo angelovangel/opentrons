@@ -97,6 +97,10 @@ def run(ctx: protocol_api.ProtocolContext):
 
     # add barcodes, full columns if possible, has to be as fast as possible
     ctx.comment("================= Starting barcode transfer ==========================")
+    
+	# pause - this is optional in the Shiny app so that the protocol can be used to just do DNA adjustment to given conc
+	# ctx.pause("Optional pause before barcode addition") 
+
     for i, v in enumerate(scols3_fulltransfer):
         ctx.comment("Full column transfer barcode plate: " + str(barcode_vol) + "ul from A" + v + " to A" + dcols3_fulltransfer[i])
         m20.transfer(

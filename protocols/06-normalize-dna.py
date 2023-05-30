@@ -17,7 +17,7 @@ volume1=[1, 0, 10, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 volume2=[9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
 source_plate_type = 'pcrplate_96_wellplate_200ul'
-dest_plate_type  = 'pcrplate_96_wellplate_200ul'
+dest_plate_type = 'pcrplate_96_wellplate_200ul'
 left_mount = 'p20_single_gen2'
 right_mount = 'p20_multi_gen2'
 watersource = 'A1'

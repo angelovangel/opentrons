@@ -16,6 +16,8 @@ volume1=[1, 0, 10, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 # water
 volume2=[9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
+source_plate_type = 'pcrplate_96_wellplate_200ul'
+dest_plate_type  = 'pcrplate_96_wellplate_200ul'
 left_mount = 'p20_single_gen2'
 right_mount = 'p20_multi_gen2'
 watersource = 'A1'
@@ -58,8 +60,8 @@ for i, v in enumerate(destwells):
 def run(ctx: protocol_api.ProtocolContext):
 	ctx.comment("Starting normalize DNA protocol")
 
-	destplate = ctx.load_labware('pcrplate_96_wellplate_200ul', '5', 'Destination plate') # stack of 96 well base plate and PCR plate
-	sourceplate = ctx.load_labware('pcrplate_96_wellplate_200ul', '4', 'Source plate') # stack of 96 well base plate and PCR plate
+	destplate = ctx.load_labware(dest_plate_type, '5', 'Destination plate') # stack of 96 well base plate and PCR plate
+	sourceplate = ctx.load_labware(source_plate_type, '4', 'Source plate') # stack of 96 well base plate and PCR plate
 	sourcetube = ctx.load_labware('opentrons_24_tuberack_eppendorf_1.5ml_safelock_snapcap', '7', 'Tube rack')
 	tips20_single = [ctx.load_labware('opentrons_96_filtertiprack_20ul', slot) for slot in ['10', '11']]
 	tips20_multi = [ctx.load_labware('opentrons_96_filtertiprack_20ul', slot) for slot in ['3']]

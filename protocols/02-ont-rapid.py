@@ -146,12 +146,12 @@ def run(ctx: protocol_api.ProtocolContext):
     # use same tip as everything is aspirated
 
     s20.consolidate(
-        total_rxn_vol,
+        total_rxn_vol*0.9,
         [ destplate.wells_by_name()[v] for i, v in enumerate(destwells1) if volume1[i] > 0], 
         sourcetube.wells_by_name()[finaltube]
     )
 
-    poolvol = len([v for v in volume1 if v > 0]) * total_rxn_vol
+    poolvol = len([v for v in volume1 if v > 0]) * (total_rxn_vol*0.9)
 
     ctx.comment("Final volume of pool: " + str(poolvol) + " ul")
     ctx.comment("Add " + str(poolvol) + " ul SPRI beads, incubate 5 minutes. Wash beads 2x with 80 EtOH, aspirate all EtOH and dry 30 sec. Resuspend in 15 ul EB, incubate 10 minutes, take out supernatant and continue with RAP addition")

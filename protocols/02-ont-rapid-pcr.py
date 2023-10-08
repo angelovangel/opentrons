@@ -1,11 +1,11 @@
 from opentrons import protocol_api
 
-# this file serves as a template only, replace-from-excel.py and the template excel file is used to change the wells and volumes
+# this file serves as a template only, a Shiny app, replace-from-excel.py and the template excel file is used to change the wells and volumes
 
 metadata = {
-    'protocolName': '02-ont-plasmid.py',
+    'protocolName': '02-ont-plasmid-pcr.py',
     'author': 'BCL <angel.angelov@kaust.edu.sa>',
-    'description': 'ONT plasmid sequencing - normalise templates, add rapid adapter, pool',
+    'description': 'ONT plasmid sequencing - normalise templates, add rapid adapter, incubate, pool',
     'apiLevel': '2.8'
 }
 
@@ -58,13 +58,15 @@ if len(destwells1) != 96:
 
 def run(ctx: protocol_api.ProtocolContext):
     ctx.comment("Starting ONT plasmid sequencing protocol")
+    odtc = ctx.load_module(module_name='thermocyclerModuleV2')
+    destplate = odtc.load_labware('pcrplate_96_wellplate_200ul')
 
-    destplate = ctx.load_labware('pcrplate_96_wellplate_200ul', '5', 'Destination plate') # stack of 96 well base plate and PCR plate
+    #destplate = ctx.load_labware('pcrplate_96_wellplate_200ul', '5', 'Destination plate') # stack of 96 well base plate and PCR plate
     sourceplate = ctx.load_labware('pcrplate_96_wellplate_200ul', '4', 'Source plate') # stack of 96 well base plate and PCR plate
-    barcodeplate = ctx.load_labware('biorad_96_wellplate_200ul_pcr', '1', 'Rapid barcode plate')
-    sourcetube = ctx.load_labware('opentrons_24_tuberack_eppendorf_1.5ml_safelock_snapcap', '7', 'Tube rack')
+    barcodeplate = ctx.load_labware('biorad_96_wellplate_200ul_pcr', '9', 'Rapid barcode plate')
+    sourcetube = ctx.load_labware('opentrons_24_tuberack_eppendorf_1.5ml_safelock_snapcap', '5', 'Tube rack')
 
-    tips20_single = [ctx.load_labware('opentrons_96_filtertiprack_20ul', slot) for slot in ['10', '11']]
+    tips20_single = [ctx.load_labware('opentrons_96_filtertiprack_20ul', slot) for slot in ['1', '2']]
     tips20_multi = [ctx.load_labware('opentrons_96_filtertiprack_20ul', slot) for slot in ['3']]
 
     s20 = ctx.load_instrument('p20_single_gen2', mount='left', tip_racks=tips20_single)
@@ -73,6 +75,10 @@ def run(ctx: protocol_api.ProtocolContext):
     # set s20 flow rates globally, default is 7.56 
     s20.flow_rate.aspirate = 5
     s20.flow_rate.dispense = 4
+
+    # setup ODTC
+    odtc.open_lid()
+    odtc.set_block_temperature(temperature = 10)
 
     # distribute water without tip change first
     ctx.comment("================= Starting water transfer ==========================")
@@ -136,16 +142,14 @@ def run(ctx: protocol_api.ProtocolContext):
             )
             ctx.comment("--------------------------------------")
     
-    # indicate it is ready
-    for _ in range(3):
-        ctx.set_rail_lights(False)
-        ctx.delay(1)
-        ctx.set_rail_lights(True)
-        ctx.delay(1)
-
-    ctx.comment("Please incubate the destination plate at 30°C for 2 minutes and 80°C for 2 minutes")
-    ctx.comment("When incubations are ready place back the plate on 5")
-    ctx.pause("Please incubate the destination plate at 30°C for 2 minutes and 80°C for 2 minutes. When incubations are ready place back the plate on 5")
+    # ODTC
+    odtc.close_lid()
+    odtc.set_lid_temperature(105)
+    odtc.set_block_temperature(30, hold_time_minutes = 2)
+    odtc.set_block_temperature(80, hold_time_minutes = 2)
+    odtc.set_block_temperature(10)
+    odtc.set_lid_temperature(50)
+    odtc.open_lid()
 
     # Pool
     ctx.comment("================= Pool samples =========================")

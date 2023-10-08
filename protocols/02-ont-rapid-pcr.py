@@ -59,7 +59,7 @@ if len(destwells1) != 96:
 def run(ctx: protocol_api.ProtocolContext):
     ctx.comment("Starting ONT plasmid sequencing protocol")
     odtc = ctx.load_module(module_name='thermocyclerModuleV2')
-    destplate = odtc.load_labware('pcrplate_96_wellplate_200ul')
+    destplate = odtc.load_labware('biorad_96_wellplate_200ul_pcr') # IMPORTANT - use biorad plates!!!
 
     #destplate = ctx.load_labware('pcrplate_96_wellplate_200ul', '5', 'Destination plate') # stack of 96 well base plate and PCR plate
     sourceplate = ctx.load_labware('pcrplate_96_wellplate_200ul', '4', 'Source plate') # stack of 96 well base plate and PCR plate

@@ -3,7 +3,7 @@ from opentrons import protocol_api
 # this file serves as a template only, a Shiny app, replace-from-excel.py and the template excel file is used to change the wells and volumes
 
 metadata = {
-    'protocolName': '02-ont-plasmid-pcr.py',
+    'protocolName': '02-ont-rapid-pcr.py',
     'author': 'BCL <angel.angelov@kaust.edu.sa>',
     'description': 'ONT plasmid sequencing - normalise templates, add rapid adapter, incubate, pool',
     'apiLevel': '2.8'

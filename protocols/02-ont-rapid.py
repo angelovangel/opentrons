@@ -3,7 +3,7 @@ from opentrons import protocol_api
 # this file serves as a template only, replace-from-excel.py and the template excel file is used to change the wells and volumes
 
 metadata = {
-    'protocolName': '02-ont-plasmid.py',
+    'protocolName': '02-ont-rapid.py',
     'author': 'BCL <angel.angelov@kaust.edu.sa>',
     'description': 'ONT plasmid sequencing - normalise templates, add rapid adapter, pool',
     'apiLevel': '2.8'

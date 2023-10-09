@@ -135,10 +135,10 @@ def run(ctx: protocol_api.ProtocolContext):
 
     # stack of 96 well base plate and PCR plate
     # destplate = ctx.load_labware('pcrplate_96_wellplate_200ul', '5', 'Destination plate') # stack of 96 well base plate and PCR plate
-    sourceplate = ctx.load_labware('pcrplate_96_wellplate_200ul', '5', 'Source plate') # stack of 96 well base plate and PCR plate
+    sourceplate = ctx.load_labware('pcrplate_96_wellplate_200ul', '6', 'Source plate') # stack of 96 well base plate and PCR plate
     sourcestrip = ctx.load_labware('pcrstrip_96_wellplate_200ul', '4', 'Source strip') # stack of 96 well base plate and strips
-    mmstrip = ctx.load_labware('pcrstrip_96_wellplate_200ul', '6', 'Sequencing master mix in strip') # stack of 96 well base plate and strips
-    sourcetube = ctx.load_labware('opentrons_24_tuberack_eppendorf_1.5ml_safelock_snapcap', '9', 'Primers in tube rack')
+    mmstrip = ctx.load_labware('pcrstrip_96_wellplate_200ul', '9', 'Sequencing master mix in strip') # stack of 96 well base plate and strips
+    sourcetube = ctx.load_labware('opentrons_24_tuberack_eppendorf_1.5ml_safelock_snapcap', '5', 'Primers in tube rack')
     
     tips20_single = [ctx.load_labware('opentrons_96_filtertiprack_20ul', slot) for slot in ['1']]
     tips20_multi = [ctx.load_labware('opentrons_96_filtertiprack_20ul', slot) for slot in ['2', '3']]
@@ -211,7 +211,7 @@ def run(ctx: protocol_api.ProtocolContext):
         ctx.set_rail_lights(True)
         ctx.delay(1)
     #message = str(f"{rxns} reactions were transferred.\nPlease prepare {mastermix} ul Sequencing mastermix, pipet {mastermix/8:.1f} ul in each tube of the strip (deck position 2, column 1) and resume.\nThe mastermix will be distributed to columns {destcolumns_pcr} in the destination plate.")
-    message = str(f"{rxns} reactions were transferred.\nPlease prepare {mastermix:.1f} ul mastermix and place it in D6 of Eppendorf tube rack. The mastermix will be distributed first to the A1 strip in position 2, and then to columns {destcolumns_pcr} in the destination plate.")
+    message = str(f"{rxns} reactions were transferred.\nPlease prepare {mastermix:.1f} ul mastermix and place it in D6 of Eppendorf tube rack. The mastermix will be distributed first to the A1 strip in position 6, and then to columns {destcolumns_pcr} in the destination plate.")
     ctx.pause(msg = message)
 
     # distribute master mix to col 1 
@@ -236,6 +236,7 @@ def run(ctx: protocol_api.ProtocolContext):
     # optional pause #ctx.pause("Cover plate with aluminum foil and press 'Continue' when ready") 
 
     # Cycle sequencing
+    odtc.close_lid()
     odtc.set_block_temperature(temperature=96, hold_time_minutes=1)
     profile = [
     {'temperature':96, 'hold_time_seconds':10},

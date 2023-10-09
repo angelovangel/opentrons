@@ -78,7 +78,8 @@ def run(ctx: protocol_api.ProtocolContext):
 
     # setup ODTC
     odtc.open_lid()
-    odtc.set_block_temperature(temperature = 10)
+    odtc.set_lid_temperature(100)
+    odtc.set_block_temperature(temperature = 15)
 
     # distribute water without tip change first
     ctx.comment("================= Starting water transfer ==========================")
@@ -111,9 +112,6 @@ def run(ctx: protocol_api.ProtocolContext):
     # add barcodes, full columns if possible, has to be as fast as possible
     ctx.comment("================= Starting barcode transfer ==========================")
     
-    # pause - this is optional in the Shiny app so that the protocol can be used to just do DNA adjustment to given conc
-# optional pause #    ctx.pause("Optional pause before barcode addition") 
-
     for i, v in enumerate(scols3_fulltransfer):
         ctx.comment("Full column transfer barcode plate: " + str(barcode_vol) + "ul from A" + v + " to A" + dcols3_fulltransfer[i])
         m20.transfer(
@@ -141,15 +139,17 @@ def run(ctx: protocol_api.ProtocolContext):
         		blowout_location = 'destination well'
             )
             ctx.comment("--------------------------------------")
-    
+    # pause - this is optional in the Shiny app to cover rxn plate
+    # optional pause #    ctx.pause("Optional pause to cover plate with aluminum foil") 
+
     # ODTC
     odtc.close_lid()
-    odtc.set_lid_temperature(105)
     odtc.set_block_temperature(30, hold_time_minutes = 2)
     odtc.set_block_temperature(80, hold_time_minutes = 2)
     odtc.set_block_temperature(10)
-    odtc.set_lid_temperature(50)
     odtc.open_lid()
+    odtc.deactivate_lid()
+    odtc.deactivate_block()
 
     # Pool
     ctx.comment("================= Pool samples =========================")

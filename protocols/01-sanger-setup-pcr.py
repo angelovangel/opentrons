@@ -232,6 +232,8 @@ def run(ctx: protocol_api.ProtocolContext):
         blow_out = True, 
         blowout_location = 'destination well'
     )
+    # this is optional in the Shiny app to cover rxn plate
+    # optional pause #ctx.pause("Cover plate with aluminum foil and press 'Continue' when ready") 
 
     # Cycle sequencing
     odtc.set_block_temperature(temperature=96, hold_time_minutes=1)

@@ -140,7 +140,7 @@ def run(ctx: protocol_api.ProtocolContext):
             )
             ctx.comment("--------------------------------------")
     # pause - this is optional in the Shiny app to cover rxn plate
-    # optional pause #    ctx.pause("Optional pause to cover plate with aluminum foil") 
+    # optional pause #ctx.pause("Optional pause to cover plate with aluminum foil") 
 
     # ODTC
     odtc.close_lid()

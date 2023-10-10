@@ -129,8 +129,6 @@ def run(ctx: protocol_api.ProtocolContext):
     # ODTC
     odtc = ctx.load_module(module_name='thermocyclerModuleV2')
     destplate = odtc.load_labware('biorad_96_wellplate_200ul_pcr') # IMPORTANT - use biorad plates!!!
-    odtc.open_lid()
-    odtc.set_block_temperature(temperature = 15)
 
     # stack of 96 well base plate and PCR plate
     # destplate = ctx.load_labware('pcrplate_96_wellplate_200ul', '5', 'Destination plate') # stack of 96 well base plate and PCR plate
@@ -145,6 +143,10 @@ def run(ctx: protocol_api.ProtocolContext):
 
     s20 = ctx.load_instrument('p20_single_gen2', mount='left', tip_racks=tips20_single)
     m20 = ctx.load_instrument('p20_multi_gen2', mount='right', tip_racks=tips20_multi)
+    
+    # ODTC
+    odtc.open_lid()
+    odtc.set_block_temperature(temperature = 15)
     
     # full column transfers first
     # plate

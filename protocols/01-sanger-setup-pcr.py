@@ -130,7 +130,6 @@ def run(ctx: protocol_api.ProtocolContext):
     odtc = ctx.load_module(module_name='thermocyclerModuleV2')
     destplate = odtc.load_labware('biorad_96_wellplate_200ul_pcr') # IMPORTANT - use biorad plates!!!
     odtc.open_lid()
-    odtc.set_lid_temperature(100)
     odtc.set_block_temperature(temperature = 15)
 
     # stack of 96 well base plate and PCR plate
@@ -237,6 +236,7 @@ def run(ctx: protocol_api.ProtocolContext):
 
     # Cycle sequencing
     odtc.close_lid()
+    odtc.set_lid_temperature(100)
     odtc.set_block_temperature(temperature=96, hold_time_minutes=1)
     profile = [
     {'temperature':96, 'hold_time_seconds':10},

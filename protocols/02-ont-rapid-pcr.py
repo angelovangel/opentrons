@@ -62,7 +62,7 @@ def run(ctx: protocol_api.ProtocolContext):
     destplate = odtc.load_labware('biorad_96_wellplate_200ul_pcr') # IMPORTANT - use biorad plates!!!
 
     #destplate = ctx.load_labware('pcrplate_96_wellplate_200ul', '5', 'Destination plate') # stack of 96 well base plate and PCR plate
-    sourceplate = ctx.load_labware('pcrplate_96_wellplate_200ul', '4', 'Source plate') # stack of 96 well base plate and PCR plate
+    sourceplate = ctx.load_labware('stack_plate_biorad96well', '4', 'Source plate') # stack of 96 well base plate and PCR plate
     barcodeplate = ctx.load_labware('biorad_96_wellplate_200ul_pcr', '9', 'Rapid barcode plate')
     sourcetube = ctx.load_labware('opentrons_24_tuberack_eppendorf_1.5ml_safelock_snapcap', '5', 'Tube rack')
 

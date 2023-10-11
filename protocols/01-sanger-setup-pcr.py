@@ -132,8 +132,8 @@ def run(ctx: protocol_api.ProtocolContext):
 
     # stack of 96 well base plate and PCR plate
     # destplate = ctx.load_labware('pcrplate_96_wellplate_200ul', '5', 'Destination plate') # stack of 96 well base plate and PCR plate
-    sourceplate = ctx.load_labware('pcrplate_96_wellplate_200ul', '6', 'Source plate') # stack of 96 well base plate and PCR plate
-    sourcestrip = ctx.load_labware('pcrstrip_96_wellplate_200ul', '4', 'Source strip') # stack of 96 well base plate and strips
+    sourceplate = ctx.load_labware('stack_plate_biorad96well', '6', 'Source plate') # stack of 96 well base plate and PCR plate
+    sourcestrip = ctx.load_labware('stack_strip_biorad96well', '4', 'Source strip') # stack of 96 well base plate and strips
     mmstrip = ctx.load_labware('pcrstrip_96_wellplate_200ul', '9', 'Sequencing master mix in strip') # stack of 96 well base plate and strips
     sourcetube = ctx.load_labware('opentrons_24_tuberack_eppendorf_1.5ml_safelock_snapcap', '5', 'Primers in tube rack')
     

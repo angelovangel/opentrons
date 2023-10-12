@@ -6,7 +6,7 @@ metadata = {
 	'protocolName': '06-normalize-dna.py',
 	'author': 'BCL <angel.angelov@kaust.edu.sa>',
 	'description': 'Normalize DNA to a target concentration or molarity',
-	'apiLevel': '2.8'
+	'apiLevel': '2.13'
 }
 
 # destwells is fixed

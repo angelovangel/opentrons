@@ -10,11 +10,12 @@ metadata = {
     'apiLevel': '2.13'
 }
 
-nsamples = 1
+nsamples = 2
 ncycles = 9
 RM2well = 'D6'
+primerwells = ['A1', 'B1', 'C1', 'D1', 'A2', 'B2', 'C2', 'D2', 'A3', 'B3', 'C3', 'D3', 'A4', 'B4', 'C4', 'D4']
 
-if nsamples > 6:
+if nsamples > 6 | nsamples < 1:
     exit('Please use up to 6 samples')
 
 def run(ctx: protocol_api.ProtocolContext):
@@ -45,9 +46,15 @@ def run(ctx: protocol_api.ProtocolContext):
         [pcrplate.columns()[v] for v in range(nsamples * 2)]
     )
 
-    # primers
-    s20.transfer(
-        2.5,
-        startblock.columns()[0:1],
-        pcrplate.columns()[0]
-    )
+    # 
+    for i in range(nsamples):
+        s20.transfer(
+            2.5,
+            [startblock.wells_by_name()[well] for well in primerwells[:8]],
+            pcrplate.columns()[i]
+        )
+        s20.transfer(
+            2.5,
+            [startblock.wells_by_name()[well] for well in primerwells[8:]],
+            pcrplate.columns()[i + 1]
+        )

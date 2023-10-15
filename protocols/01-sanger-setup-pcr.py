@@ -56,7 +56,7 @@ destcolumns_pcr = ['A' + str(x) for x in destcolumns_num_sorted_pcr] # restore w
 rows_mm_vols = {'A': 0, 'B': 0, 'C': 0, 'D': 0, 'E': 0, 'F': 0, 'G': 0, 'H': 0}
 rows_counts = Counter([row[:1] for row in destwells_all_pcr]) # count how many A, B ... to determine MM needed in each row
 rows_mm_vols.update(rows_counts)
-rows_mm_vols.update((x, y * 5.5) for x, y in rows_mm_vols.items()) # 5.5 ul per reaction
+rows_mm_vols.update((x, y * 6) for x, y in rows_mm_vols.items()) # 6 ul per reaction here but 5 ul used
 mastermix = sum(rows_mm_vols.values()) * 1.1 # or rxns * 5.5
 ######################## Master mix calculations ########################
 
@@ -134,7 +134,7 @@ def run(ctx: protocol_api.ProtocolContext):
     # destplate = ctx.load_labware('pcrplate_96_wellplate_200ul', '5', 'Destination plate') # stack of 96 well base plate and PCR plate
     sourceplate = ctx.load_labware('stack_plate_biorad96well', '6', 'Source plate') # stack of 96 well base plate and PCR plate
     sourcestrip = ctx.load_labware('stack_strip_biorad96well', '4', 'Source strip') # stack of 96 well base plate and strips
-    mmstrip = ctx.load_labware('pcrstrip_96_wellplate_200ul', '9', 'Sequencing master mix in strip') # stack of 96 well base plate and strips
+    mmstrip = ctx.load_labware('stack_strip_biorad96well', '9', 'Sequencing master mix in strip') # stack of 96 well base plate and strips
     sourcetube = ctx.load_labware('opentrons_24_tuberack_eppendorf_1.5ml_safelock_snapcap', '5', 'Primers in tube rack')
     
     tips20_single = [ctx.load_labware('opentrons_96_filtertiprack_20ul', slot) for slot in ['1']]

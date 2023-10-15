@@ -44,3 +44,10 @@ def run(ctx: protocol_api.ProtocolContext):
         startblock.wells_by_name()[RM2well],
         [pcrplate.columns()[v] for v in range(nsamples * 2)]
     )
+
+    # primers
+    s20.transfer(
+        2.5,
+        startblock.columns()[0:1],
+        pcrplate.columns()[0]
+    )

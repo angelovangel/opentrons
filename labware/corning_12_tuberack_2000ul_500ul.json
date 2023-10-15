@@ -1,0 +1,188 @@
+{
+    "ordering": [
+        [
+            "A1",
+            "B1",
+            "C1",
+            "D1"
+        ],
+        [
+            "A2",
+            "B2",
+            "C2",
+            "D2"
+        ],
+        [
+            "A3",
+            "B3",
+            "C3",
+            "D3"
+        ]
+    ],
+    "brand": {
+        "brand": "Corning",
+        "brandId": []
+    },
+    "metadata": {
+        "displayName": "Corning 12 tuberack 2ml 0.5ml",
+        "displayCategory": "tubeRack",
+        "displayVolumeUnits": "µL",
+        "tags": []
+    },
+    "dimensions": {
+        "xDimension": 128,
+        "yDimension": 86,
+        "zDimension": 49.3
+    },
+    "wells": {
+        "A1": {
+            "depth": 24.8,
+            "totalLiquidVolume": 500,
+            "shape": "circular",
+            "diameter": 8.25,
+            "x": 14,
+            "y": 63,
+            "z": 24.5
+        },
+        "B1": {
+            "depth": 24.8,
+            "totalLiquidVolume": 500,
+            "shape": "circular",
+            "diameter": 8.25,
+            "x": 14,
+            "y": 49,
+            "z": 24.5
+        },
+        "C1": {
+            "depth": 24.8,
+            "totalLiquidVolume": 500,
+            "shape": "circular",
+            "diameter": 8.25,
+            "x": 14,
+            "y": 35,
+            "z": 24.5
+        },
+        "D1": {
+            "depth": 24.8,
+            "totalLiquidVolume": 500,
+            "shape": "circular",
+            "diameter": 8.25,
+            "x": 14,
+            "y": 21,
+            "z": 24.5
+        },
+        "A2": {
+            "depth": 24.8,
+            "totalLiquidVolume": 500,
+            "shape": "circular",
+            "diameter": 8.25,
+            "x": 35,
+            "y": 63,
+            "z": 24.5
+        },
+        "B2": {
+            "depth": 24.8,
+            "totalLiquidVolume": 500,
+            "shape": "circular",
+            "diameter": 8.25,
+            "x": 35,
+            "y": 49,
+            "z": 24.5
+        },
+        "C2": {
+            "depth": 24.8,
+            "totalLiquidVolume": 500,
+            "shape": "circular",
+            "diameter": 8.25,
+            "x": 35,
+            "y": 35,
+            "z": 24.5
+        },
+        "D2": {
+            "depth": 24.8,
+            "totalLiquidVolume": 500,
+            "shape": "circular",
+            "diameter": 8.25,
+            "x": 35,
+            "y": 21,
+            "z": 24.5
+        },
+        "A3": {
+            "depth": 24.8,
+            "totalLiquidVolume": 500,
+            "shape": "circular",
+            "diameter": 8.25,
+            "x": 56,
+            "y": 63,
+            "z": 24.5
+        },
+        "B3": {
+            "depth": 24.8,
+            "totalLiquidVolume": 500,
+            "shape": "circular",
+            "diameter": 8.25,
+            "x": 56,
+            "y": 49,
+            "z": 24.5
+        },
+        "C3": {
+            "depth": 24.8,
+            "totalLiquidVolume": 500,
+            "shape": "circular",
+            "diameter": 8.25,
+            "x": 56,
+            "y": 35,
+            "z": 24.5
+        },
+        "D3": {
+            "depth": 24.8,
+            "totalLiquidVolume": 500,
+            "shape": "circular",
+            "diameter": 8.25,
+            "x": 56,
+            "y": 21,
+            "z": 24.5
+        }
+    },
+    "groups": [
+        {
+            "brand": {
+                "brand": "ONT",
+                "brandId": []
+            },
+            "metadata": {
+                "wellBottomShape": "v",
+                "displayCategory": "tubeRack"
+            },
+            "wells": [
+                "A1",
+                "B1",
+                "C1",
+                "D1",
+                "A2",
+                "B2",
+                "C2",
+                "D2",
+                "A3",
+                "B3",
+                "C3",
+                "D3"
+            ]
+        }
+    ],
+    "parameters": {
+        "format": "irregular",
+        "quirks": [],
+        "isTiprack": false,
+        "isMagneticModuleCompatible": false,
+        "loadName": "corning_12_tuberack_2000ul_500ul"
+    },
+    "namespace": "custom_beta",
+    "version": 1,
+    "schemaVersion": 2,
+    "cornerOffsetFromSlot": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+    }
+}

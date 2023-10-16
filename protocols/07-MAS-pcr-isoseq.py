@@ -14,7 +14,7 @@ metadata = {
 ncycles = 1
 primervol = 2
 RM2vol = 18
-RM2wells = ['A5', 'B5', 'C5']
+RM2wells = ['A5', 'B5', 'C5', 'D5', 'A6', 'B6']
 nsamples = len(RM2wells)
 primerwells = ['A1', 'B1', 'C1', 'D1', 'A2', 'B2', 'C2', 'D2', 'A3', 'B3', 'C3', 'D3', 'A4', 'B4', 'C4', 'D4']
 
@@ -90,7 +90,7 @@ def run(ctx: protocol_api.ProtocolContext):
 
     # Consolidate PCRs
     for i, v in enumerate(RM2wells):
-        ctx.comment('Consolidating sample ' + str(RM2wells[i]))
+        ctx.comment("Consolidating sample " + str(RM2wells[i]) + ' into ' + str(rack.wells()[i]))
         ctx.comment("--------------------------------------")
         s20.consolidate(
             RM2vol+primervol, 

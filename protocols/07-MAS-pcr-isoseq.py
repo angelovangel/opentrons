@@ -85,6 +85,7 @@ def run(ctx: protocol_api.ProtocolContext):
         )
 
     # PCR
+    odtc.close_lid()
     odtc.set_block_temperature(temperature=98, hold_time_minutes=3)
     odtc.execute_profile(steps=pcrprofile, repetitions=ncycles, block_max_volume=20)
     odtc.set_block_temperature(temperature=72, hold_time_minutes=5)

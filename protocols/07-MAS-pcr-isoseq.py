@@ -63,7 +63,9 @@ def run(ctx: protocol_api.ProtocolContext):
         s20.distribute(
             RM2vol,
             rack.wells_by_name()[v],
-            [pcrplate.columns()[col + i*2] for col in range(2)]
+            [pcrplate.columns()[col + i*2] for col in range(2)], 
+            blow_out = True, 
+            blowout_location = 'source well' # blowout is required in distribute
         )
     # Primer mix addition
     for i in range(nsamples):
@@ -74,14 +76,16 @@ def run(ctx: protocol_api.ProtocolContext):
             [startblock.wells_by_name()[well] for well in primerwells[:8]],
             pcrplate.columns()[i*2], 
             new_tip = 'always', 
-            mix_after = (3, 10)
+            mix_after = (3, 10), 
+            blow_out = False
         )
         s20.transfer(
             primervol,
             [startblock.wells_by_name()[well] for well in primerwells[8:]],
             pcrplate.columns()[i*2 + 1],
             new_tip = 'always',
-            mix_after = (3, 10)
+            mix_after = (3, 10), 
+            blow_out = False
         )
 
     # PCR

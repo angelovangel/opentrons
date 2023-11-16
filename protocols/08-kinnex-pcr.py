@@ -16,7 +16,7 @@ metadata = {
 #================================================================
 ncycles = 9
 primervol = 2.5
-MMvol = 22.5
+MMvol = 10
 MMwells = ['A1', 'B1']
 #MMwells = ['A1', 'B1', 'C1', 'D1', 'A2', 'B2'] # on rack
 poolwells = ['A5', 'B5', 'C5', 'D5', 'A6', 'B6'] # on rack
@@ -66,13 +66,13 @@ def run(ctx: protocol_api.ProtocolContext):
 
     for i, v in enumerate(MMwells):
         distribute_wells =  [ j + str(i*2 + 1) for j in rows ] + [ j + str(i*2 + 2) for j in rows ]
-        ctx.comment('Distributing sample ' + str(MMwells[i]) + ' in wells:')
-        ctx.comment(str(distribute_wells))
+        ctx.comment('Distributing sample ' + str(MMwells[i]) + ' in PCR plate wells:')
+        ctx.comment(str(distribute_wells[:plex]))
         ctx.comment("--------------------------------------")
         s20.distribute(
             MMvol,
             rack.wells_by_name()[v],
-            [pcrplate.wells_by_name()[well] for well in distribute_wells], 
+            [pcrplate.wells_by_name()[well] for well in distribute_wells[:plex]], 
             blow_out = True, 
             blowout_location = 'source well' # blowout is required in distribute
         )

@@ -17,13 +17,14 @@ metadata = {
 ncycles = 9
 primervol = 2.5
 MMvol = 10
-MMwells = ['A1', 'B1']
+MMwells = ['A1', 'B1', 'C1'] # on rack
 #MMwells = ['A1', 'B1', 'C1', 'D1', 'A2', 'B2'] # on rack
-poolwells = ['A5', 'B5', 'C5', 'D5', 'A6', 'B6'] # on rack
+poolwells = ['A5', 'B5', 'C5'] # on rack
 nsamples = len(MMwells)
 primerwells = ['A1', 'B1', 'C1', 'D1', 'A2', 'B2', 'C2', 'D2', 'A3', 'B3', 'C3', 'D3', 'A4', 'B4', 'C4', 'D4'] # on block
 # for building the wells to distribute to, based on MMwell index and plex
-plex = 8
+# works for any plex number
+plex = 12
 rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
 
 
@@ -36,6 +37,8 @@ pcrprofile = [
 
 if nsamples > 6 | nsamples < 1:
     exit('Please use up to 6 samples')
+if len(MMwells) != len(poolwells):
+    exit('Sample and pool wells do not match!')
 
 def run(ctx: protocol_api.ProtocolContext):
     ctx.comment('Running Kinnex PCR')
@@ -44,7 +47,7 @@ def run(ctx: protocol_api.ProtocolContext):
     ctx.comment('--------------------------------')
     
     odtc = ctx.load_module(module_name='thermocyclerModuleV2')
-    startblock = ctx.load_labware('opentrons_24_aluminumblock_nest_0.5ml_screwcap', '4', 'Alu block')
+    primerblock = ctx.load_labware('opentrons_24_aluminumblock_nest_0.5ml_screwcap', '4', 'Alu block')
     rack = ctx.load_labware('opentrons_24_tuberack_eppendorf_1.5ml_safelock_snapcap', '5', 'MM tube rack')
     pcrplate = odtc.load_labware('biorad_96_wellplate_200ul_pcr') # IMPORTANT - use biorad plates!!!
 
@@ -60,10 +63,8 @@ def run(ctx: protocol_api.ProtocolContext):
     odtc.set_block_temperature(temperature = 15)
     odtc.set_lid_temperature(100)
 
-    # for i, v in enumerate(MMwells):
-    #     x = [ j + str(i*2 + 1) for j in rows ] + [ j + str(i*2 + 2) for j in rows ]
-    #     print(x)
-
+    
+    # distribute MM
     for i, v in enumerate(MMwells):
         distribute_wells =  [ j + str(i*2 + 1) for j in rows ] + [ j + str(i*2 + 2) for j in rows ]
         ctx.comment('Distributing sample ' + str(MMwells[i]) + ' in PCR plate wells:')
@@ -77,25 +78,21 @@ def run(ctx: protocol_api.ProtocolContext):
             blowout_location = 'source well' # blowout is required in distribute
         )
     # # Primer mix addition
-    # for i in range(nsamples):
-    #     ctx.comment("Adding primermix to pcrplate")
-    #     ctx.comment("--------------------------------------")
-    #     s20.transfer(
-    #         primervol,
-    #         [startblock.wells_by_name()[well] for well in primerwells[:8]],
-    #         pcrplate.columns()[i*2], 
-    #         new_tip = 'always', 
-    #         mix_after = (3, 10), 
-    #         blow_out = False
-    #     )
-    #     s20.transfer(
-    #         primervol,
-    #         [startblock.wells_by_name()[well] for well in primerwells[8:]],
-    #         pcrplate.columns()[i*2 + 1],
-    #         new_tip = 'always',
-    #         mix_after = (3, 10), 
-    #         blow_out = False
-    #     )
+    for i in range(nsamples):
+        distribute_wells =  [ j + str(i*2 + 1) for j in rows ] + [ j + str(i*2 + 2) for j in rows ]
+        if len(distribute_wells[:plex]) != len(primerwells[:plex]):
+            exit('Primer and PCR plate wells do not match!')
+        ctx.comment('Adding primers to wells:')
+        ctx.comment(str(distribute_wells[:plex]))
+        ctx.comment("--------------------------------------")
+        s20.transfer(
+            primervol,
+            [primerblock[well] for well in primerwells[:plex]],
+            [pcrplate[well] for well in distribute_wells[:plex]], 
+            new_tip = 'always', 
+            mix_after = (3, 10), 
+            blow_out = False
+            )
 
     # PCR
     # odtc.close_lid()
@@ -108,16 +105,17 @@ def run(ctx: protocol_api.ProtocolContext):
     # ctx.comment("--------------------------------------")
 
     # # Consolidate PCRs
-    # for i, v in enumerate(poolwells):
-    #     ctx.comment("Consolidating sample " + str(MMwells[i]) + ' into ' + v)
-    #     ctx.comment("--------------------------------------")
-    #     s20.consolidate(
-    #         MMvol+primervol, 
-    #         [pcrplate.columns()[col + i*2] for col in range(2)], 
-    #         rack.wells_by_name()[v]
-    #     )
-    #     ctx.comment("--------------------------------------")
+    for i, v in enumerate(poolwells):
+        distribute_wells =  [ j + str(i*2 + 1) for j in rows ] + [ j + str(i*2 + 2) for j in rows ]
+        ctx.comment("Consolidating PCR wells " + str(distribute_wells[:plex]) + ' into pool well ' + v)
+        ctx.comment("--------------------------------------")
+        s20.consolidate(
+            MMvol+primervol, 
+            [pcrplate[well] for well in distribute_wells[:plex]], 
+            rack.wells_by_name()[v]
+        )
+        ctx.comment("--------------------------------------")
 
-    # ctx.comment('--------------------------------')
-    # ctx.comment('MAS-PCR done! PCR will stay at 10˚C, turn it off manually')
-    # ctx.comment('--------------------------------')
+    ctx.comment('--------------------------------')
+    ctx.comment('MAS-PCR done! PCR will stay at 10˚C, turn it off manually')
+    ctx.comment('--------------------------------')

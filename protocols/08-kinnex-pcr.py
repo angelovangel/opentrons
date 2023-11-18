@@ -95,14 +95,15 @@ def run(ctx: protocol_api.ProtocolContext):
             )
 
     # PCR
-    # odtc.close_lid()
-    # odtc.set_block_temperature(temperature=98, hold_time_minutes=3)
-    # odtc.execute_profile(steps=pcrprofile, repetitions=ncycles, block_max_volume=20)
-    # odtc.set_block_temperature(temperature=72, hold_time_minutes=5)
-    # odtc.set_block_temperature(10)
-    # odtc.open_lid()
-    # odtc.deactivate_lid()
-    # ctx.comment("--------------------------------------")
+    ctx.pause("Optional pause to cover plate with aluminum foil") 
+    odtc.close_lid()
+    odtc.set_block_temperature(temperature=98, hold_time_minutes=3)
+    odtc.execute_profile(steps=pcrprofile, repetitions=ncycles, block_max_volume=20)
+    odtc.set_block_temperature(temperature=72, hold_time_minutes=5)
+    odtc.set_block_temperature(10)
+    odtc.open_lid()
+    odtc.deactivate_lid()
+    ctx.comment("--------------------------------------")
 
     # # Consolidate PCRs
     for i, v in enumerate(poolwells):
@@ -117,5 +118,5 @@ def run(ctx: protocol_api.ProtocolContext):
         ctx.comment("--------------------------------------")
 
     ctx.comment('--------------------------------')
-    ctx.comment('MAS-PCR done! PCR will stay at 10˚C, turn it off manually')
+    ctx.comment('Kinnex-PCR done! PCR will stay at 10˚C, turn it off manually')
     ctx.comment('--------------------------------')

@@ -74,6 +74,7 @@ def run(ctx: protocol_api.ProtocolContext):
             MMvol,
             rack.wells_by_name()[v],
             [pcrplate.wells_by_name()[well] for well in distribute_wells[:plex]], 
+            air_gap = 1,
             blow_out = True, 
             blowout_location = 'source well' # blowout is required in distribute
         )
@@ -90,7 +91,8 @@ def run(ctx: protocol_api.ProtocolContext):
             [primerblock[well] for well in primerwells[:plex]],
             [pcrplate[well] for well in distribute_wells[:plex]], 
             new_tip = 'always', 
-            mix_after = (3, 10), 
+            air_gap = 1,
+            mix_after = (3, 15), 
             blow_out = False
             )
 

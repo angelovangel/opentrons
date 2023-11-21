@@ -16,7 +16,7 @@ metadata = {
 #================================================================
 ncycles = 9
 primervol = 2.5
-MMvol = 10
+MMvol = 22.5
 MMwells = ['A1', 'B1', 'C1'] # on rack
 #MMwells = ['A1', 'B1', 'C1', 'D1', 'A2', 'B2'] # on rack
 poolwells = ['A5', 'B5', 'C5'] # on rack
@@ -47,12 +47,15 @@ def run(ctx: protocol_api.ProtocolContext):
     ctx.comment('--------------------------------')
     
     odtc = ctx.load_module(module_name='thermocyclerModuleV2')
-    primerblock = ctx.load_labware('opentrons_24_aluminumblock_nest_0.5ml_screwcap', '4', 'Alu block')
-    rack = ctx.load_labware('opentrons_24_tuberack_eppendorf_1.5ml_safelock_snapcap', '5', 'MM tube rack')
+    primerblock = ctx.load_labware('opentrons_24_aluminumblock_nest_0.5ml_screwcap', '5', 'Alu block')
+    int_primerplate = ctx.load_labware('biorad_96_wellplate_200ul_pcr', '4','Intermediate primer plate')
+    rack = ctx.load_labware('opentrons_24_tuberack_eppendorf_1.5ml_safelock_snapcap', '9', 'MM tube rack')
     pcrplate = odtc.load_labware('biorad_96_wellplate_200ul_pcr') # IMPORTANT - use biorad plates!!!
 
     tips20_single = [ctx.load_labware('opentrons_96_filtertiprack_20ul', slot) for slot in ['1', '2']]
+    tips20_multi = [ctx.load_labware('opentrons_96_filtertiprack_20ul', slot) for slot in ['3']]
     s20 = ctx.load_instrument('p20_single_gen2', mount='left', tip_racks=tips20_single)
+    m20 = ctx.load_instrument('p20_multi_gen2', mount='right', tip_racks=tips20_multi)
 
     # set s20 flow rates globally, default is 7.56 
     # s20.flow_rate.aspirate = 5
@@ -78,23 +81,58 @@ def run(ctx: protocol_api.ProtocolContext):
             blow_out = True, 
             blowout_location = 'source well' # blowout is required in distribute
         )
-    # # Primer mix addition
+
+    # Transfer primers from block to intermediate plate
+    ctx.comment("Transfer primers from block to intermediate plate")
+    ctx.comment("--------------------------------------")
+    s20.transfer(
+        primervol * nsamples * 1.1,
+        [primerblock[well] for well in primerwells[:plex]],
+        int_primerplate.wells()[:plex]
+    )
+    ctx.comment("--------------------------------------")
+
+    # Add primers with multichannel
     for i in range(nsamples):
-        distribute_wells =  [ j + str(i*2 + 1) for j in rows ] + [ j + str(i*2 + 2) for j in rows ]
-        if len(distribute_wells[:plex]) != len(primerwells[:plex]):
-            exit('Primer and PCR plate wells do not match!')
-        ctx.comment('Adding primers to wells:')
-        ctx.comment(str(distribute_wells[:plex]))
-        ctx.comment("--------------------------------------")
-        s20.transfer(
+        samplecols = 'A' + str(i*2 + 1)
+        ctx.comment('Add primers to PCR plate for sample ' + MMwells[i])
+        ctx.comment('--------------------------------------')
+        m20.transfer(
             primervol,
-            [primerblock[well] for well in primerwells[:plex]],
-            [pcrplate[well] for well in distribute_wells[:plex]], 
-            new_tip = 'always', 
-            air_gap = 1,
-            mix_after = (3, 15), 
+            int_primerplate['A1'],
+            pcrplate.wells_by_name()[samplecols],
+            mix_after = (3, (MMvol + primervol)/2),
             blow_out = False
+        )
+        if plex > 8:
+            samplecols = 'A' + str(i*2 + 2)
+            m20.transfer(
+                primervol,
+                int_primerplate['A2'],
+                pcrplate.wells_by_name()[samplecols],
+                mix_after = (3, (MMvol + primervol)/2),
+                blow_out = False
             )
+        ctx.comment('--------------------------------------')
+
+
+    # # Primer mix addition
+    # for i in range(nsamples):
+    #     distribute_wells =  [ j + str(i*2 + 1) for j in rows ] + [ j + str(i*2 + 2) for j in rows ]
+    #     if len(distribute_wells[:plex]) != len(primerwells[:plex]):
+    #         exit('Primer and PCR plate wells do not match!')
+    #     ctx.comment('Adding primers to wells:')
+    #     ctx.comment(str(distribute_wells[:plex]))
+    #     ctx.comment("--------------------------------------")
+    #     s20.transfer(
+    #         primervol,
+    #         [primerblock[well] for well in primerwells[:plex]],
+    #         [pcrplate[well] for well in distribute_wells[:plex]], 
+    #         new_tip = 'always', 
+    #         air_gap = 1,
+    #         mix_after = (3, 15), 
+    #         blow_out = False
+    #         )
 
     # PCR
     ctx.pause("Optional pause to cover plate with aluminum foil") 

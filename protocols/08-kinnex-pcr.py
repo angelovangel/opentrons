@@ -85,10 +85,12 @@ def run(ctx: protocol_api.ProtocolContext):
     # Transfer primers from block to intermediate plate
     ctx.comment("Transfer primers from block to intermediate plate")
     ctx.comment("--------------------------------------")
+    thisprimervol = primervol * nsamples * 1.1
     s20.transfer(
-        primervol * nsamples * 1.1,
+        thisprimervol,
         [primerblock[well] for well in primerwells[:plex]],
-        int_primerplate.wells()[:plex]
+        int_primerplate.wells()[:plex], 
+        mix_before = (3, thisprimervol/2)
     )
     ctx.comment("--------------------------------------")
 
@@ -101,6 +103,7 @@ def run(ctx: protocol_api.ProtocolContext):
             primervol,
             int_primerplate['A1'],
             pcrplate.wells_by_name()[samplecols],
+            mix_before = (1, primervol),
             mix_after = (3, (MMvol + primervol)/2),
             blow_out = False
         )

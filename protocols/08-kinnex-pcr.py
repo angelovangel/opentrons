@@ -77,20 +77,21 @@ def run(ctx: protocol_api.ProtocolContext):
             MMvol,
             rack.wells_by_name()[v],
             [pcrplate.wells_by_name()[well] for well in distribute_wells[:plex]], 
-            air_gap = 1,
-            blow_out = True, 
-            blowout_location = 'source well' # blowout is required in distribute
+            air_gap = 1, 
+            disposal_volume = 0
+            #blow_out = False, 
+            #blowout_location = 'dest well' # blowout is required in distribute
         )
 
     # Transfer primers from block to intermediate plate
     ctx.comment("Transfer primers from block to intermediate plate")
     ctx.comment("--------------------------------------")
-    thisprimervol = primervol * nsamples * 1.1
+    thisvolume = primervol * nsamples * 1.1
     s20.transfer(
-        thisprimervol,
+        thisvolume,
         [primerblock[well] for well in primerwells[:plex]],
         int_primerplate.wells()[:plex], 
-        mix_before = (3, thisprimervol/2)
+        mix_before = (3, thisvolume/2)
     )
     ctx.comment("--------------------------------------")
 

@@ -80,7 +80,7 @@ def run(ctx: protocol_api.ProtocolContext):
             air_gap = 1, 
             disposal_volume = 0
             #blow_out = False, 
-            #blowout_location = 'dest well' # blowout is required in distribute
+            #blowout_location = 'destination well' # blowout is required in distribute
         )
 
     # Transfer primers from block to intermediate plate
@@ -91,7 +91,8 @@ def run(ctx: protocol_api.ProtocolContext):
         thisvolume,
         [primerblock[well] for well in primerwells[:plex]],
         int_primerplate.wells()[:plex], 
-        mix_before = (3, thisvolume/2)
+        mix_before = (3, thisvolume/2), 
+        new_tip = 'always'
     )
     ctx.comment("--------------------------------------")
 
@@ -106,7 +107,8 @@ def run(ctx: protocol_api.ProtocolContext):
             pcrplate.wells_by_name()[samplecols],
             mix_before = (1, primervol),
             mix_after = (3, (MMvol + primervol)/2),
-            blow_out = False
+            blow_out = True,
+            blowout_location = 'destination well'
         )
         if plex > 8:
             samplecols = 'A' + str(i*2 + 2)
@@ -114,8 +116,10 @@ def run(ctx: protocol_api.ProtocolContext):
                 primervol,
                 int_primerplate['A2'],
                 pcrplate.wells_by_name()[samplecols],
+                mix_before = (1, primervol),
                 mix_after = (3, (MMvol + primervol)/2),
-                blow_out = False
+                blow_out = True,
+                blowout_location = 'destination well'
             )
         ctx.comment('--------------------------------------')
 

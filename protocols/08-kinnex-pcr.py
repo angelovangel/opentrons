@@ -151,6 +151,7 @@ def run(ctx: protocol_api.ProtocolContext):
     odtc.set_block_temperature(10)
     odtc.open_lid()
     odtc.deactivate_lid()
+    odtc.deactivate_block()
     ctx.comment("--------------------------------------")
 
     # # Consolidate PCRs
@@ -166,5 +167,5 @@ def run(ctx: protocol_api.ProtocolContext):
         ctx.comment("--------------------------------------")
 
     ctx.comment('--------------------------------')
-    ctx.comment('Kinnex-PCR done! PCR will stay at 10˚C, turn it off manually')
+    ctx.comment('Kinnex-PCR done!')
     ctx.comment('--------------------------------')

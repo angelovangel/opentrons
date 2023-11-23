@@ -11,7 +11,7 @@ metadata = {
     'protocolName': '08-kinnex-pcr.py',
     'author': 'BCL <angel.angelov@kaust.edu.sa>',
     'description': 'Perform Kinnex-PCR for the PacBio 16S, full-length RNA or single-cell RNA kits',
-    'apiLevel': '2.13'
+    'apiLevel': '2.15'
 }
 #================================================================
 ncycles = 9

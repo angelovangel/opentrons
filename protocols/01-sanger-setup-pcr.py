@@ -8,7 +8,7 @@ metadata = {
     'protocolName': 'Sanger sequencing setup',
     'author': 'BCL <angel.angelov@kaust.edu.sa>',
     'description': 'Transfer templates and primers to destination plate, add Sequencing master mix, do cycle sequencing',
-    'apiLevel': '2.13'
+    'apiLevel': '2.15'
 }
 
 sourcewells1=['A2', 'B2', 'C2', 'D2', 'E2', 'F2', 'G2', 'H2', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']

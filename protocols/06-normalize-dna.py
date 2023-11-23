@@ -6,7 +6,7 @@ metadata = {
 	'protocolName': '06-normalize-dna.py',
 	'author': 'BCL <angel.angelov@kaust.edu.sa>',
 	'description': 'Normalize DNA to a target concentration or molarity',
-	'apiLevel': '2.13'
+	'apiLevel': '2.15'
 }
 
 # destwells is fixed
@@ -16,8 +16,8 @@ volume1=[1, 0, 10, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 # water
 volume2=[9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
-source_plate_type = 'pcrplate_96_wellplate_200ul'
-dest_plate_type = 'pcrplate_96_wellplate_200ul'
+source_plate_type = 'biorad_96_wellplate_200ul_pcr'
+dest_plate_type = 'biorad_96_wellplate_200ul_pcr'
 left_mount = 'p20_single_gen2'
 right_mount = 'p20_multi_gen2'
 watersource = 'A1'
@@ -59,11 +59,11 @@ for i, v in enumerate(destwells):
 
 def run(ctx: protocol_api.ProtocolContext):
 	ctx.comment("Starting normalize DNA protocol")
-
+	odtc = ctx.load_module(module_name='thermocyclerModuleV2') # load just to block the space
 	destplate = ctx.load_labware(dest_plate_type, '5', 'Destination plate') # stack of 96 well base plate and PCR plate
 	sourceplate = ctx.load_labware(source_plate_type, '4', 'Source plate') # stack of 96 well base plate and PCR plate
-	sourcetube = ctx.load_labware('opentrons_24_tuberack_eppendorf_1.5ml_safelock_snapcap', '7', 'Tube rack')
-	tips20_single = [ctx.load_labware('opentrons_96_filtertiprack_20ul', slot) for slot in ['10', '11']]
+	sourcetube = ctx.load_labware('opentrons_24_tuberack_eppendorf_1.5ml_safelock_snapcap', '9', 'Tube rack')
+	tips20_single = [ctx.load_labware('opentrons_96_filtertiprack_20ul', slot) for slot in ['1', '2']]
 	tips20_multi = [ctx.load_labware('opentrons_96_filtertiprack_20ul', slot) for slot in ['3']]
 	s20 = ctx.load_instrument(left_mount, mount='left', tip_racks=tips20_single)
 	m20 = ctx.load_instrument(right_mount, mount='right', tip_racks=tips20_multi)

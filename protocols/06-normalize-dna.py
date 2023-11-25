@@ -18,9 +18,10 @@ volume2=[9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 
 source_plate_type = 'biorad_96_wellplate_200ul_pcr'
 dest_plate_type = 'biorad_96_wellplate_200ul_pcr'
-left_mount = 'p20_single_gen2'
+left_mount = 'p20_single_gen2' # can be either p20 or p300 single
 lefttips = 'opentrons_96_filtertiprack_20ul'
-right_mount = 'p20_multi_gen2'
+right_mount = 'p20_multi_gen2' # can be either p20 or p300 multi
+righttips = 'opentrons_96_filtertiprack_20ul'
 watersource = 'A1'
 
 # exit early if there is something wrong with the dest wells
@@ -66,9 +67,9 @@ def run(ctx: protocol_api.ProtocolContext):
 	sourcetube = ctx.load_labware('opentrons_24_tuberack_eppendorf_1.5ml_safelock_snapcap', '9', 'Tube rack')
 	
 	tips_left = [ctx.load_labware(lefttips, slot) for slot in ['1', '2']]
-	tips20_multi = [ctx.load_labware('opentrons_96_filtertiprack_20ul', slot) for slot in ['3']]
-	leftpipette = ctx.load_instrument(left_mount, mount='left', tip_racks=tips_left)
-	m20 = ctx.load_instrument(right_mount, mount='right', tip_racks=tips20_multi)
+	tips_right = [ctx.load_labware(righttips, slot) for slot in ['3']]
+	leftpipette = ctx.load_instrument(left_mount, mount='left', tip_racks = tips_left)
+	m20 = ctx.load_instrument(right_mount, mount='right', tip_racks = tips_right)
 
 	# distribute water without tip change first, always s20
 	ctx.comment("================= Starting water transfer ==========================")

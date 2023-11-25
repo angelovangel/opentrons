@@ -19,6 +19,7 @@ volume2=[9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 source_plate_type = 'biorad_96_wellplate_200ul_pcr'
 dest_plate_type = 'biorad_96_wellplate_200ul_pcr'
 left_mount = 'p20_single_gen2'
+lefttips = 'opentrons_96_filtertiprack_20ul'
 right_mount = 'p20_multi_gen2'
 watersource = 'A1'
 
@@ -63,15 +64,16 @@ def run(ctx: protocol_api.ProtocolContext):
 	destplate = ctx.load_labware(dest_plate_type, '5', 'Destination plate') # stack of 96 well base plate and PCR plate
 	sourceplate = ctx.load_labware(source_plate_type, '4', 'Source plate') # stack of 96 well base plate and PCR plate
 	sourcetube = ctx.load_labware('opentrons_24_tuberack_eppendorf_1.5ml_safelock_snapcap', '9', 'Tube rack')
-	tips20_single = [ctx.load_labware('opentrons_96_filtertiprack_20ul', slot) for slot in ['1', '2']]
+	
+	tips_left = [ctx.load_labware(lefttips, slot) for slot in ['1', '2']]
 	tips20_multi = [ctx.load_labware('opentrons_96_filtertiprack_20ul', slot) for slot in ['3']]
-	s20 = ctx.load_instrument(left_mount, mount='left', tip_racks=tips20_single)
+	leftpipette = ctx.load_instrument(left_mount, mount='left', tip_racks=tips_left)
 	m20 = ctx.load_instrument(right_mount, mount='right', tip_racks=tips20_multi)
 
 	# distribute water without tip change first, always s20
 	ctx.comment("================= Starting water transfer ==========================")
 	if any(vol > 0 for vol in volume2):
-		s20.distribute(	
+		leftpipette.distribute(	
 			volume2,
 			sourcetube.wells_by_name()[watersource], 
 			[ destplate.wells_by_name()[i] for i in destwells ], 
@@ -99,7 +101,7 @@ def run(ctx: protocol_api.ProtocolContext):
 	
 	for i, v in enumerate(volume1):
 		if v > 0:
-			s20.transfer(
+			leftpipette.transfer(
 			v,
         	sourceplate.wells_by_name()[sourcewells[i]] ,
         	destplate.wells_by_name()[destwells[i]],

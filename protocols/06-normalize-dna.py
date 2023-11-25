@@ -69,7 +69,7 @@ def run(ctx: protocol_api.ProtocolContext):
 	tips_left = [ctx.load_labware(lefttips, slot) for slot in ['1', '2']]
 	tips_right = [ctx.load_labware(righttips, slot) for slot in ['3']]
 	leftpipette = ctx.load_instrument(left_mount, mount='left', tip_racks = tips_left)
-	m20 = ctx.load_instrument(right_mount, mount='right', tip_racks = tips_right)
+	rightpipette = ctx.load_instrument(right_mount, mount='right', tip_racks = tips_right)
 
 	# distribute water without tip change first, always s20
 	ctx.comment("================= Starting water transfer ==========================")
@@ -86,7 +86,7 @@ def run(ctx: protocol_api.ProtocolContext):
 	for i, v in enumerate(scols1_fulltransfer):
 		if svol1_fulltransfer[i] > 0:
 			ctx.comment("Full column transfer DNA: " + str(svol1_fulltransfer[i]) + "ul from A" + v + " to A" + dcols1_fulltransfer[i])
-			m20.transfer(
+			rightpipette.transfer(
 			svol1_fulltransfer[i], 
 			sourceplate.wells_by_name()['A' + scols1_fulltransfer[i]], 
 			destplate.wells_by_name()['A' + dcols1_fulltransfer[i]], 

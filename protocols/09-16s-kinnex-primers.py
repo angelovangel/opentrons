@@ -32,7 +32,7 @@ def run(ctx: protocol_api.ProtocolContext):
     #     mixplate.wells()
     # )
 
-    # distribute forward primers
+    # transfer forward primers
     forprimers = list(rack1.wells_by_name().keys())[:12]
     for i,v in enumerate(forprimers):
         if mixprimers != True:
@@ -40,7 +40,7 @@ def run(ctx: protocol_api.ProtocolContext):
         ctx.comment('--------------------------------------------------------')
         ctx.comment('Distributing from rack 1 wells ' + str(forprimers) + ' to column ' + str(list(mixplate.columns_by_name().keys())[i]) )
         ctx.comment('--------------------------------------------------------')
-        s20.distribute(
+        s20.transfer(
             10,
             rack1[v],
             mixplate.columns()[i],

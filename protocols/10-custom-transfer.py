@@ -20,11 +20,11 @@ right_tips = 'opentrons_96_filtertiprack_20ul'
 source_type = 'biorad_96_wellplate_200ul_pcr'
 dest_type = 'opentrons_24_tuberack_eppendorf_1.5ml_safelock_snapcap'
 
-pipetting_type = 'consolidate' # can be transfer, distribute, consolidate
-
-source_wells = ['A1', 'C1']
-dest_wells = ['A1', 'B1']
-volumes = [1, 10]
+pipetting_type = 'transfer' # can be transfer, distribute, consolidate
+newtip = 'always'
+source_wells = ['A1', 'B1', 'H1']
+dest_wells = ['A1', 'B1', 'C1']
+volumes = [1, 0, 1]
 
 # End of variables handled by the Shiny app
 
@@ -41,21 +41,26 @@ def run(ctx: protocol_api.ProtocolContext):
     dest = ctx.load_labware(dest_type, '5', 'Destination')
     if pipetting_type == 'transfer':
         left_pipette.transfer(
-            volumes,
-            [ source[v] for i, v in enumerate(source_wells) ],
-            [ dest[v] for i, v in enumerate(dest_wells) ]
+            [v for v in volumes if v > 0],
+            [ source[v] for i, v in enumerate(source_wells) if volumes[i] > 0],
+            [ dest[v] for i, v in enumerate(dest_wells) if volumes[i] > 0], 
+            new_tip = newtip
         )
     elif pipetting_type == 'distribute':
         for i, v in enumerate(source_wells):
+        #    if volumes[i] > 0:
             left_pipette.distribute(
                 volumes,
                 source[v],
-                [dest[v] for i, v in enumerate(dest_wells)],
-        )
+                [dest[v] for i, v in enumerate(dest_wells)], 
+                new_tip = newtip
+            )
     elif pipetting_type == 'consolidate':
         for i, v in enumerate(dest_wells):
-            left_pipette.consolidate(
-                volumes,
-                [source[v] for i, v in enumerate(source_wells)],
-                dest[v]
-            )
+            if volumes[i] > 0:
+                left_pipette.consolidate(
+                    volumes,
+                    [source[v] for i, v in enumerate(source_wells)],
+                    dest[v],
+                    new_tip = newtip
+                )

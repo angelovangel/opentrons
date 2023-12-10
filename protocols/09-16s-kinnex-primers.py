@@ -77,5 +77,6 @@ def run(ctx: protocol_api.ProtocolContext):
             mixplate.columns(),
             finalplate.columns(), 
             new_tip = 'always', 
-            air_gap = 1
+            air_gap = 1, 
+            mix_after = (3, 3)
         )

@@ -17,14 +17,15 @@ left_mount = 'p20_single_gen2'
 left_tips = 'opentrons_96_filtertiprack_20ul'
 right_mount = 'p20_multi_gen2'
 right_tips = 'opentrons_96_filtertiprack_20ul'
+active_pip = 'right'
 source_type = 'biorad_96_wellplate_200ul_pcr'
 dest_type = 'opentrons_24_tuberack_eppendorf_1.5ml_safelock_snapcap'
 
-pipetting_type = 'consolidate' # can be transfer, distribute, consolidate
+pipetting_type = 'transfer' # can be transfer, distribute, consolidate
 newtip = 'always'
 source_wells = ['A1', 'B1', 'H1']
 dest_wells = ['A1', 'B1', 'C1']
-volumes = [1, 0, 1]
+volumes = [1, 1, 1]
 
 # End of variables handled by the Shiny app
 
@@ -34,13 +35,17 @@ def run(ctx: protocol_api.ProtocolContext):
     odtc = ctx.load_module(module_name='thermocyclerModuleV2') # just a placeholder
     tips_left = [ctx.load_labware(left_tips, slot) for slot in ['1', '2']]
     tips_right = [ctx.load_labware(right_tips, slot) for slot in ['3']]
-    left_pipette = ctx.load_instrument(left_mount, mount = 'left', tip_racks= tips_left)
-    right_pipette = ctx.load_instrument(right_mount, mount = 'right', tip_racks = tips_right)
+    if active_pip == 'left':
+        pipette = ctx.load_instrument(left_mount, mount = 'left', tip_racks= tips_left)
+    elif active_pip == 'right':
+        pipette = ctx.load_instrument(right_mount, mount = 'right', tip_racks = tips_right)
+    else:
+        exit('active_pip can be only left or right')
 
     source = ctx.load_labware(source_type, '4', 'Source')
     dest = ctx.load_labware(dest_type, '5', 'Destination')
     if pipetting_type == 'transfer':
-        left_pipette.transfer(
+        pipette.transfer(
             [v for v in volumes if v > 0],
             [ source[v] for i, v in enumerate(source_wells) if volumes[i] > 0],
             [ dest[v] for i, v in enumerate(dest_wells) if volumes[i] > 0], 
@@ -49,7 +54,7 @@ def run(ctx: protocol_api.ProtocolContext):
     elif pipetting_type == 'distribute':
         for i, v in enumerate(source_wells):
         #    if volumes[i] > 0:
-            left_pipette.distribute(
+            pipette.distribute(
                 volumes,
                 source[v],
                 [dest[v] for i, v in enumerate(dest_wells)], 
@@ -58,7 +63,7 @@ def run(ctx: protocol_api.ProtocolContext):
     elif pipetting_type == 'consolidate':
         for i, v in enumerate(dest_wells):
             #if volumes[i] > 0:
-            left_pipette.consolidate(
+            pipette.consolidate(
                 volumes,
                 [source[v] for i, v in enumerate(source_wells)],
                 dest[v],

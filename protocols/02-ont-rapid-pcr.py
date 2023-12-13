@@ -122,7 +122,7 @@ def run(ctx: protocol_api.ProtocolContext):
         barcodeplate.wells_by_name()['A' + scols3_fulltransfer[i]], 
         destplate.wells_by_name()['A' + dcols3_fulltransfer[i]], 
         new_tip = 'always', 
-        mix_after = (3, 4), 
+        mix_after = (8, total_rxn_vol/2), 
         blow_out = True, 
         blowout_location = 'destination well' 
         )
@@ -137,7 +137,7 @@ def run(ctx: protocol_api.ProtocolContext):
                 barcodeplate.wells_by_name()[sourcewells3[i]], 
                 destplate.wells_by_name()[destwells3[i]], 
                 new_tip = 'always', 
-                mix_after = (3, 4), 
+                mix_after = (8, total_rxn_vol/2), 
                 blow_out = True, 
         		blowout_location = 'destination well'
             )

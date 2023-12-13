@@ -220,8 +220,8 @@ def run(ctx: protocol_api.ProtocolContext):
         ctx.set_rail_lights(True)
         ctx.delay(1)
     #message = str(f"{rxns} reactions were transferred.\nPlease prepare {mastermix} ul Sequencing mastermix, pipet {mastermix/8:.1f} ul in each tube of the strip (deck position 2, column 1) and resume.\nThe mastermix will be distributed to columns {destcolumns_pcr} in the destination plate.")
-    message = str(f"{rxns} reactions were transferred.\nPlease prepare {mastermix:.1f} ul mastermix and place it in D6 of Eppendorf tube rack. The mastermix will be distributed first to the A1 strip in position 6, and then to columns {destcolumns_pcr} in the destination plate.")
-    ctx.pause(msg = message)
+    message1 = str(f"{rxns} reactions were transferred.\nPlease prepare {mastermix:.1f} ul mastermix and place it in D6 of Eppendorf tube rack. The mastermix will be distributed first to the A1 strip in position 6, and then to columns {destcolumns_pcr} in the destination plate.")
+    ctx.pause(msg = message1)
 
     # distribute master mix to col 1 
     s20.distribute(
@@ -237,12 +237,13 @@ def run(ctx: protocol_api.ProtocolContext):
         mmstrip.columns()[0], # only column 1 is used
         [destplate.wells_by_name()[well_name] for well_name in destcolumns_pcr], 
         new_tip = 'always', 
-        mix_after = (3, 15), 
+        mix_after = (5, 15), 
         blow_out = True, 
         blowout_location = 'destination well'
     )
     # this is optional in the Shiny app to cover rxn plate
-    # optional pause #ctx.pause("Cover plate with aluminum foil and press 'Continue' when ready") 
+    message2 = "Cover plate with aluminum foil and press 'Continue' when ready"
+    ctx.pause(msg = message2) 
 
     # Cycle sequencing
     odtc.close_lid()

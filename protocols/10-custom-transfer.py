@@ -17,15 +17,15 @@ left_mount = 'p20_single_gen2'
 left_tips = 'opentrons_96_filtertiprack_20ul'
 right_mount = 'p20_multi_gen2'
 right_tips = 'opentrons_96_filtertiprack_20ul'
-active_pip = 'right'
+active_pip = 'left'
 source_type = 'biorad_96_wellplate_200ul_pcr'
 dest_type = 'opentrons_24_tuberack_eppendorf_1.5ml_safelock_snapcap'
 
-pipetting_type = 'transfer' # can be transfer, distribute, consolidate
+pipetting_type = 'distribute' # can be transfer, distribute, consolidate
 newtip = 'always'
-source_wells = ['A1', 'B1', 'H1']
-dest_wells = ['A1', 'B1', 'C1']
-volumes = [1, 1, 1]
+source_wells = ['A1', 'B1', 'C1']
+dest_wells = ['A2', 'B2', 'C2']
+volumes = [1, 0, 1]
 
 # End of variables handled by the Shiny app
 
@@ -47,8 +47,8 @@ def run(ctx: protocol_api.ProtocolContext):
     if pipetting_type == 'transfer':
         pipette.transfer(
             [v for v in volumes if v > 0],
-            [ source[v] for i, v in enumerate(source_wells) if volumes[i] > 0],
-            [ dest[v] for i, v in enumerate(dest_wells) if volumes[i] > 0], 
+            [source[v] for i, v in enumerate(source_wells) if volumes[i] > 0],
+            [dest[v] for i, v in enumerate(dest_wells) if volumes[i] > 0], 
             new_tip = newtip
         )
     elif pipetting_type == 'distribute':

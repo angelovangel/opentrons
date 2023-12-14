@@ -26,6 +26,7 @@ primerwells = ['A1', 'B1', 'C1', 'D1', 'A2', 'B2', 'C2', 'D2', 'A3', 'B3', 'C3',
 # works for any plex number
 plex = 12
 rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
+left_pipette = 'p20_single_gen2'
 
 
 pcrprofile = [
@@ -54,7 +55,7 @@ def run(ctx: protocol_api.ProtocolContext):
 
     tips20_single = [ctx.load_labware('opentrons_96_filtertiprack_20ul', slot) for slot in ['1', '2']]
     tips20_multi = [ctx.load_labware('opentrons_96_filtertiprack_20ul', slot) for slot in ['3']]
-    s20 = ctx.load_instrument('p20_single_gen2', mount='left', tip_racks=tips20_single)
+    s20 = ctx.load_instrument(left_pipette, mount='left', tip_racks=tips20_single)
     m20 = ctx.load_instrument('p20_multi_gen2', mount='right', tip_racks=tips20_multi)
 
     # set s20 flow rates globally, default is 7.56 

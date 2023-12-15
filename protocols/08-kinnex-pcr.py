@@ -26,7 +26,7 @@ primerwells = ['A1', 'B1', 'C1', 'D1', 'A2', 'B2', 'C2', 'D2', 'A3', 'B3', 'C3',
 # works for any plex number
 plex = 12
 rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
-left_pipette = 'p20_single_gen2'
+left_pipette = 'p300_single_gen2'
 
 
 pcrprofile = [
@@ -53,9 +53,12 @@ def run(ctx: protocol_api.ProtocolContext):
     rack = ctx.load_labware('opentrons_24_tuberack_eppendorf_1.5ml_safelock_snapcap', '9', 'MM tube rack')
     pcrplate = odtc.load_labware('biorad_96_wellplate_200ul_pcr') # IMPORTANT - use biorad plates!!!
 
-    tips20_single = [ctx.load_labware('opentrons_96_filtertiprack_20ul', slot) for slot in ['1', '2']]
+    if left_pipette == 'p20_single_gen2':
+        tips_left = [ctx.load_labware('opentrons_96_filtertiprack_20ul', slot) for slot in ['1', '2']]
+    else:
+        tips_left = [ctx.load_labware('opentrons_96_filtertiprack_200ul', slot) for slot in ['1', '2']]
     tips20_multi = [ctx.load_labware('opentrons_96_filtertiprack_20ul', slot) for slot in ['3']]
-    s20 = ctx.load_instrument(left_pipette, mount='left', tip_racks=tips20_single)
+    lp = ctx.load_instrument(left_pipette, mount='left', tip_racks=tips_left)
     m20 = ctx.load_instrument('p20_multi_gen2', mount='right', tip_racks=tips20_multi)
 
     # set s20 flow rates globally, default is 7.56 
@@ -74,12 +77,12 @@ def run(ctx: protocol_api.ProtocolContext):
         ctx.comment('Distributing sample ' + str(MMwells[i]) + ' in PCR plate wells:')
         ctx.comment(str(distribute_wells[:plex]))
         ctx.comment("--------------------------------------")
-        s20.distribute(
+        lp.distribute(
             MMvol,
             rack.wells_by_name()[v],
             [pcrplate.wells_by_name()[well] for well in distribute_wells[:plex]], 
-            air_gap = 1, 
-            disposal_volume = 0
+            air_gap = 0, 
+            disposal_volume = 3
             #blow_out = False, 
             #blowout_location = 'destination well' # blowout is required in distribute
         )
@@ -87,8 +90,12 @@ def run(ctx: protocol_api.ProtocolContext):
     # Transfer primers from block to intermediate plate
     ctx.comment("Transfer primers from block to intermediate plate")
     ctx.comment("--------------------------------------")
+    # make sure accurate pipetting if P300 is used
     thisvolume = primervol * nsamples * 1.1
-    s20.transfer(
+    if left_pipette == 'p300_single_gen2' and thisvolume < 5:
+        thisvolume = 5
+    
+    lp.transfer(
         thisvolume,
         [primerblock[well] for well in primerwells[:plex]],
         int_primerplate.wells()[:plex], 
@@ -107,7 +114,7 @@ def run(ctx: protocol_api.ProtocolContext):
             int_primerplate['A1'],
             pcrplate.wells_by_name()[samplecols],
             mix_before = (1, primervol),
-            mix_after = (3, (MMvol + primervol)/2),
+            mix_after = (5, (MMvol + primervol)/2),
             blow_out = True,
             blowout_location = 'destination well'
         )
@@ -118,7 +125,7 @@ def run(ctx: protocol_api.ProtocolContext):
                 int_primerplate['A2'],
                 pcrplate.wells_by_name()[samplecols],
                 mix_before = (1, primervol),
-                mix_after = (3, (MMvol + primervol)/2),
+                mix_after = (5, (MMvol + primervol)/2),
                 blow_out = True,
                 blowout_location = 'destination well'
             )
@@ -160,7 +167,7 @@ def run(ctx: protocol_api.ProtocolContext):
         distribute_wells =  [ j + str(i*2 + 1) for j in rows ] + [ j + str(i*2 + 2) for j in rows ]
         ctx.comment("Consolidating PCR wells " + str(distribute_wells[:plex]) + ' into pool well ' + v)
         ctx.comment("--------------------------------------")
-        s20.consolidate(
+        lp.consolidate(
             MMvol+primervol, 
             [pcrplate[well] for well in distribute_wells[:plex]], 
             rack.wells_by_name()[v]

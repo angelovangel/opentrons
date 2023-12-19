@@ -21,8 +21,10 @@ active_pip = 'left'
 source_type = 'biorad_96_wellplate_200ul_pcr'
 dest_type = 'opentrons_24_tuberack_eppendorf_1.5ml_safelock_snapcap'
 
-pipetting_type = 'consolidate' # can be transfer, distribute, consolidate
+pipetting_type = 'transfer' # can be transfer, distribute, consolidate
 newtip = 'always'
+mix_before = (4,1)
+mix_after = (0,0)
 # len volumes should be == longer list
 # if distribute len source_wells <= len dest_wells
 # if consolidate len source_wells >= len dest_wells
@@ -52,7 +54,9 @@ def run(ctx: protocol_api.ProtocolContext):
             [v for v in volumes if v > 0],
             [source[v] for i, v in enumerate(source_wells) if volumes[i] > 0],
             [dest[v] for i, v in enumerate(dest_wells) if volumes[i] > 0], 
-            new_tip = newtip
+            new_tip = newtip, 
+            mix_before = mix_before,
+            mix_after = mix_after
         )
 
     elif pipetting_type == 'distribute':
@@ -66,7 +70,8 @@ def run(ctx: protocol_api.ProtocolContext):
                 volumeslist,
                 source[v],
                 destlist,
-                new_tip = newtip
+                new_tip = newtip,
+                mix_before = mix_before
             )
 
     elif pipetting_type == 'consolidate':
@@ -80,5 +85,6 @@ def run(ctx: protocol_api.ProtocolContext):
                 volumeslist,
                 sourcelist,
                 dest[v],
-                new_tip = newtip
+                new_tip = newtip,
+                mix_after = mix_after
             )

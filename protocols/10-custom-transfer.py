@@ -21,14 +21,14 @@ active_pip = 'left'
 source_type = 'biorad_96_wellplate_200ul_pcr'
 dest_type = 'opentrons_24_tuberack_eppendorf_1.5ml_safelock_snapcap'
 
-pipetting_type = 'transfer' # can be transfer, distribute, consolidate
+pipetting_type = 'consolidate' # can be transfer, distribute, consolidate
 newtip = 'always'
 # len volumes should be == longer list
 # if distribute len source_wells <= len dest_wells
 # if consolidate len source_wells >= len dest_wells
-source_wells = ['A1', 'B1', 'C1', 'D1', 'F1']
-dest_wells = ['A2', 'A2', 'B2', 'B2']
-volumes = [1, 2, 3, 4, 0]
+source_wells = ['A1','B1','C1','D1', 'B1', 'C2']
+dest_wells =   ['A1','A1','C1','C1', 'C1', 'C1']
+volumes = [3, 3, 1, 1, 0, 0]
 
 # End of variables handled by the Shiny app
 
@@ -54,24 +54,31 @@ def run(ctx: protocol_api.ProtocolContext):
             [dest[v] for i, v in enumerate(dest_wells) if volumes[i] > 0], 
             new_tip = newtip
         )
+
     elif pipetting_type == 'distribute':
         distr_set = sorted(set(source_wells))
-
-        for i, v in enumerate(list(distr_set)):
-        #    if volumes[i] > 0:
+        for i, v in enumerate(distr_set):
+            volumeslist = [m for l, m in enumerate(volumes) if m > 0 and source_wells[l] == v] # gives vol list for each distr_set
+            if not volumeslist: continue # type error if empty list so skip this
+            destlist = [dest[k] for j, k in enumerate(dest_wells) if volumes[j] > 0 and source_wells[j] == v]
+            
             pipette.distribute(
-                [m for l, m in enumerate(volumes) if m > 0 and source_wells[l] == v],
+                volumeslist,
                 source[v],
-                [dest[k] for j, k in enumerate(dest_wells) if volumes[j] > 0 and source_wells[j] == v], 
+                destlist,
                 new_tip = newtip
             )
+
     elif pipetting_type == 'consolidate':
         cons_set = sorted(set(dest_wells))
-        for i, v in enumerate(list(cons_set)):
-            #if volumes[i] > 0:
+        for i, v in enumerate(cons_set):
+            volumeslist = [m for l, m in enumerate(volumes) if m > 0 and dest_wells[l] == v]
+            if not volumeslist: continue # type error if empty list so skip this
+            sourcelist = [source[k] for j, k in enumerate(source_wells) if volumes[j] > 0 and dest_wells[j] == v]
+            
             pipette.consolidate(
-                [m for l, m in enumerate(volumes) if m > 0 and dest_wells[l] == v],
-                [source[k] for j, k in enumerate(source_wells) if volumes[j] > 0 and dest_wells[j] == v],
+                volumeslist,
+                sourcelist,
                 dest[v],
                 new_tip = newtip
             )

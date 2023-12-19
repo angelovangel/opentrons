@@ -23,7 +23,7 @@ dest_type = 'opentrons_24_tuberack_eppendorf_1.5ml_safelock_snapcap'
 
 pipetting_type = 'transfer' # can be transfer, distribute, consolidate
 newtip = 'always'
-mix_before = (4,1)
+mix_before = (0,0)
 mix_after = (0,0)
 # len volumes should be == longer list
 # if distribute len source_wells <= len dest_wells

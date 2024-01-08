@@ -25,6 +25,7 @@ pipetting_type = 'transfer' # can be transfer, distribute, consolidate
 newtip = 'always'
 mbefore = (0,0)
 mafter = (0,0)
+agap = 0
 # len volumes should be == longer list
 # if distribute len source_wells <= len dest_wells
 # if consolidate len source_wells >= len dest_wells
@@ -56,7 +57,8 @@ def run(ctx: protocol_api.ProtocolContext):
             [dest[v] for i, v in enumerate(dest_wells) if volumes[i] > 0], 
             new_tip = newtip, 
             mix_before = mbefore,
-            mix_after = mafter
+            mix_after = mafter, 
+            air_gap = agap
         )
 
     elif pipetting_type == 'distribute':
@@ -71,7 +73,8 @@ def run(ctx: protocol_api.ProtocolContext):
                 source[v],
                 destlist,
                 new_tip = newtip,
-                mix_before = mbefore
+                mix_before = mbefore,
+                air_gap = agap
             )
 
     elif pipetting_type == 'consolidate':
@@ -86,5 +89,6 @@ def run(ctx: protocol_api.ProtocolContext):
                 sourcelist,
                 dest[v],
                 new_tip = newtip,
-                mix_after = mafter
+                mix_after = mafter,
+                air_gap = agap
             )

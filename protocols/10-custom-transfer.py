@@ -26,6 +26,8 @@ newtip = 'always'
 mbefore = (0,0)
 mafter = (0,0)
 agap = 0
+aspirate_factor = 2
+dispense_factor = 1
 # len volumes should be == longer list
 # if distribute len source_wells <= len dest_wells
 # if consolidate len source_wells >= len dest_wells
@@ -47,6 +49,12 @@ def run(ctx: protocol_api.ProtocolContext):
         pipette = ctx.load_instrument(right_mount, mount = 'right', tip_racks = tips)
     else:
         exit('active_pip can be only left or right')
+
+    pipette.flow_rate.aspirate = pipette.flow_rate.aspirate / aspirate_factor
+    pipette.flow_rate.dispense = pipette.flow_rate.dispense / dispense_factor
+    ctx.comment('Using aspirate flow rate of ' + str(pipette.flow_rate.aspirate) + ' ul/s')
+    ctx.comment('Using dispense flow rate of ' + str(pipette.flow_rate.dispense) + ' ul/s')
+    ctx.comment('----------------------------------------------------------------')
 
     source = ctx.load_labware(source_type, '4', 'Source')
     dest = ctx.load_labware(dest_type, '5', 'Destination')

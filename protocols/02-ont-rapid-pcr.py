@@ -26,6 +26,7 @@ consolidate_vol_fraction = 0.9
 source_labware = 'stack_plate_biorad96well'
 aspirate_factor = 1
 dispense_factor = 1
+pool_reuse_tip = True #for the consolidate step only, but switch to transfer if tip change is needed (consolidate does not change tips)
 
 # Variables replaced by the Shiny app
 
@@ -103,7 +104,6 @@ def run(ctx: protocol_api.ProtocolContext):
         volume2,
         sourcetube.wells_by_name()[watersource], 
         [ destplate.wells_by_name()[i] for i in destwells2 ], 
-        new_tip = 'always', 
         touch_tip = False, 
         disposal_volume = 2, 
         blow_out = True, 
@@ -171,13 +171,21 @@ def run(ctx: protocol_api.ProtocolContext):
     # Pool
     ctx.comment("================= Pool samples =========================")
 
-    # use same tip as everything is aspirated
 
-    s20.consolidate(
-        total_rxn_vol * consolidate_vol_fraction,
-        [ destplate.wells_by_name()[v] for i, v in enumerate(destwells1) if volume1[i] > 0], 
-        sourcetube.wells_by_name()[finaltube]
-    )
+    # use same tip as everything is aspirated, change to transfer if needed
+    if pool_reuse_tip:
+        s20.consolidate(
+            total_rxn_vol * consolidate_vol_fraction,
+            [ destplate.wells_by_name()[v] for i, v in enumerate(destwells1) if volume1[i] > 0], 
+            sourcetube.wells_by_name()[finaltube]
+        )
+    else:
+        s20.transfer(
+            total_rxn_vol * consolidate_vol_fraction,
+            [destplate.wells_by_name()[v] for i, v in enumerate(destwells1) if volume1[i] > 0],
+            sourcetube.wells_by_name()[finaltube], 
+            new_tip = 'always'
+        )
 
     poolvol = len([v for v in volume1 if v > 0]) * (total_rxn_vol * consolidate_vol_fraction)
 

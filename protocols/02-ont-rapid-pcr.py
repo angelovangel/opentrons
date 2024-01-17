@@ -24,6 +24,8 @@ watersource = 'A1'
 finaltube = 'B1'
 consolidate_vol_fraction = 0.9
 source_labware = 'stack_plate_biorad96well'
+aspirate_factor = 1
+dispense_factor = 1
 
 # Variables replaced by the Shiny app
 
@@ -78,9 +80,17 @@ def run(ctx: protocol_api.ProtocolContext):
     s20 = ctx.load_instrument('p20_single_gen2', mount='left', tip_racks=tips20_single)
     m20 = ctx.load_instrument('p20_multi_gen2', mount='right', tip_racks=tips20_multi)
 
-    # set s20 flow rates globally, default is 7.56 
-    s20.flow_rate.aspirate = 5
-    s20.flow_rate.dispense = 4
+    s20.flow_rate.aspirate = s20.flow_rate.aspirate / aspirate_factor
+    s20.flow_rate.dispense = s20.flow_rate.dispense / dispense_factor
+    m20.flow_rate.aspirate = s20.flow_rate.aspirate / aspirate_factor
+    m20.flow_rate.dispense = s20.flow_rate.dispense / dispense_factor
+
+    ctx.comment('----------------------------------------------------------------')
+    ctx.comment('Using s20 aspirate flow rate of ' + str(s20.flow_rate.aspirate) + ' ul/s')
+    ctx.comment('Using s20 dispense flow rate of ' + str(s20.flow_rate.dispense) + ' ul/s')
+    ctx.comment('Using m20 aspirate flow rate of ' + str(m20.flow_rate.aspirate) + ' ul/s')
+    ctx.comment('Using m20 dispense flow rate of ' + str(m20.flow_rate.dispense) + ' ul/s')
+    ctx.comment('----------------------------------------------------------------')
 
     # setup ODTC
     odtc.open_lid()

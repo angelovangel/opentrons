@@ -30,7 +30,7 @@ source_labware = 'stack_plate_biorad96well'
 aspirate_factor = 1
 dispense_factor = 1
 pool_reuse_tip = True #for the consolidate step only, but switch to transfer if tip change is needed (consolidate does not change tips)
-lsk = True # decide if LSK114 protocol is run or just rapid. Fork at the necessary points if True
+lsk = False # decide if LSK114 protocol is run or just rapid. Fork at the necessary points if True
 
 # Variables replaced by the Shiny app
 
@@ -77,10 +77,12 @@ if len(destwells1) != 96:
     exit("Please make sure that there are 96 destination wells! Check the excel template is correct...")
 
 def run(ctx: protocol_api.ProtocolContext):
+    ctx.comment('----------------------------------------------------------------')
     if lsk:
         ctx.comment("Starting ONT LSK114 protocol")
     else:
         ctx.comment("Starting ONT rapid protocol")
+    ctx.comment('----------------------------------------------------------------')
     odtc = ctx.load_module(module_name='thermocyclerModuleV2')
     destplate = odtc.load_labware('biorad_96_wellplate_200ul_pcr') # IMPORTANT - use biorad plates!!!
 

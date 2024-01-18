@@ -22,18 +22,29 @@ volume3=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0,
 
 watersource = 'A1'
 finaltube = 'B1'
+ermm = 'A2'
+ligmm = 'B2'
+edta = 'C2'
 consolidate_vol_fraction = 0.9
 source_labware = 'stack_plate_biorad96well'
 aspirate_factor = 1
 dispense_factor = 1
 pool_reuse_tip = True #for the consolidate step only, but switch to transfer if tip change is needed (consolidate does not change tips)
+lsk = True # decide if LSK114 protocol is run or just rapid. Fork at the necessary points if True
 
 # Variables replaced by the Shiny app
 
 # use 1 ul barcode and 11 ul total rxn vol if it is gDNA, for plasmid use half volumes
-# the decision is based on the barcode volumes (volume3) 
-barcode_vol = 1 if max(volume3) == 1 else 0.5
-total_rxn_vol = 11 if max(volume3) == 1 else 5.5
+# the decision is based on the barcode volumes (volume3)  
+if lsk: 
+    barcode_vol = 1.25
+    total_rxn_vol = 10
+elif max(volume3) == 1:
+    barcode_vol = 1
+    total_rxn_vol = 11
+else:
+    barcode_vol = 0.5
+    total_rxn_vol = 5.5
 
 ######################## Calculations for full column transfer  - for rapid barcode plate #######################
 # the requirement is that:
@@ -66,14 +77,20 @@ if len(destwells1) != 96:
     exit("Please make sure that there are 96 destination wells! Check the excel template is correct...")
 
 def run(ctx: protocol_api.ProtocolContext):
-    ctx.comment("Starting ONT plasmid sequencing protocol")
+    if lsk:
+        ctx.comment("Starting ONT LSK114 protocol")
+    else:
+        ctx.comment("Starting ONT rapid protocol")
     odtc = ctx.load_module(module_name='thermocyclerModuleV2')
     destplate = odtc.load_labware('biorad_96_wellplate_200ul_pcr') # IMPORTANT - use biorad plates!!!
 
     #destplate = ctx.load_labware('pcrplate_96_wellplate_200ul', '5', 'Destination plate') # stack of 96 well base plate and PCR plate
     sourceplate = ctx.load_labware(source_labware, '4', 'Source plate') # stack of 96 well base plate and PCR plate
     barcodeplate = ctx.load_labware('biorad_96_wellplate_200ul_pcr', '9', 'Rapid barcode plate')
-    sourcetube = ctx.load_labware('opentrons_24_tuberack_eppendorf_1.5ml_safelock_snapcap', '5', 'Tube rack')
+    #sourcetube = ctx.load_labware('opentrons_24_tuberack_eppendorf_1.5ml_safelock_snapcap', '5', 'Tube rack')
+    tube_block = ctx.load_labware('opentrons_24_aluminumblock_generic_2ml_screwcap', '5', 'Tube block')
+    if lsk:
+        ligation_plate = ctx.load_labware('biorad_96_wellplate_200ul_pcr', '6', 'Ligation plate')
 
     tips20_single = [ctx.load_labware('opentrons_96_filtertiprack_20ul', slot) for slot in ['1', '2']]
     tips20_multi = [ctx.load_labware('opentrons_96_filtertiprack_20ul', slot) for slot in ['3']]
@@ -99,17 +116,27 @@ def run(ctx: protocol_api.ProtocolContext):
     odtc.set_lid_temperature(100)
 
     # distribute water without tip change first
-    ctx.comment("================= Starting water transfer ==========================")
+    ctx.comment("================= Starting water distribute ==========================")
     s20.distribute(	
         volume2,
-        sourcetube.wells_by_name()[watersource], 
-        [ destplate.wells_by_name()[i] for i in destwells2 ], 
+        tube_block.wells_by_name()[watersource], 
+        [ destplate.wells_by_name()[v] for v in destwells2 ], 
         touch_tip = False, 
         disposal_volume = 2, 
         blow_out = True, 
         blowout_location = 'trash'
     )
     
+    # distribute End Repair MM if LSK
+    if lsk:
+        ctx.comment("================= LSK - End prep MM distribute ==========================")
+        s20.distribute(
+            3,
+            tube_block.wells_by_name()[ermm],
+            [destplate.wells_by_name()[v] for i, v in enumerate(destwells2) if volume1[i] > 0 ],
+            disposal_volume = 1,
+            blow_out = False
+        )
 
     ctx.comment("================= Starting plasmid transfer ==========================")
     # add plasmid, changing tip
@@ -123,9 +150,66 @@ def run(ctx: protocol_api.ProtocolContext):
         blow_out = True, 
         blowout_location = 'destination well'
         )
-            
+
+    # If LSK, end prep incubation, transfer DNA to ligation plate and continue up to barcode addition
+    #
+    if lsk:
+        odtc.close_lid()
+        #odtc.set_lid_temperature(100)
+        odtc.set_block_temperature(20, hold_time_minutes = 5)
+        odtc.set_block_temperature(65, hold_time_minutes = 5)
+        odtc.set_block_temperature(15)
+        odtc.open_lid()
+        odtc.deactivate_lid()
+        odtc.deactivate_block()  
+
+        # water to ligation plate
+        s20.distribute(
+            3,
+            tube_block.wells_by_name()[watersource],
+            [ligation_plate.wells_by_name()[v] for i, v in enumerate(destwells2) if volume1[i] > 0],
+            disposal_volume = 1,
+            blow_out = False
+        )
+        # Ligation MM to ligation plate
+        s20.distribute(
+            5,
+            tube_block.wells_by_name()[ligmm],
+            [ligation_plate.wells_by_name()[v] for i, v in enumerate(destwells2) if volume1[i] > 0],
+            disposal_volume = 1,
+            blow_out = False
+        )
+        # Samples to ligation plate
+        for i,v in enumerate(dcols3_fulltransfer):
+            ctx.comment('LSK samples full column transfer to ligation plate')
+            m20.transfer(
+                1,
+                destplate.wells_by_name()['A' + dcols3_fulltransfer[i]],
+                ligation_plate.wells_by_name()['A' + dcols3_fulltransfer[i]],
+                new_tip = 'always',
+                mix_after = (5, 5)
+            )
+        for i, v in enumerate(volume3):
+            if v > 0:
+                ctx.comment('LSK samples s20 transfer')
+                s20.transfer(
+                    1,
+                    destplate.wells_by_name()[sourcewells1[i]],
+                    ligation_plate.wells_by_name()[sourcewells1[i]],
+                    mix_after = (5,5)
+                )
 
     # add barcodes, full columns if possible, has to be as fast as possible
+    # depending on lsk, barcodes are added to the destplate or ligation plate
+    
+    #++++++++++++++++++++++++++++++++++++++++++++++++
+    # From here on, the working plate can be either the original destplate or the ligation plate
+    if lsk:
+        workingplate = ligation_plate
+    else:
+        workingplate = destplate
+    #++++++++++++++++++++++++++++++++++++++++++++++++
+        
     ctx.comment("================= Starting barcode transfer ==========================")
     
     for i, v in enumerate(scols3_fulltransfer):
@@ -133,7 +217,7 @@ def run(ctx: protocol_api.ProtocolContext):
         m20.transfer(
         barcode_vol, 
         barcodeplate.wells_by_name()['A' + scols3_fulltransfer[i]], 
-        destplate.wells_by_name()['A' + dcols3_fulltransfer[i]], 
+        workingplate.wells_by_name()['A' + dcols3_fulltransfer[i]], 
         new_tip = 'always', 
         mix_after = (8, total_rxn_vol/2), 
         blow_out = True, 
@@ -146,27 +230,39 @@ def run(ctx: protocol_api.ProtocolContext):
         if v > 0:
             ctx.comment("s20 transfer barcode plate")
             s20.transfer(
-                v,
+                barcode_vol,
                 barcodeplate.wells_by_name()[sourcewells3[i]], 
-                destplate.wells_by_name()[destwells3[i]], 
+                workingplate.wells_by_name()[destwells3[i]], 
                 new_tip = 'always', 
                 mix_after = (8, total_rxn_vol/2), 
                 blow_out = True, 
         		blowout_location = 'destination well'
             )
             ctx.comment("--------------------------------------")
+    if lsk:
+        ctx.delay(minutes = 20, msg = 'Incubate ligation for 20 minutes')
+        # Add EDTA
+        ctx.comment("================= Add EDTA ==========================")
+        s20.distribute(
+            2,
+            tube_block.wells_by_name()[edta],
+            [ workingplate.wells_by_name()[v] for i, v in enumerate(destwells2) if volume1[i] > 0 ]
+        )
+        
+
     # pause - this is optional in the Shiny app to cover rxn plate
     # optional pause #ctx.pause("Optional pause to cover plate with aluminum foil") 
 
-    # ODTC
-    odtc.close_lid()
-    #odtc.set_lid_temperature(100)
-    odtc.set_block_temperature(30, hold_time_minutes = 2)
-    odtc.set_block_temperature(80, hold_time_minutes = 2)
-    odtc.set_block_temperature(15)
-    odtc.open_lid()
-    odtc.deactivate_lid()
-    odtc.deactivate_block()
+    # ODTC if rapid only
+    if not lsk:
+        odtc.close_lid()
+        #odtc.set_lid_temperature(100)
+        odtc.set_block_temperature(30, hold_time_minutes = 2)
+        odtc.set_block_temperature(80, hold_time_minutes = 2)
+        odtc.set_block_temperature(15)
+        odtc.open_lid()
+        odtc.deactivate_lid()
+        odtc.deactivate_block()
 
     # Pool
     ctx.comment("================= Pool samples =========================")
@@ -176,14 +272,14 @@ def run(ctx: protocol_api.ProtocolContext):
     if pool_reuse_tip:
         s20.consolidate(
             total_rxn_vol * consolidate_vol_fraction,
-            [ destplate.wells_by_name()[v] for i, v in enumerate(destwells1) if volume1[i] > 0], 
-            sourcetube.wells_by_name()[finaltube]
+            [ workingplate.wells_by_name()[v] for i, v in enumerate(destwells1) if volume1[i] > 0 ], 
+            tube_block.wells_by_name()[finaltube]
         )
     else:
         s20.transfer(
             total_rxn_vol * consolidate_vol_fraction,
-            [destplate.wells_by_name()[v] for i, v in enumerate(destwells1) if volume1[i] > 0],
-            sourcetube.wells_by_name()[finaltube], 
+            [ workingplate.wells_by_name()[v] for i, v in enumerate(destwells1) if volume1[i] > 0 ],
+            tube_block.wells_by_name()[finaltube], 
             new_tip = 'always'
         )
 

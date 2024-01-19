@@ -30,21 +30,22 @@ source_labware = 'stack_plate_biorad96well'
 aspirate_factor = 1
 dispense_factor = 1
 pool_reuse_tip = True #for the consolidate step only, but switch to transfer if tip change is needed (consolidate does not change tips)
-lsk = False # decide if LSK114 protocol is run or just rapid. Fork at the necessary points if True
-
+lsk = True # decide if LSK114 protocol is run or just rapid. Fork at the necessary points if True
+barcode_vol = 1
+total_rxn_vol = 11
 # Variables replaced by the Shiny app
 
 # use 1 ul barcode and 11 ul total rxn vol if it is gDNA, for plasmid use half volumes
 # the decision is based on the barcode volumes (volume3)  
-if lsk: 
-    barcode_vol = 1.25
-    total_rxn_vol = 10
-elif max(volume3) == 1:
-    barcode_vol = 1
-    total_rxn_vol = 11
-else:
-    barcode_vol = 0.5
-    total_rxn_vol = 5.5
+# if lsk: 
+#     barcode_vol = 1.25
+#     total_rxn_vol = 10
+# elif max(volume3) == 1:
+#     barcode_vol = 1
+#     total_rxn_vol = 11
+# else:
+#     barcode_vol = 0.5
+#     total_rxn_vol = 5.5
 
 ######################## Calculations for full column transfer  - for rapid barcode plate #######################
 # the requirement is that:

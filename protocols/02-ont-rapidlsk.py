@@ -102,8 +102,8 @@ def run(ctx: protocol_api.ProtocolContext):
 
     s20.flow_rate.aspirate = s20.flow_rate.aspirate / aspirate_factor
     s20.flow_rate.dispense = s20.flow_rate.dispense / dispense_factor
-    m20.flow_rate.aspirate = s20.flow_rate.aspirate / aspirate_factor
-    m20.flow_rate.dispense = s20.flow_rate.dispense / dispense_factor
+    m20.flow_rate.aspirate = m20.flow_rate.aspirate / aspirate_factor
+    m20.flow_rate.dispense = m20.flow_rate.dispense / dispense_factor
 
     ctx.comment('----------------------------------------------------------------')
     ctx.comment('Using s20 aspirate flow rate of ' + str(s20.flow_rate.aspirate) + ' ul/s')

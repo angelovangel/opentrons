@@ -173,6 +173,8 @@ def run(ctx: protocol_api.ProtocolContext):
     # If LSK, end prep incubation, transfer DNA to ligation plate and continue up to barcode addition
     #
     if lsk:
+        # pause - this is optional in the Shiny app to cover rxn plate
+        # optional pause #ctx.pause("Optional pause to cover plate with aluminum foil") 
         odtc.close_lid()
         #odtc.set_lid_temperature(100)
         odtc.set_block_temperature(20, hold_time_minutes = 5)
@@ -269,11 +271,10 @@ def run(ctx: protocol_api.ProtocolContext):
         )
         
 
-    # pause - this is optional in the Shiny app to cover rxn plate
-    # optional pause #ctx.pause("Optional pause to cover plate with aluminum foil") 
-
     # ODTC if rapid only
     if not lsk:
+        # pause - this is optional in the Shiny app to cover rxn plate
+        # optional pause #ctx.pause("Optional pause to cover plate with aluminum foil") 
         odtc.close_lid()
         #odtc.set_lid_temperature(100)
         odtc.set_block_temperature(30, hold_time_minutes = 2)

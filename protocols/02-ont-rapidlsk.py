@@ -165,7 +165,7 @@ def run(ctx: protocol_api.ProtocolContext):
         [ sourceplate.wells_by_name()[v] for i, v in enumerate(sourcewells1) if volume1[i] > 0],
         [ destplate.wells_by_name()[v] for i, v in enumerate(destwells1) if volume1[i] > 0], 
         new_tip = 'always',
-        mix_after = (1, 3), 
+        mix_after = (4, total_rxn_vol/1.5),
         blow_out = True, 
         blowout_location = 'destination well'
         )
@@ -240,7 +240,7 @@ def run(ctx: protocol_api.ProtocolContext):
         barcodeplate.wells_by_name()['A' + scols3_fulltransfer[i]], 
         workingplate.wells_by_name()['A' + dcols3_fulltransfer[i]], 
         new_tip = 'always', 
-        mix_after = (8, total_rxn_vol/2), 
+        mix_after = (8, total_rxn_vol/1.5), 
         blow_out = True, 
         blowout_location = 'destination well' 
         )
@@ -255,7 +255,7 @@ def run(ctx: protocol_api.ProtocolContext):
                 barcodeplate.wells_by_name()[sourcewells3[i]], 
                 workingplate.wells_by_name()[destwells3[i]], 
                 new_tip = 'always', 
-                mix_after = (8, total_rxn_vol/2), 
+                mix_after = (8, total_rxn_vol/1.5), 
                 blow_out = True, 
         		blowout_location = 'destination well'
             )

@@ -181,8 +181,6 @@ def run(ctx: protocol_api.ProtocolContext):
         odtc.set_block_temperature(65, hold_time_minutes = 5)
         odtc.set_block_temperature(15)
         odtc.open_lid()
-        odtc.deactivate_lid()
-        odtc.deactivate_block()  
 
         # water to ligation plate
         s20.distribute(
@@ -281,8 +279,6 @@ def run(ctx: protocol_api.ProtocolContext):
         odtc.set_block_temperature(80, hold_time_minutes = 2)
         odtc.set_block_temperature(15)
         odtc.open_lid()
-        odtc.deactivate_lid()
-        odtc.deactivate_block()
 
     # Pool
     ctx.comment("================= Pool samples =========================")
@@ -303,6 +299,8 @@ def run(ctx: protocol_api.ProtocolContext):
             new_tip = 'always'
         )
 
+    odtc.deactivate_lid()
+    odtc.deactivate_block()
     poolvol = len([v for v in volume1 if v > 0]) * (total_rxn_vol * consolidate_vol_fraction)
 
     ctx.comment("Final volume of pool: " + str(poolvol) + " ul")

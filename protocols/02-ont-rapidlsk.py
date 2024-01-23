@@ -165,7 +165,7 @@ def run(ctx: protocol_api.ProtocolContext):
         [ sourceplate.wells_by_name()[v] for i, v in enumerate(sourcewells1) if volume1[i] > 0],
         [ destplate.wells_by_name()[v] for i, v in enumerate(destwells1) if volume1[i] > 0], 
         new_tip = 'always',
-        mix_after = (4, total_rxn_vol/1.5),
+        mix_after = (5, total_rxn_vol/1.5) if lsk else (0, 0),
         blow_out = True, 
         blowout_location = 'destination well'
         )

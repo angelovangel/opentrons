@@ -82,7 +82,7 @@ def run(ctx: protocol_api.ProtocolContext):
             rack.wells_by_name()[v],
             [pcrplate.wells_by_name()[well] for well in distribute_wells[:plex]], 
             air_gap = 0, 
-            disposal_volume = 3
+            disposal_volume = 0 
             #blow_out = False, 
             #blowout_location = 'destination well' # blowout is required in distribute
         )

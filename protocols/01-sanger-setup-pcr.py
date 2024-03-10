@@ -270,7 +270,7 @@ def run(ctx: protocol_api.ProtocolContext):
     odtc.set_block_temperature(temperature=96, hold_time_minutes=1)
     profile = [
     {'temperature':96, 'hold_time_seconds':10},
-    {'temperature':55, 'hold_time_seconds':5},
+    {'temperature':50, 'hold_time_seconds':5},
     {'temperature':60, 'hold_time_seconds':240}
     ]
     odtc.execute_profile(steps=profile, repetitions=30, block_max_volume=20)

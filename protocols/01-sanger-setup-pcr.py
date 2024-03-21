@@ -30,8 +30,9 @@ else:
     left_tips = 'opentrons_96_filtertiprack_200ul'
 
 change_primer_tip = True
+nopcr_run = True # use stack in ODTC !! so in this case open lid and DO NOT CLOSE it
 
-###
+### Replaced by Shiny app
 
 # exit early if there is something wrong with the dest wells
 if len(destwells1) != 96:
@@ -140,7 +141,10 @@ def run(ctx: protocol_api.ProtocolContext):
         )
     # ODTC
     odtc = ctx.load_module(module_name='thermocyclerModuleV2')
-    destplate = odtc.load_labware('biorad_96_wellplate_200ul_pcr') # IMPORTANT - use biorad plates!!!
+    if nopcr_run:
+        destplate = odtc.load_labware('stack_plate_biorad96well')
+    else:
+        destplate = odtc.load_labware('biorad_96_wellplate_200ul_pcr') # IMPORTANT - use biorad plates!!!
 
     # stack of 96 well base plate and PCR plate
     # destplate = ctx.load_labware('pcrplate_96_wellplate_200ul', '5', 'Destination plate') # stack of 96 well base plate and PCR plate
@@ -261,19 +265,22 @@ def run(ctx: protocol_api.ProtocolContext):
         blowout_location = 'destination well'
     )
     # this is optional in the Shiny app to cover rxn plate
-    message2 = "Cover plate with aluminum foil and press 'Continue' when ready"
-    ctx.pause(msg = message2) 
+    if nopcr_run:
+        ctx.comment("Protocol finished!")
+    else:
+        message2 = "Cover plate with aluminum foil and press 'Continue' when ready"
+        ctx.pause(msg = message2) 
 
-    # Cycle sequencing
-    odtc.close_lid()
-    odtc.set_lid_temperature(100)
-    odtc.set_block_temperature(temperature=96, hold_time_minutes=1)
-    profile = [
-    {'temperature':96, 'hold_time_seconds':10},
-    {'temperature':50, 'hold_time_seconds':5},
-    {'temperature':60, 'hold_time_seconds':240}
-    ]
-    odtc.execute_profile(steps=profile, repetitions=30, block_max_volume=20)
-    odtc.open_lid()
-    odtc.deactivate_lid()
-    odtc.set_block_temperature(10)
+        # Cycle sequencing
+        odtc.close_lid()
+        odtc.set_lid_temperature(100)
+        odtc.set_block_temperature(temperature=96, hold_time_minutes=1)
+        profile = [
+        {'temperature':96, 'hold_time_seconds':10},
+        {'temperature':50, 'hold_time_seconds':5},
+        {'temperature':60, 'hold_time_seconds':240}
+        ]
+        odtc.execute_profile(steps=profile, repetitions=30, block_max_volume=20)
+        odtc.open_lid()
+        odtc.deactivate_lid()
+        odtc.set_block_temperature(10)

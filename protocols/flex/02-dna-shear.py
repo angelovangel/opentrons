@@ -40,14 +40,17 @@ def run(ctx: protocol_api.ProtocolContext):
     )
     
 
-    def mymix(vol, position, repeats):
+    def mymix(vol, position, repeats, return_tip = False):
         pip.pick_up_tip()
         for _ in range(repeats):
             loc1 = sampleplate[position].bottom(z = 1)
             loc2 = loc1.move(types.Point(x=-2, y=0, z=5))
             pip.aspirate(vol, loc1)
             pip.dispense(vol, loc2)
-        pip.drop_tip()
+        if return_tip:
+            pip.return_tip()
+        else:
+            pip.drop_tip()
 
     # currently only one column loading is supported by the API, but this will change
     # for i in cols[:ncols]:
@@ -57,4 +60,4 @@ def run(ctx: protocol_api.ProtocolContext):
     for _, (k, v) in enumerate( mydict.items() ):
         #print(k, v)
         for well in v:
-            mymix(mixvol, well, k)
+            mymix(mixvol, well, k, return_tip=False)

@@ -21,7 +21,7 @@ volume2=[10, 10, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 sourcewells3=['A1','A1','A1','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','']
 destwells3=['A1', 'B1', 'C1', 'D1', 'E1', 'F1', 'G1', 'H1', 'A2', 'B2', 'C2', 'D2', 'E2', 'F2', 'G2', 'H2', 'A3', 'B3', 'C3', 'D3', 'E3', 'F3', 'G3', 'H3', 'A4', 'B4', 'C4', 'D4', 'E4', 'F4', 'G4', 'H4', 'A5', 'B5', 'C5', 'D5', 'E5', 'F5', 'G5', 'H5', 'A6', 'B6', 'C6', 'D6', 'E6', 'F6', 'G6', 'H6', 'A7', 'B7', 'C7', 'D7', 'E7', 'F7', 'G7', 'H7', 'A8', 'B8', 'C8', 'D8', 'E8', 'F8', 'G8', 'H8', 'A9', 'B9', 'C9', 'D9', 'E9', 'F9', 'G9', 'H9', 'A10', 'B10', 'C10', 'D10', 'E10', 'F10', 'G10', 'H10', 'A11', 'B11', 'C11', 'D11', 'E11', 'F11', 'G11', 'H11', 'A12', 'B12', 'C12', 'D12', 'E12', 'F12', 'G12', 'H12']
 volume3=[5, 5, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-
+dmso=[1.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
 left_mount = 'p300_single_gen2'
 if left_mount == 'p20_single_gen2':
@@ -31,8 +31,17 @@ else:
 
 change_primer_tip = True
 nopcr_run = True # use stack in ODTC !! so in this case open lid and DO NOT CLOSE it
+sourceplate_type = 'stack_plate_biorad96well'
+mm_pos = 'D6'
+dmso_pos = 'C6'
 
 ### Replaced by Shiny app
+
+# for those dest where dmso is added, reduce sample volume with 1.5 ul
+for i, v in enumerate(destwells1):
+    if dmso[i] > 0:
+        if volume1[i] > 0: volume1[i] = volume1[i] - 1.5
+        if volume2[i] > 0: volume2[i] = volume2[i] - 1.5
 
 # exit early if there is something wrong with the dest wells
 if len(destwells1) != 96:
@@ -148,7 +157,7 @@ def run(ctx: protocol_api.ProtocolContext):
 
     # stack of 96 well base plate and PCR plate
     # destplate = ctx.load_labware('pcrplate_96_wellplate_200ul', '5', 'Destination plate') # stack of 96 well base plate and PCR plate
-    sourceplate = ctx.load_labware('stack_plate_biorad96well', '6', 'Source plate') # stack of 96 well base plate and PCR plate
+    sourceplate = ctx.load_labware(sourceplate_type, '6', 'Source plate') # stack of 96 well base plate and PCR plate
     sourcestrip = ctx.load_labware('stack_strip_biorad96well', '4', 'Source strip') # stack of 96 well base plate and strips
     mmstrip = ctx.load_labware('stack_strip_biorad96well', '9', 'Sequencing master mix in strip') # stack of 96 well base plate and strips
     sourcetube = ctx.load_labware('opentrons_24_tuberack_eppendorf_1.5ml_safelock_snapcap', '5', 'Primers in tube rack')
@@ -234,6 +243,14 @@ def run(ctx: protocol_api.ProtocolContext):
             )
     ctx.comment("--------------------------------------")
     
+    # DMSO addition, use s20 only, fixed position on C6
+    for i, v in enumerate(destwells1):
+        if dmso[i] > 0:
+            s20.transfer(
+                dmso[i], sourcetube[dmso_pos], destplate[v], mix_after = (3, 5), 
+                blow_out = True, blowout_location = 'destination well'
+            )
+
 	# pause here, prompt adding reservoir with PCR master mix
     # try to attract attention too!
     
@@ -249,7 +266,7 @@ def run(ctx: protocol_api.ProtocolContext):
     # distribute master mix to col 1 
     s20.distribute(
         list(rows_mm_vols.values()), 
-        sourcetube.wells_by_name()['D6'], # fixed position, place MM in D6 of Epi tuberack
+        sourcetube.wells_by_name()[mm_pos], # fixed position, place MM in D6 of Epi tuberack
         mmstrip.columns()[0],
         new_tip = 'once', disposal_volume = 0, blow_out = False)
     ctx.comment("--------------------------------------")

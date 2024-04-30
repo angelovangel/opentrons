@@ -246,6 +246,8 @@ def run(ctx: protocol_api.ProtocolContext):
     # DMSO addition, use s20 only, fixed position on C6
     for i, v in enumerate(destwells1):
         if dmso[i] > 0:
+            ctx.comment("Adding DMSO to well " + str(v))
+            ctx.comment("--------------------------------------")
             s20.transfer(
                 dmso[i], sourcetube[dmso_pos], destplate[v], mix_after = (3, 5), 
                 blow_out = True, blowout_location = 'destination well'

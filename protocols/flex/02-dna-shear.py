@@ -1,4 +1,5 @@
 from opentrons import protocol_api
+from opentrons import types
 from opentrons.protocol_api import COLUMN, ALL
 
 metadata = {
@@ -13,31 +14,47 @@ requirements = {
     }
     
 ###     Variables            ###
-ncols =       2
-samplevol =  50
-speed_aspirate = 500
-speed_dispence = 500
+ncols = 2
+tips = "opentrons_flex_96_filtertiprack_1000ul"
+mixvol = 290
+reps = 3
+speed_aspirate = 700
+speed_dispence = 700
 ################################
 
+cols = ['A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'A9', 'A10', 'A11', 'A12']
 
 def run(ctx: protocol_api.ProtocolContext):
     ctx.load_trash_bin("A3")
-    rack1000 = ctx.load_labware(load_name="opentrons_flex_96_filtertiprack_1000ul", location="B3")
-    plate = ctx.load_labware('nest_96_wellplate_2ml_deep', 'B1')
+    rack1000 = ctx.load_labware(load_name=tips, location="B3")
+    sampleplate = ctx.load_labware('nest_96_wellplate_2ml_deep', 'B1')
     pip = ctx.load_instrument("flex_96channel_1000")
 
     pip.flow_rate.aspirate = speed_aspirate
     pip.flow_rate.dispense = speed_dispence
-
+    
     pip.configure_nozzle_layout(
         style=COLUMN,
         start="A12",
         tip_racks=[rack1000]
     )
-    mydict = {75: ['A1', 'A5', 'A9'], 150: ['A2', 'A6', 'A10'], 300: ['A3', 'A7', 'A11'], 450: ['A4', 'A8', 'A12']}
-    for i, (k, v) in enumerate( mydict.items() ):
+    
+
+    def mymix(vol, position, repeats):
+        pip.pick_up_tip()
+        for _ in range(repeats):
+            loc1 = sampleplate[position].bottom(z = 1)
+            loc2 = loc1.move(types.Point(x=-2, y=0, z=5))
+            pip.aspirate(vol, loc1)
+            pip.dispense(vol, loc2)
+        pip.drop_tip()
+
+    # currently only one column loading is supported by the API, but this will change
+    # for i in cols[:ncols]:
+    #     mymix(reps)
+
+    mydict = {1: ['A1', 'A5', 'A9'], 2: ['A2', 'A6', 'A10'], 3: ['A3', 'A7', 'A11'], 4: ['A4', 'A8', 'A12']}
+    for _, (k, v) in enumerate( mydict.items() ):
         #print(k, v)
         for well in v:
-            pip.pick_up_tip()
-            pip.mix(repetitions=k, volume=290, location=plate.wells_by_name()[well])
-            pip.drop_tip()
+            mymix(mixvol, well, k)

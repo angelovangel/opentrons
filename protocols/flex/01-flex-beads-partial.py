@@ -35,8 +35,6 @@ def run(ctx: protocol_api.ProtocolContext):
     rack1000 = [ctx.load_labware(load_name="opentrons_flex_96_filtertiprack_1000ul", location=pos) for pos in ['B3', 'C3']]
 
     pip = ctx.load_instrument("flex_96channel_1000")
-    pip.flow_rate.aspirate = pip.flow_rate.aspirate / speed_factor_aspirate
-    pip.flow_rate.dispense = pip.flow_rate.dispense / speed_factor_dispence
 
     magnet = ctx.load_module("magneticBlockV1", 'C1')
 
@@ -51,9 +49,32 @@ def run(ctx: protocol_api.ProtocolContext):
         start="A12",
         tip_racks=rack1000
     )
+    pip.flow_rate.aspirate = pip.flow_rate.aspirate / speed_factor_aspirate
+    pip.flow_rate.dispense = pip.flow_rate.dispense / speed_factor_dispence
+    
+    # Custom function to aspirate supernatant
+    def supernatant_removal(vol, src, dest):
+        pip.flow_rate.aspirate = 20
+        asp_ctr = 0
+        while vol > 180:
+            pip.aspirate(
+                180, src.bottom().move(types.Point(x=0, y=0, z=0.5)))
+            pip.dispense(180, dest)
+            pip.aspirate(10, dest)
+            vol -= 180
+            asp_ctr += 1
+        pip.aspirate(
+            vol, src.bottom().move(types.Point(x=0, y=0, z=0.5)))
+        dvol = 10*asp_ctr + vol
+        pip.dispense(dvol, dest)
+        pip.configure_for_volume(1000)
+
     # Add beads to samples, use single column here to keep beads in A1 of reservoir
     rowA = plate1.rows()[0]
 
+    ctx.comment("-----------")
+    ctx.comment("Adding beads to columns " + str(rowA[:ncols]))
+    ctx.comment("-----------")
     pip.transfer(
         beadsvol,
         reservoir[beadspos],
@@ -70,12 +91,15 @@ def run(ctx: protocol_api.ProtocolContext):
     #print(rack50.rows()[0][3])
     #pip.pick_up_tip(next_tipload_loc)
     for i in range(ncols):
+        ctx.comment("-----------")
+        ctx.comment("Mixing column " + str(rowA[i]))
+        ctx.comment("-----------")
         pip.pick_up_tip()
         pip.mix(repetitions=5, volume=samplevol/2, location=rowA[i], rate=0.8)
         pip.drop_tip()
     
 
-    ctx.delay(inctime/2)
+    ctx.delay(minutes=inctime/2)
     
     ########################################################################
 
@@ -83,8 +107,24 @@ def run(ctx: protocol_api.ProtocolContext):
     ctx.move_labware(plate1, magnet, use_gripper=True)
     
     # Aspirate the supernatant
-    
+
+    for i in range(ncols):
+        ctx.comment("-----------")
+        ctx.comment("Supernatant removal column " + str(rowA[i]))
+        ctx.comment("-----------")
+        pip.pick_up_tip()
+        supernatant_removal((samplevol + beadsvol)*1.1, plate1['A1'], trash)
+        pip.drop_tip()
+
     # EtOH wash 1
+    for i in range(ncols):
+        ctx.comment("-----------")
+        ctx.comment("EtOH wash for column " + str(rowA[i]))
+        ctx.comment("-----------")
+        pip.pick_up_tip()
+        pip.aspirate(etohvol, etoh['A1'])
+        pip.dispenser(etohvol, plate1[i])
+
     # pip.pick_up_tip(rack1000.rows()[0][ncols-1])
     # pip.aspirate(etohvol, etoh['A1'])
     # pip.dispense(etohvol, rowA[ncols-1])
@@ -127,7 +167,5 @@ def run(ctx: protocol_api.ProtocolContext):
     # pip.dispense(ebvol, plate2['A1'], push_out=10)
 
 
-
-    
 
     

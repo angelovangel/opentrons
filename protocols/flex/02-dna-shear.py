@@ -18,8 +18,8 @@ ncols = 2
 tips = "opentrons_flex_96_filtertiprack_1000ul"
 mixvol = 290
 reps = 3
-speed_aspirate = 700
-speed_dispence = 700
+speed_aspirate = 716
+speed_dispence = 716
 ################################
 
 cols = ['A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'A9', 'A10', 'A11', 'A12']
@@ -29,15 +29,14 @@ def run(ctx: protocol_api.ProtocolContext):
     rack1000 = ctx.load_labware(load_name=tips, location="B3")
     sampleplate = ctx.load_labware('nest_96_wellplate_2ml_deep', 'B1')
     pip = ctx.load_instrument("flex_96channel_1000")
-
-    pip.flow_rate.aspirate = speed_aspirate
-    pip.flow_rate.dispense = speed_dispence
     
     pip.configure_nozzle_layout(
         style=COLUMN,
         start="A12",
         tip_racks=[rack1000]
     )
+    pip.flow_rate.aspirate = speed_aspirate
+    pip.flow_rate.dispense = speed_dispence
     
 
 

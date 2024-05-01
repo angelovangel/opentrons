@@ -44,7 +44,7 @@ def run(ctx: protocol_api.ProtocolContext):
         pip.pick_up_tip()
         for _ in range(repeats):
             loc1 = sampleplate[position].bottom(z = 1)
-            loc2 = loc1.move(types.Point(x=-2, y=0, z=5))
+            loc2 = loc1.move(types.Point(x=0, y=0, z=5))
             pip.aspirate(vol, loc1)
             pip.dispense(vol, loc2)
         if return_tip:

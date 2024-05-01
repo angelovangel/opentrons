@@ -3,8 +3,8 @@ from opentrons import types
 from opentrons.protocol_api import COLUMN, ALL
 
 metadata = {
-    "protocolName": "Beads cleanup Flex 96-channel, partial loading",
-    "description": """This protocol is for performing bead cleanup with variable number of columns (1 to 6)""",
+    "protocolName": "DNA shear 96 head",
+    "description": """This protocol is for performing DNA shearing on Flex with 96 channel pipette""",
     "author": "angel.angelov@kaust.edu.sa"
     }
 
@@ -40,17 +40,6 @@ def run(ctx: protocol_api.ProtocolContext):
     )
     
 
-    def mymix(vol, position, repeats, return_tip = False):
-        pip.pick_up_tip()
-        for _ in range(repeats):
-            loc1 = sampleplate[position].bottom(z = 1)
-            loc2 = loc1.move(types.Point(x=0, y=0, z=5))
-            pip.aspirate(vol, loc1)
-            pip.dispense(vol, loc2)
-        if return_tip:
-            pip.return_tip()
-        else:
-            pip.drop_tip()
 
     # currently only one column loading is supported by the API, but this will change
     # for i in cols[:ncols]:
@@ -58,6 +47,9 @@ def run(ctx: protocol_api.ProtocolContext):
 
     mydict = {1: ['A1', 'A5', 'A9'], 2: ['A2', 'A6', 'A10'], 3: ['A3', 'A7', 'A11'], 4: ['A4', 'A8', 'A12']}
     for _, (k, v) in enumerate( mydict.items() ):
-        #print(k, v)
+        print(k, v)
         for well in v:
-            mymix(mixvol, well, k, return_tip=False)
+            pip.pick_up_tip()
+            pip.mix(repetitions=k, volume=mixvol, location=sampleplate[well])
+            pip.drop_tip()
+            #mymix(mixvol, well, k, return_tip=False)

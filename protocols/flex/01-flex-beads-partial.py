@@ -35,6 +35,8 @@ def run(ctx: protocol_api.ProtocolContext):
     rack1000 = [ctx.load_labware(load_name="opentrons_flex_96_filtertiprack_1000ul", location=pos) for pos in ['B3', 'C3']]
 
     pip = ctx.load_instrument("flex_96channel_1000")
+    flowrate_asp_orig = pip.flow_rate.aspirate
+    flowrate_disp_orig = pip.flow_rate.dispense
 
     magnet = ctx.load_module("magneticBlockV1", 'C1')
 
@@ -49,8 +51,8 @@ def run(ctx: protocol_api.ProtocolContext):
         start="A12",
         tip_racks=rack1000
     )
-    pip.flow_rate.aspirate = pip.flow_rate.aspirate / speed_factor_aspirate
-    pip.flow_rate.dispense = pip.flow_rate.dispense / speed_factor_dispence
+    pip.flow_rate.aspirate = flowrate_asp_orig / speed_factor_aspirate
+    pip.flow_rate.dispense = flowrate_disp_orig / speed_factor_dispence
     
     # Custom function to aspirate supernatant
     def supernatant_removal(vol, src, dest):
@@ -67,7 +69,7 @@ def run(ctx: protocol_api.ProtocolContext):
             vol, src.bottom().move(types.Point(x=0, y=0, z=0.5)))
         dvol = 10*asp_ctr + vol
         pip.dispense(dvol, dest)
-        pip.configure_for_volume(1000)
+        pip.flow_rate.aspirate = flowrate_asp_orig
 
     # Add beads to samples, use single column here to keep beads in A1 of reservoir
     rowA = plate1.rows()[0]
@@ -113,17 +115,33 @@ def run(ctx: protocol_api.ProtocolContext):
         ctx.comment("Supernatant removal column " + str(rowA[i]))
         ctx.comment("-----------")
         pip.pick_up_tip()
-        supernatant_removal((samplevol + beadsvol)*1.1, plate1['A1'], trash)
+        supernatant_removal((samplevol + beadsvol)*1.1, rowA[i], trash)
         pip.drop_tip()
 
     # EtOH wash 1
     for i in range(ncols):
         ctx.comment("-----------")
-        ctx.comment("EtOH wash for column " + str(rowA[i]))
+        ctx.comment("EtOH add for column " + str(rowA[i]))
         ctx.comment("-----------")
+        
         pip.pick_up_tip()
         pip.aspirate(etohvol, etoh['A1'])
-        pip.dispenser(etohvol, plate1[i])
+        pip.dispense(etohvol, rowA[i])
+        pip.drop_tip()
+        
+    ctx.delay(seconds=30)
+        
+    for i in range(ncols):
+        ctx.comment("-----------")
+        ctx.comment("EtOH remove for column " + str(rowA[i]))
+        ctx.comment("-----------")
+        pip.pick_up_tip()
+        #supernatant_removal(etohvol*1.1, rowA[i], trash)
+        pip.drop_tip()
+        # remove rest EtOH
+        #pip.pick_up_tip()
+        #pip.aspirate(50, rowA[i])
+        #pip.drop_tip()
 
     # pip.pick_up_tip(rack1000.rows()[0][ncols-1])
     # pip.aspirate(etohvol, etoh['A1'])

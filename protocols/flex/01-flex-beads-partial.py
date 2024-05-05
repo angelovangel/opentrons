@@ -48,9 +48,7 @@ def run(ctx: protocol_api.ProtocolContext):
     tips = [ctx.load_labware(load_name="opentrons_flex_96_filtertiprack_200ul", location=pos) for pos in tipspositions[:n_tipboxes]]
 
     pip = ctx.load_instrument("flex_96channel_1000")
-    flowrate_asp_orig = pip.flow_rate.aspirate
-    flowrate_disp_orig = pip.flow_rate.dispense
-
+    
     magnet = ctx.load_module("magneticBlockV1", 'C1')
 
     reservoir = ctx.load_labware("nest_12_reservoir_15ml", "D2")
@@ -64,25 +62,27 @@ def run(ctx: protocol_api.ProtocolContext):
         start="A12",
         tip_racks=tips
     )
-    pip.flow_rate.aspirate = flowrate_asp_orig / speed_factor_aspirate
-    pip.flow_rate.dispense = flowrate_disp_orig / speed_factor_dispence
+    pip.flow_rate.aspirate = pip.flow_rate.aspirate / speed_factor_aspirate
+    pip.flow_rate.dispense = pip.flow_rate.dispense / speed_factor_dispence
     
     # Custom function to aspirate supernatant
     def supernatant_removal(vol, src, dest):
         pip.flow_rate.aspirate = 20
         asp_ctr = 0
-        while vol > 180:
+        while vol > 150:
             pip.aspirate(
-                180, src.bottom().move(types.Point(x=0, y=0, z=0.5)))
-            pip.dispense(180, dest)
-            pip.aspirate(10, dest)
-            vol -= 180
+                150, src.bottom().move(types.Point(x=0, y=0, z=1.0)))
+            pip.dispense(
+                150, dest.top().move(types.Point(x=0, y=0, z=2)))
+            #pip.aspirate(10, dest)
+            vol -= 150
             asp_ctr += 1
         pip.aspirate(
             vol, src.bottom().move(types.Point(x=0, y=0, z=0.5)))
         dvol = 10*asp_ctr + vol
-        pip.dispense(dvol, dest)
-        pip.flow_rate.aspirate = flowrate_asp_orig
+        pip.dispense(
+            dvol, dest.top().move(types.Point(x=0, y=0, z=2)))
+        pip.flow_rate.aspirate = pip.flow_rate.aspirate / speed_factor_aspirate
 
     # Add beads to samples, use single column here to keep beads in A1 of reservoir
     rowA_start = plate1.rows()[0]
@@ -155,7 +155,7 @@ def run(ctx: protocol_api.ProtocolContext):
             ebvol, 
             reservoir[ebpos], 
             rowA_start[i],
-            mix_after = (12, ebvol*0.8), 
+            mix_after = (15, ebvol*0.8), 
             new_tip = 'always'
         )
     comment(ctx, 'Incubate ' + str(inctime) + ' minutes')

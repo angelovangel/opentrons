@@ -36,6 +36,12 @@ DRY_RUN = False
 if ncols < 1 | ncols > 7:
     quit("ncols must be between 1 and 6")
 
+def comment(myctx, message):
+    myctx.comment("-----------")
+    myctx.comment(message)
+    myctx.comment("-----------")
+
+
 def run(ctx: protocol_api.ProtocolContext):
     #rack50_1 = ctx.load_labware(load_name="opentrons_flex_96_filtertiprack_50ul", location="D3")
     #rack50_2 = ctx.load_labware(load_name="opentrons_flex_96_filtertiprack_50ul", location="C3")
@@ -82,9 +88,8 @@ def run(ctx: protocol_api.ProtocolContext):
     rowA_start = plate1.rows()[0]
     rowA_end = plate2.rows()[0]
 
-    ctx.comment("-----------")
-    ctx.comment("Adding beads to columns " + str(rowA_start[:ncols]))
-    ctx.comment("-----------")
+    comment(ctx, "Adding beads to columns " + str(rowA_start[:ncols]))
+    
     pip.transfer(
         beadsvol,
         reservoir[beadspos],
@@ -100,9 +105,7 @@ def run(ctx: protocol_api.ProtocolContext):
     #print(rack50.rows()[0][3])
     #pip.pick_up_tip(next_tipload_loc)
     for i in range(ncols):
-        ctx.comment("-----------")
-        ctx.comment("Mixing column " + str(rowA_start[i]))
-        ctx.comment("-----------")
+        comment(ctx, "Mixing column " + str(rowA_start[i]))
         pip.pick_up_tip()
         pip.mix(repetitions=5, volume=(samplevol + beadsvol) * 0.8, location=rowA_start[i], rate=0.8)
         pip.drop_tip()
@@ -120,9 +123,7 @@ def run(ctx: protocol_api.ProtocolContext):
     # Aspirate the supernatant
 
     for i in range(ncols):
-        ctx.comment("-----------")
-        ctx.comment("Supernatant removal column " + str(rowA_start[i]))
-        ctx.comment("-----------")
+        comment(ctx, "Supernatant removal column " + str(rowA_start[i]))
         pip.pick_up_tip()
         supernatant_removal((samplevol + beadsvol)*1.1, rowA_start[i], reservoir[wastepos1])
         pip.drop_tip()
@@ -130,9 +131,7 @@ def run(ctx: protocol_api.ProtocolContext):
     # EtOH washes
     # add EtOH, no tip change   
     for k in range(2):
-        ctx.comment("-----------")
-        ctx.comment("EtOH addition " + str(k + 1))
-        ctx.comment("-----------")
+        comment(ctx, "EtOH addition " + str(k + 1))
         pip.pick_up_tip()
         for i in range(ncols):
             pip.aspirate(etohvol, etoh['A1'], rate = 0.8)
@@ -142,18 +141,14 @@ def run(ctx: protocol_api.ProtocolContext):
         ctx.delay(seconds=30)
     # EtOH remove, tip with change    
         for i in range(ncols):
-            ctx.comment("-----------")
-            ctx.comment("EtOH remove  " + str(k + 1) + " for column " + str(rowA_start[i]))
-            ctx.comment("-----------")
+            comment(ctx, "EtOH remove  " + str(k + 1) + " for column " + str(rowA_start[i]))
             pip.pick_up_tip()
             supernatant_removal(etohvol*1.1, rowA_start[i], reservoir[wastepos2])
             pip.drop_tip()
 
     # Move plate back to resuspend beads
     ctx.move_labware(plate1, 'D1', use_gripper=True)
-    ctx.comment("-----------")
-    ctx.comment("Resuspend beads")
-    ctx.comment("-----------")
+    comment(ctx, "Resuspend beads")
     for i in range(ncols):
         pip.transfer(
             ebvol, 
@@ -162,9 +157,7 @@ def run(ctx: protocol_api.ProtocolContext):
             mix_after = (12, ebvol*0.8), 
             new_tip = 'always'
         )
-    ctx.comment('-----------')
-    ctx.comment('Incubate ' + str(inctime) + ' minutes')
-    ctx.comment('-----------')
+    comment(ctx, 'Incubate ' + str(inctime) + ' minutes')
     if not DRY_RUN:
         ctx.delay(minutes = inctime)
 
@@ -173,16 +166,9 @@ def run(ctx: protocol_api.ProtocolContext):
     if not DRY_RUN:
         ctx.delay(minutes=2)
     for i in range(ncols):
-        ctx.comment('-----------')
-        ctx.comment('Elution for ' + str(rowA_start[i]))
-        ctx.comment('-----------')
+        comment(ctx, 'Elution for ' + str(rowA_start[i]))
         pip.pick_up_tip()
         supernatant_removal(ebvol, rowA_start[i], rowA_end[i])
         pip.drop_tip()
-    
-    ctx.comment('-----------')
-    ctx.comment('END')
 
-
-
-    
+    comment(ctx, 'END')

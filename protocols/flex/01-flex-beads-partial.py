@@ -17,16 +17,16 @@ requirements = {
 tipspositions = ['B3', 'C3', 'D3', 'A2']
 ###     Variables            ###
 ncols =       1
-# tip cols needed  = 1 + ncols*6
-n_tipboxes = math.ceil((1 + ncols*6)/12)
+# tip cols needed  = 2 + ncols*7
+n_tipboxes = math.ceil((2 + ncols*7)/12)
 samplevol =  50
 beadspos =  'A1'
 beadsvol =   50
 ebpos =     'A2'
-ebvol =      20
+ebvol =      40
 wastepos1 = 'A3'
 wastepos2 = 'A4'
-etohvol =   180
+etohvol =   150
 inctime =     5
 speed_factor_aspirate = 1
 speed_factor_dispence = 1
@@ -48,6 +48,7 @@ def run(ctx: protocol_api.ProtocolContext):
     tips = [ctx.load_labware(load_name="opentrons_flex_96_filtertiprack_200ul", location=pos) for pos in tipspositions[:n_tipboxes]]
 
     pip = ctx.load_instrument("flex_96channel_1000")
+    original_flow_rate_aspirate = pip.flow_rate.aspirate
     
     magnet = ctx.load_module("magneticBlockV1", 'C1')
 
@@ -62,7 +63,7 @@ def run(ctx: protocol_api.ProtocolContext):
         start="A12",
         tip_racks=tips
     )
-    pip.flow_rate.aspirate = pip.flow_rate.aspirate / speed_factor_aspirate
+    pip.flow_rate.aspirate = original_flow_rate_aspirate / speed_factor_aspirate
     pip.flow_rate.dispense = pip.flow_rate.dispense / speed_factor_dispence
     
     # Custom function to aspirate supernatant
@@ -73,16 +74,16 @@ def run(ctx: protocol_api.ProtocolContext):
             pip.aspirate(
                 150, src.bottom().move(types.Point(x=0, y=0, z=1.0)))
             pip.dispense(
-                150, dest.top().move(types.Point(x=0, y=0, z=2)))
-            #pip.aspirate(10, dest)
+                150, dest.top().move(types.Point(x=0, y=0, z=2)), push_out=5)
+            pip.aspirate(5, dest.top().move(types.Point(0,0,2))) # air gap
             vol -= 150
             asp_ctr += 1
         pip.aspirate(
             vol, src.bottom().move(types.Point(x=0, y=0, z=0.5)))
-        dvol = 10*asp_ctr + vol
+        dvol = 5*asp_ctr + vol
         pip.dispense(
             dvol, dest.top().move(types.Point(x=0, y=0, z=2)))
-        pip.flow_rate.aspirate = pip.flow_rate.aspirate / speed_factor_aspirate
+        pip.flow_rate.aspirate = original_flow_rate_aspirate / speed_factor_aspirate
 
     # Add beads to samples, use single column here to keep beads in A1 of reservoir
     rowA_start = plate1.rows()[0]
@@ -136,10 +137,11 @@ def run(ctx: protocol_api.ProtocolContext):
         pip.pick_up_tip()
         for i in range(ncols):
             pip.aspirate(etohvol, etoh['A1'], rate = 0.8)
-            pip.dispense(etohvol, rowA_start[i].top().move(types.Point(0, 0, -2)), rate = 0.2) #dispense from the top of the well
+            pip.dispense(etohvol, rowA_start[i].top().move(types.Point(0, 0, -1)), rate = 0.2) #dispense from the top of the well
+            pip.aspirate(5, rowA_start[i].top().move(types.Point(0,0,1))) # air gap
         pip.drop_tip()
         
-        ctx.delay(seconds=30)
+        ctx.delay(seconds=25)
     # EtOH remove, tip with change    
         for i in range(ncols):
             comment(ctx, "EtOH remove  " + str(k + 1) + " for column " + str(rowA_start[i]))

@@ -93,7 +93,8 @@ def run(ctx: protocol_api.ProtocolContext):
     pip.transfer(
         beadsvol,
         reservoir[beadspos],
-        rowA_start[0:ncols], 
+        rowA_start[0:ncols],
+        mix_before = (10, beadsvol * 0.8), 
         mix_after = (10, (samplevol + beadsvol) * 0.8), 
         blow_out = True, blowout_location = "destination well",
         new_tip = 'always'
@@ -107,7 +108,7 @@ def run(ctx: protocol_api.ProtocolContext):
     for i in range(ncols):
         comment(ctx, "Mixing column " + str(rowA_start[i]))
         pip.pick_up_tip()
-        pip.mix(repetitions=5, volume=(samplevol + beadsvol) * 0.8, location=rowA_start[i], rate=0.8)
+        pip.mix(repetitions=10, volume=(samplevol + beadsvol) * 0.8, location=rowA_start[i], rate=0.8)
         pip.drop_tip()
     
     if not DRY_RUN:

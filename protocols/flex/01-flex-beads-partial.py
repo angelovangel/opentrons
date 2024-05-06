@@ -81,8 +81,8 @@ def run(ctx: protocol_api.ProtocolContext):
         pip.aspirate(
             vol, src.bottom().move(types.Point(x=0, y=0, z=0.5)))
         dvol = 5*asp_ctr + vol
-        pip.dispense(
-            dvol, dest.top().move(types.Point(x=0, y=0, z=2)))
+        pip.dispense(dvol, dest.top().move(types.Point(x=0, y=0, z=2)))
+        pip.aspirate(5, dest.top().move(types.Point(0, 0, 2)))
         pip.flow_rate.aspirate = original_flow_rate_aspirate / speed_factor_aspirate
 
     # Add beads to samples, use single column here to keep beads in A1 of reservoir

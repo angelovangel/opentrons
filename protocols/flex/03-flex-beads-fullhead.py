@@ -60,6 +60,7 @@ def run(ctx: protocol_api.ProtocolContext):
     etoh = ctx.load_labware("axygen_1_reservoir_90ml", "C2")
     plate1 = ctx.load_labware("biorad_96_wellplate_200ul_pcr", "D1")
     plate2 = ctx.load_labware("biorad_96_wellplate_200ul_pcr", "B1")
+    #block = ctx.load_labware("nest_96_wellplate_2ml_deep", "")
     waste = ctx.load_labware("axygen_1_reservoir_90ml", "B2")
     trash = ctx.load_trash_bin("A3")
     
@@ -150,34 +151,27 @@ def run(ctx: protocol_api.ProtocolContext):
     # Move plate back to resuspend beads 
     ctx.move_labware(plate1, 'D1', use_gripper=True)
     
-    # Switch to column loading again for resuspend
-    ################################################################
-    pip.configure_nozzle_layout(
-        style=COLUMN,
-        start="A12",
-        tip_racks=[rack_partial]
-    )
-    ################################################################
+    
     comment(ctx, "Resuspend beads")
-    pip.pick_up_tip()
-    pip.transfer(ebvol, rese)
+    # use tips to mix once on the magnet after resusp
+    pip.pick_up_tip(rack_full_4['A1'])
+    #pip.aspirate(ebvol, block['A6'])
+    # pip.transfer(
+    #     ebvol, 
+    #     reservoir[ebpos], 
+    #     rowA_start[0:ncols], 
+    #     mix_after = (15, ebvol * 0.8), 
+    #     new_tip = 'always'
+    # )
 
-    # for i in range(ncols):
-    #     pip.transfer(
-    #         ebvol, 
-    #         reservoir[ebpos], 
-    #         rowA_start[i],
-    #         mix_after = (15, ebvol*0.8), 
-    #         new_tip = 'always'
-    #     )
-    # comment(ctx, 'Incubate ' + str(inctime) + ' minutes')
-    # if not DRY_RUN:
-    #     ctx.delay(minutes = inctime)
+    comment(ctx, 'Incubate ' + str(inctime) + ' minutes')
+    if not DRY_RUN:
+        ctx.delay(minutes = inctime)
 
-    # # Move plate to magnet and final elution
-    # ctx.move_labware(plate1, magnet, use_gripper=True)
-    # if not DRY_RUN:
-    #     ctx.delay(minutes=2)
+    # Move plate to magnet and final elution
+    ctx.move_labware(plate1, magnet, use_gripper=True)
+    if not DRY_RUN:
+        ctx.delay(minutes=3)
     # for i in range(ncols):
     #     comment(ctx, 'Elution for ' + str(rowA_start[i]))
     #     pip.pick_up_tip()

@@ -108,8 +108,11 @@ def run(ctx: protocol_api.ProtocolContext):
 
     # Move to magnet
     ctx.move_labware(plate1, magnet, use_gripper=True)
+    pip.pick_up_tip(rack_full_1['A1'])
+    pip.mix(2, (samplevol + beadsvol) * 0.8, plate1['A1'], rate=0.8)
     if not DRY_RUN:
         ctx.delay(minutes=3)
+    pip.return_tip()
     
     # Aspirate the supernatant
     # use same tips as for mixing before

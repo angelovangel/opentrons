@@ -15,7 +15,7 @@ requirements = {
     }
 
 ###     Variables            ###
-ncols =       2
+ncols =       6
 # tip cols needed  = 2 + ncols*7
 n_tipboxes = math.ceil((2 + ncols*7)/12)
 samplevol =  50
@@ -47,6 +47,7 @@ def run(ctx: protocol_api.ProtocolContext):
     rack_full_2 = ctx.load_labware(load_name="opentrons_flex_96_filtertiprack_200ul", location='C3', adapter="opentrons_flex_96_tiprack_adapter")
     rack_full_3 = ctx.load_labware(load_name="opentrons_flex_96_filtertiprack_200ul", location='D3', adapter="opentrons_flex_96_tiprack_adapter")
     rack_full_4 = ctx.load_labware(load_name="opentrons_flex_96_filtertiprack_200ul", location='A2', adapter="opentrons_flex_96_tiprack_adapter")
+    rack_full_5 = ctx.load_labware(load_name="opentrons_flex_96_filtertiprack_200ul", location='B2', adapter="opentrons_flex_96_tiprack_adapter")
 
     #rack50_2 = ctx.load_labware(load_name="opentrons_flex_96_filtertiprack_50ul", location="C3")
     #tips = [ctx.load_labware(load_name="opentrons_flex_96_filtertiprack_200ul", location=pos) for pos in tipspositions[:n_tipboxes]]
@@ -61,14 +62,15 @@ def run(ctx: protocol_api.ProtocolContext):
     plate1 = ctx.load_labware("biorad_96_wellplate_200ul_pcr", "D1")
     plate2 = ctx.load_labware("biorad_96_wellplate_200ul_pcr", "B1")
     #block = ctx.load_labware("nest_96_wellplate_2ml_deep", "")
-    waste = ctx.load_labware("axygen_1_reservoir_90ml", "B2")
+    #waste = ctx.load_labware("axygen_1_reservoir_90ml", "B2")
     trash = ctx.load_trash_bin("A3")
-    
+    ########################################################################
     pip.configure_nozzle_layout(
         style=COLUMN,
         start="A12",
         tip_racks=[rack_partial]
     )
+    ########################################################################
 
     pip.flow_rate.aspirate = original_flow_rate_aspirate / speed_factor_aspirate
     pip.flow_rate.dispense = pip.flow_rate.dispense / speed_factor_dispence
@@ -121,6 +123,8 @@ def run(ctx: protocol_api.ProtocolContext):
         pip.pick_up_tip(rack_full_1['A1'])
         pip.mix(repetitions=10, volume=(samplevol + beadsvol) * 0.8, location=plate1['A1'], rate=0.8)
         pip.return_tip()
+    if not DRY_RUN:
+            ctx.delay(minutes = inctime/3)
     
     ########################################################################
 
@@ -133,7 +137,9 @@ def run(ctx: protocol_api.ProtocolContext):
     # use same tips as for mixing before
     comment(ctx, 'Supernatant removal')
     pip.pick_up_tip(rack_full_1['A1'])
-    supernatant_removal((samplevol + beadsvol) * 1.1, plate1['A1'], waste['A1'])
+    pip.aspirate((samplevol + beadsvol * 1.1), plate1['A1'], rate = 0.2)
+    pip.dispense((samplevol + beadsvol) * 1.1, trash)
+    #supernatant_removal((samplevol + beadsvol) * 1.1, plate1['A1'], waste['A1'])
     pip.drop_tip()
 
     # EtOH washes - racks 2 and 3
@@ -145,37 +151,60 @@ def run(ctx: protocol_api.ProtocolContext):
         pip.aspirate(10, plate1['A1'].top().move(types.Point(0,0,1))) # air gap
         if not DRY_RUN:
             ctx.delay(seconds=25)
-        supernatant_removal(etohvol * 1.1, plate1['A1'], waste['A1'])
+        pip.aspirate(etohvol * 1.1, plate1['A1'], rate= 0.2)
+        pip.dispense(etohvol * 1.1, trash)
+        #supernatant_removal(etohvol * 1.1, plate1['A1'], waste['A1'])
         pip.drop_tip()
 
-    # Move plate back to resuspend beads 
+    # Move plate back to resuspend beads - column loading
     ctx.move_labware(plate1, 'D1', use_gripper=True)
-    
+
+    ########################################################################
+    pip.configure_nozzle_layout(
+        style=COLUMN,
+        start="A12",
+        tip_racks=[rack_partial]
+    )
+    ########################################################################
     
     comment(ctx, "Resuspend beads")
-    # use tips to mix once on the magnet after resusp
-    pip.pick_up_tip(rack_full_4['A1'])
-    #pip.aspirate(ebvol, block['A6'])
-    # pip.transfer(
-    #     ebvol, 
-    #     reservoir[ebpos], 
-    #     rowA_start[0:ncols], 
-    #     mix_after = (15, ebvol * 0.8), 
-    #     new_tip = 'always'
-    # )
+    
+    pip.transfer(
+        ebvol, 
+        reservoir[ebpos], 
+        rowA_start[0:ncols], 
+        mix_after = (15, ebvol * 0.8), 
+        new_tip = 'always'
+    )
+
+    # full head loading ################################################################
+    pip.configure_nozzle_layout(style = ALL)
+    # full head loading ################################################################
 
     comment(ctx, 'Incubate ' + str(inctime) + ' minutes')
+    for _ in range(2):
+        if not DRY_RUN:
+            ctx.delay(minutes = inctime/3)
+        pip.pick_up_tip(rack_full_4['A1'])
+        pip.mix(repetitions=10, volume= ebvol * 0.8, location=plate1['A1'], rate=0.8)
+        pip.return_tip()
     if not DRY_RUN:
-        ctx.delay(minutes = inctime)
+            ctx.delay(minutes = inctime/3)
 
     # Move plate to magnet and final elution
+    # use tips to mix once on the magnet after resusp
     ctx.move_labware(plate1, magnet, use_gripper=True)
+    pip.pick_up_tip(rack_full_4['A1'])
+    pip.mix(2, ebvol * 0.8, plate1['A1'])
+    pip.drop_tip()
+
     if not DRY_RUN:
         ctx.delay(minutes=3)
-    # for i in range(ncols):
-    #     comment(ctx, 'Elution for ' + str(rowA_start[i]))
-    #     pip.pick_up_tip()
-    #     supernatant_removal(ebvol, rowA_start[i], rowA_end[i])
-    #     pip.drop_tip()
-
-    # comment(ctx, 'END')
+    
+    comment(ctx, 'Final elution')
+    pip.pick_up_tip(rack_full_5['A1'])
+    pip.aspirate(ebvol * 1.1, plate1['A1'], rate=0.2)
+    pip.dispense(ebvol * 1.1, plate2['A1'], rate = 0.5, push_out=5)
+    pip.drop_tip()
+    
+    comment(ctx, 'END')

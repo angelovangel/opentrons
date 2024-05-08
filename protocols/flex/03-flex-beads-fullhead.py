@@ -15,7 +15,7 @@ requirements = {
     }
 
 ###     Variables            ###
-ncols =       6
+ncols =       2
 # tip cols needed  = 2 + ncols*7
 n_tipboxes = math.ceil((2 + ncols*7)/12)
 samplevol =  50
@@ -23,13 +23,12 @@ beadspos =  'A1'
 beadsvol =   50
 ebpos =     'A2'
 ebvol =      40
-wastepos1 = 'A3'
-wastepos2 = 'A4'
 etohvol =   150
 inctime =     10
 speed_factor_aspirate = 1
-speed_factor_dispence = 1
+#speed_factor_dispence = 1
 DRY_RUN = False
+BEADSMIX = True
 ################################
 
 if ncols < 1 | ncols > 7:
@@ -46,24 +45,23 @@ def run(ctx: protocol_api.ProtocolContext):
     rack_full_1 = ctx.load_labware(load_name="opentrons_flex_96_filtertiprack_200ul", location='B3', adapter="opentrons_flex_96_tiprack_adapter")
     rack_full_2 = ctx.load_labware(load_name="opentrons_flex_96_filtertiprack_200ul", location='C3', adapter="opentrons_flex_96_tiprack_adapter")
     rack_full_3 = ctx.load_labware(load_name="opentrons_flex_96_filtertiprack_200ul", location='D3', adapter="opentrons_flex_96_tiprack_adapter")
-    rack_full_4 = ctx.load_labware(load_name="opentrons_flex_96_filtertiprack_200ul", location='A2', adapter="opentrons_flex_96_tiprack_adapter")
+    rack_full_4 = ctx.load_labware(load_name="opentrons_flex_96_filtertiprack_200ul", location='A2', adapter="opentrons_flex_96_tiprack_adapter") # optional
     rack_full_5 = ctx.load_labware(load_name="opentrons_flex_96_filtertiprack_200ul", location='B2', adapter="opentrons_flex_96_tiprack_adapter")
-
-    #rack50_2 = ctx.load_labware(load_name="opentrons_flex_96_filtertiprack_50ul", location="C3")
-    #tips = [ctx.load_labware(load_name="opentrons_flex_96_filtertiprack_200ul", location=pos) for pos in tipspositions[:n_tipboxes]]
 
     pip = ctx.load_instrument("flex_96channel_1000")
     original_flow_rate_aspirate = pip.flow_rate.aspirate
     
+    # ----------------------------------------------
+    # modules
     magnet = ctx.load_module("magneticBlockV1", 'C1')
-
+    # ----------------------------------------------
+    # labware
     reservoir = ctx.load_labware("nest_12_reservoir_15ml", "D2")
     etoh = ctx.load_labware("axygen_1_reservoir_90ml", "C2")
     plate1 = ctx.load_labware("biorad_96_wellplate_200ul_pcr", "D1")
     plate2 = ctx.load_labware("biorad_96_wellplate_200ul_pcr", "B1")
-    #block = ctx.load_labware("nest_96_wellplate_2ml_deep", "")
-    #waste = ctx.load_labware("axygen_1_reservoir_90ml", "B2")
     trash = ctx.load_trash_bin("A3")
+
     ########################################################################
     pip.configure_nozzle_layout(
         style=COLUMN,
@@ -73,26 +71,7 @@ def run(ctx: protocol_api.ProtocolContext):
     ########################################################################
 
     pip.flow_rate.aspirate = original_flow_rate_aspirate / speed_factor_aspirate
-    pip.flow_rate.dispense = pip.flow_rate.dispense / speed_factor_dispence
     
-    # Custom function to aspirate supernatant
-    def supernatant_removal(vol, src, dest):
-        pip.flow_rate.aspirate = 20
-        asp_ctr = 0
-        while vol > 150:
-            pip.aspirate(
-                150, src.bottom().move(types.Point(x=0, y=0, z=1.0)))
-            pip.dispense(
-                150, dest.top().move(types.Point(x=0, y=0, z=2)), push_out=5)
-            pip.aspirate(5, dest.top().move(types.Point(0,0,2))) # air gap
-            vol -= 150
-            asp_ctr += 1
-        pip.aspirate(
-            vol, src.bottom().move(types.Point(x=0, y=0, z=0.5)))
-        dvol = 5*asp_ctr + vol
-        pip.dispense(dvol, dest.top().move(types.Point(x=0, y=0, z=2)))
-        pip.aspirate(5, dest.top().move(types.Point(0, 0, 2)))
-        pip.flow_rate.aspirate = original_flow_rate_aspirate / speed_factor_aspirate
 
     # Add beads to samples, use single column here to keep beads in A1 of reservoir
     rowA_start = plate1.rows()[0]
@@ -116,16 +95,15 @@ def run(ctx: protocol_api.ProtocolContext):
     # full head loading ################################################################
     pip.configure_nozzle_layout(style = ALL, tip_racks= [rack_full_1])
     # full head loading ################################################################
-    comment(ctx, "Mixing sample + beads during inc")
-    for _ in range(2):
-        if not DRY_RUN:
-            ctx.delay(minutes = inctime/3)
-        pip.pick_up_tip(rack_full_1['A1'])
-        pip.mix(repetitions=10, volume=(samplevol + beadsvol) * 0.8, location=plate1['A1'], rate=0.8)
-        pip.return_tip()
-    if not DRY_RUN:
-            ctx.delay(minutes = inctime/3)
     
+    if BEADSMIX:
+        comment(ctx, "Mixing sample + beads during inc")
+        for _ in range(2):
+            if not DRY_RUN:
+                ctx.delay(minutes = inctime/2)
+            pip.pick_up_tip(rack_full_1['A1'])
+            pip.mix(repetitions=10, volume=(samplevol + beadsvol) * 0.8, location=plate1['A1'], rate=0.8)
+            pip.return_tip()
     ########################################################################
 
     # Move to magnet
@@ -137,21 +115,21 @@ def run(ctx: protocol_api.ProtocolContext):
     # use same tips as for mixing before
     comment(ctx, 'Supernatant removal')
     pip.pick_up_tip(rack_full_1['A1'])
-    pip.aspirate((samplevol + beadsvol * 1.1), plate1['A1'], rate = 0.2)
+    pip.aspirate((samplevol + beadsvol * 1.1), plate1['A1'], rate = 0.1)
     pip.dispense((samplevol + beadsvol) * 1.1, trash)
-    #supernatant_removal((samplevol + beadsvol) * 1.1, plate1['A1'], waste['A1'])
     pip.drop_tip()
 
     # EtOH washes - racks 2 and 3
     comment(ctx, "EtOH washes")
     for i in [rack_full_2, rack_full_3]:
         pip.pick_up_tip(i['A1'])
-        pip.aspirate(etohvol, etoh['A1'], rate=0.8)
-        pip.dispense(etohvol, plate1['A1'].top().move(types.Point(0,0,-1)), rate=0.2)
+        pip.aspirate(etohvol, etoh['A1'], rate=0.7)
+        pip.aspirate(10, etoh['A1'].top().move(types.Point(0,0,1)))
+        pip.dispense(etohvol + 10, plate1['A1'].top().move(types.Point(0,0,-1)), rate=0.2)
         pip.aspirate(10, plate1['A1'].top().move(types.Point(0,0,1))) # air gap
         if not DRY_RUN:
             ctx.delay(seconds=25)
-        pip.aspirate(etohvol * 1.1, plate1['A1'], rate= 0.2)
+        pip.aspirate(etohvol * 1.1, plate1['A1'], rate= 0.1)
         pip.dispense(etohvol * 1.1, trash)
         #supernatant_removal(etohvol * 1.1, plate1['A1'], waste['A1'])
         pip.drop_tip()
@@ -182,28 +160,29 @@ def run(ctx: protocol_api.ProtocolContext):
     # full head loading ################################################################
 
     comment(ctx, 'Incubate ' + str(inctime) + ' minutes')
-    for _ in range(2):
-        if not DRY_RUN:
-            ctx.delay(minutes = inctime/3)
-        pip.pick_up_tip(rack_full_4['A1'])
-        pip.mix(repetitions=10, volume= ebvol * 0.8, location=plate1['A1'], rate=0.8)
-        pip.return_tip()
-    if not DRY_RUN:
-            ctx.delay(minutes = inctime/3)
+    if BEADSMIX:
+        for _ in range(2):
+            if not DRY_RUN:
+                ctx.delay(minutes = inctime/2)
+            pip.pick_up_tip(rack_full_4['A1'])
+            pip.mix(repetitions=10, volume= ebvol * 0.8, location=plate1['A1'], rate=0.8)
+            pip.return_tip()
 
     # Move plate to magnet and final elution
     # use tips to mix once on the magnet after resusp
     ctx.move_labware(plate1, magnet, use_gripper=True)
-    pip.pick_up_tip(rack_full_4['A1'])
-    pip.mix(2, ebvol * 0.8, plate1['A1'])
-    pip.drop_tip()
+    
+    if BEADSMIX:
+        pip.pick_up_tip(rack_full_4['A1'])
+        pip.mix(2, ebvol * 0.8, plate1['A1'])
+        pip.drop_tip()
 
     if not DRY_RUN:
         ctx.delay(minutes=3)
     
     comment(ctx, 'Final elution')
     pip.pick_up_tip(rack_full_5['A1'])
-    pip.aspirate(ebvol * 1.1, plate1['A1'], rate=0.2)
+    pip.aspirate(ebvol * 1.1, plate1['A1'], rate=0.1)
     pip.dispense(ebvol * 1.1, plate2['A1'], rate = 0.5, push_out=5)
     pip.drop_tip()
     

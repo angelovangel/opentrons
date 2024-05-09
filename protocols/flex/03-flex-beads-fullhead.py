@@ -17,7 +17,7 @@ requirements = {
 ###     Variables            ###
 ncols =       2
 # tip cols needed  = 2 + ncols*7
-n_tipboxes = math.ceil((2 + ncols*7)/12)
+#n_tipboxes = math.ceil((2 + ncols*7)/12)
 samplevol =  50
 beadspos =  'A1'
 beadsvol =   50
@@ -61,6 +61,31 @@ def run(ctx: protocol_api.ProtocolContext):
     plate1 = ctx.load_labware("biorad_96_wellplate_200ul_pcr", "D1")
     plate2 = ctx.load_labware("biorad_96_wellplate_200ul_pcr", "B1")
     trash = ctx.load_trash_bin("A3")
+
+    #-----------------------------------------------
+    # helper functions
+    def slow_tip_withdrawal(pipette, well):
+        factor_slow = 40
+        pipette.default_speed /= factor_slow
+        pipette.move_to(well.top(-3))
+        pipette.default_speed *= factor_slow
+    
+    def remove(source, dest, removal_vol):
+        extra_vol = 20
+        if removal_vol < 5 or removal_vol > source.max_volume:
+            raise ValueError("A wrong volume is used")
+        if removal_vol + extra_vol*2 > source.max_volume:
+            extra_vol = (source.max_volume - removal_vol) / 2
+
+        ctx.comment("--- Removing supernatant")
+        ctx.comment("Extra vol = " + str(extra_vol))
+        disp_vol = removal_vol + extra_vol
+        pip.aspirate(removal_vol, source.bottom().move(types.Point(0, 0, 0.7)), rate = 0.1)
+        pip.aspirate(extra_vol, source.bottom().move(types.Point(0, 0, 0.5)), rate = 0.05)
+        slow_tip_withdrawal(pip, source)
+        pip.dispense(disp_vol, dest, push_out=0)
+        ctx.comment("------------------------")
+
 
     ########################################################################
     pip.configure_nozzle_layout(
@@ -108,17 +133,20 @@ def run(ctx: protocol_api.ProtocolContext):
 
     # Move to magnet
     ctx.move_labware(plate1, magnet, use_gripper=True)
-    pip.pick_up_tip(rack_full_1['A1'])
-    pip.mix(2, (samplevol + beadsvol) * 0.8, plate1['A1'], rate=0.8)
+    if BEADSMIX:
+        pip.pick_up_tip(rack_full_1['A1'])
+        pip.mix(2, (samplevol + beadsvol) * 0.8, plate1['A1'], rate=0.8)
+        pip.return_tip()
     if not DRY_RUN:
-        ctx.delay(minutes=3)
-    pip.return_tip()
+        ctx.delay(minutes=2)
+    
     
     # Aspirate the supernatant
     # use same tips as for mixing before
     comment(ctx, 'Supernatant removal')
     pip.pick_up_tip(rack_full_1['A1'])
     pip.aspirate((samplevol + beadsvol * 1.1), plate1['A1'], rate = 0.1)
+    slow_tip_withdrawal(pip, plate1['A1'])
     pip.dispense((samplevol + beadsvol) * 1.1, trash)
     pip.drop_tip()
 
@@ -132,8 +160,10 @@ def run(ctx: protocol_api.ProtocolContext):
         pip.aspirate(10, plate1['A1'].top().move(types.Point(0,0,1))) # air gap
         if not DRY_RUN:
             ctx.delay(seconds=25)
-        pip.aspirate(etohvol * 1.1, plate1['A1'], rate= 0.1)
-        pip.dispense(etohvol * 1.1, trash)
+        remove(plate1['A1'], trash, etohvol)
+        #pip.aspirate(etohvol * 1.1, plate1['A1'], rate= 0.1)
+        #slow_tip_withdrawal(pip, plate1['A1'])
+        #pip.dispense(etohvol * 1.1, trash)
         #supernatant_removal(etohvol * 1.1, plate1['A1'], waste['A1'])
         pip.drop_tip()
 
@@ -181,12 +211,14 @@ def run(ctx: protocol_api.ProtocolContext):
         pip.drop_tip()
 
     if not DRY_RUN:
-        ctx.delay(minutes=3)
+        ctx.delay(minutes=2)
     
     comment(ctx, 'Final elution')
     pip.pick_up_tip(rack_full_5['A1'])
-    pip.aspirate(ebvol * 1.1, plate1['A1'], rate=0.1)
-    pip.dispense(ebvol * 1.1, plate2['A1'], rate = 0.5, push_out=5)
+    remove(plate1['A1'], plate2['A1'], ebvol)
+    #pip.aspirate(ebvol * 1.1, plate1['A1'], rate=0.1)
+    #slow_tip_withdrawal(pip, plate1['A1'])
+    #pip.dispense(ebvol * 1.1, plate2['A1'], rate = 0.5, push_out=5)
     pip.drop_tip()
     
     comment(ctx, 'END')

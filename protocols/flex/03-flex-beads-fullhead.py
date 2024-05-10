@@ -28,7 +28,7 @@ inctime =     10
 speed_factor_aspirate = 1
 #speed_factor_dispence = 1
 DRY_RUN = False
-BEADSMIX = True
+BEADSMIX = False
 ################################
 
 if ncols < 1 | ncols > 7:
@@ -42,12 +42,14 @@ def comment(myctx, message):
 
 def run(ctx: protocol_api.ProtocolContext):
     rack_partial = ctx.load_labware(load_name="opentrons_flex_96_filtertiprack_200ul", location='A1')
-    rack_full_1 = ctx.load_labware(load_name="opentrons_flex_96_filtertiprack_200ul", location='B3', adapter="opentrons_flex_96_tiprack_adapter")
-    rack_full_2 = ctx.load_labware(load_name="opentrons_flex_96_filtertiprack_200ul", location='C3', adapter="opentrons_flex_96_tiprack_adapter")
-    rack_full_3 = ctx.load_labware(load_name="opentrons_flex_96_filtertiprack_200ul", location='D3', adapter="opentrons_flex_96_tiprack_adapter")
-    rack_full_4 = ctx.load_labware(load_name="opentrons_flex_96_filtertiprack_200ul", location='A2', adapter="opentrons_flex_96_tiprack_adapter") # optional
-    rack_full_5 = ctx.load_labware(load_name="opentrons_flex_96_filtertiprack_200ul", location='B2', adapter="opentrons_flex_96_tiprack_adapter")
-
+    fullpositions = ['B3', 'C3', 'D3', 'A2', 'B2']
+    rack_full_1, rack_full_2, rack_full_3, rack_full_4, rack_full_5 = [
+        ctx.load_labware(
+            load_name="opentrons_flex_96_filtertiprack_200ul", 
+            location=loc, adapter="opentrons_flex_96_tiprack_adapter"
+            ) for loc in fullpositions
+    ]
+    
     pip = ctx.load_instrument("flex_96channel_1000")
     original_flow_rate_aspirate = pip.flow_rate.aspirate
     
@@ -70,7 +72,8 @@ def run(ctx: protocol_api.ProtocolContext):
         pipette.move_to(well.top(-3))
         pipette.default_speed *= factor_slow
     
-    def remove(source, dest, removal_vol):
+    def remove(removal_vol, source, dest, type):
+        # type - 'full' or 'partial'
         extra_vol = 20
         if removal_vol < 5 or removal_vol > source.max_volume:
             raise ValueError("A wrong volume is used")
@@ -79,9 +82,13 @@ def run(ctx: protocol_api.ProtocolContext):
 
         ctx.comment("--- Removing supernatant")
         ctx.comment("Extra vol = " + str(extra_vol))
-        disp_vol = removal_vol + extra_vol
-        pip.aspirate(removal_vol, source.bottom().move(types.Point(0, 0, 0.7)), rate = 0.1)
-        pip.aspirate(extra_vol, source.bottom().move(types.Point(0, 0, 0.5)), rate = 0.05)
+        if type == 'partial':
+            pip.aspirate(removal_vol * 0.9, source, rate = 0.1)
+            disp_vol = removal_vol
+        else:
+            pip.aspirate(removal_vol, source.bottom().move(types.Point(0, 0, 0.7)), rate = 0.1)
+            pip.aspirate(extra_vol, source.bottom().move(types.Point(0, 0, 0.5)), rate = 0.05)
+            disp_vol = removal_vol + extra_vol
         slow_tip_withdrawal(pip, source)
         pip.dispense(disp_vol, dest, push_out=0)
         ctx.comment("------------------------")
@@ -110,7 +117,7 @@ def run(ctx: protocol_api.ProtocolContext):
         reservoir[beadspos],
         rowA_start[0:ncols],
         mix_before = (10, beadsvol * 0.8), 
-        mix_after = (15, (samplevol + beadsvol) * 0.8), 
+        mix_after = (10, (samplevol + beadsvol) * 0.8), 
         blow_out = True, blowout_location = "destination well",
         new_tip = 'always'
     )
@@ -118,7 +125,7 @@ def run(ctx: protocol_api.ProtocolContext):
     
     # Mixing beads during inc
     # full head loading ################################################################
-    pip.configure_nozzle_layout(style = ALL, tip_racks= [rack_full_1])
+    pip.configure_nozzle_layout(style = ALL)
     # full head loading ################################################################
     
     if BEADSMIX:
@@ -145,9 +152,10 @@ def run(ctx: protocol_api.ProtocolContext):
     # use same tips as for mixing before
     comment(ctx, 'Supernatant removal')
     pip.pick_up_tip(rack_full_1['A1'])
-    pip.aspirate((samplevol + beadsvol * 1.1), plate1['A1'], rate = 0.1)
-    slow_tip_withdrawal(pip, plate1['A1'])
-    pip.dispense((samplevol + beadsvol) * 1.1, trash)
+    remove(samplevol + beadsvol, plate1['A1'], trash, type = 'full')
+    #pip.aspirate((samplevol + beadsvol * 1.1), plate1['A1'], rate = 0.1)
+    #slow_tip_withdrawal(pip, plate1['A1'])
+    #pip.dispense((samplevol + beadsvol) * 1.1, trash)
     pip.drop_tip()
 
     # EtOH washes - racks 2 and 3
@@ -160,7 +168,7 @@ def run(ctx: protocol_api.ProtocolContext):
         pip.aspirate(10, plate1['A1'].top().move(types.Point(0,0,1))) # air gap
         if not DRY_RUN:
             ctx.delay(seconds=25)
-        remove(plate1['A1'], trash, etohvol)
+        remove(etohvol, plate1['A1'], trash, type = 'full')
         #pip.aspirate(etohvol * 1.1, plate1['A1'], rate= 0.1)
         #slow_tip_withdrawal(pip, plate1['A1'])
         #pip.dispense(etohvol * 1.1, trash)
@@ -215,7 +223,7 @@ def run(ctx: protocol_api.ProtocolContext):
     
     comment(ctx, 'Final elution')
     pip.pick_up_tip(rack_full_5['A1'])
-    remove(plate1['A1'], plate2['A1'], ebvol)
+    remove(ebvol, plate1['A1'], plate2['A1'], type = 'partial')
     #pip.aspirate(ebvol * 1.1, plate1['A1'], rate=0.1)
     #slow_tip_withdrawal(pip, plate1['A1'])
     #pip.dispense(ebvol * 1.1, plate2['A1'], rate = 0.5, push_out=5)

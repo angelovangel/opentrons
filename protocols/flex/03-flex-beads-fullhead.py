@@ -92,6 +92,12 @@ def run(ctx: protocol_api.ProtocolContext):
         slow_tip_withdrawal(pip, source)
         pip.dispense(disp_vol, dest, push_out=0)
         ctx.comment("------------------------")
+    # def distribute_high(vol, source, times, dest):
+    #     if vol * times <= pip.max_volume:
+    #         asp = vol * times
+    #     else:
+    #         asp = pip.max_volume
+        
 
 
     ########################################################################
@@ -112,14 +118,15 @@ def run(ctx: protocol_api.ProtocolContext):
     comment(ctx, "Adding beads to columns " + str(rowA_start[:ncols]))
     
     # single column loading
-    pip.transfer(
+    pip.distribute(
         beadsvol,
         reservoir[beadspos],
-        rowA_start[0:ncols],
+        [i.top().move(types.Point(0,0,1)) for i in rowA_start[0:ncols]], # dispense from above
         mix_before = (10, beadsvol * 0.8), 
-        mix_after = (10, (samplevol + beadsvol) * 0.8), 
-        blow_out = True, blowout_location = "destination well",
-        new_tip = 'always'
+        disposal_volume = beadsvol*0.5
+        #mix_after = (10, (samplevol + beadsvol) * 0.8), 
+        #blow_out = True, blowout_location = "destination well",
+        #new_tip = 'always'
     )
     
     
@@ -127,15 +134,23 @@ def run(ctx: protocol_api.ProtocolContext):
     # full head loading ################################################################
     pip.configure_nozzle_layout(style = ALL)
     # full head loading ################################################################
-    
+
     if BEADSMIX:
         comment(ctx, "Mixing sample + beads during inc")
         for _ in range(2):
-            if not DRY_RUN:
-                ctx.delay(minutes = inctime/2)
             pip.pick_up_tip(rack_full_1['A1'])
             pip.mix(repetitions=10, volume=(samplevol + beadsvol) * 0.8, location=plate1['A1'], rate=0.8)
             pip.return_tip()
+            if not DRY_RUN:
+                ctx.delay(minutes = inctime/2)
+    else:
+        comment(ctx, "Mixing sample + beads")
+        pip.pick_up_tip(rack_full_1['A1'])
+        pip.mix(repetitions=10, volume=(samplevol + beadsvol) * 0.8, location=plate1['A1'], rate=0.8)
+        pip.return_tip()
+        if not DRY_RUN:
+            ctx.delay(minutes = inctime)
+
     ########################################################################
 
     # Move to magnet
@@ -153,9 +168,6 @@ def run(ctx: protocol_api.ProtocolContext):
     comment(ctx, 'Supernatant removal')
     pip.pick_up_tip(rack_full_1['A1'])
     remove(samplevol + beadsvol, plate1['A1'], trash, type = 'full')
-    #pip.aspirate((samplevol + beadsvol * 1.1), plate1['A1'], rate = 0.1)
-    #slow_tip_withdrawal(pip, plate1['A1'])
-    #pip.dispense((samplevol + beadsvol) * 1.1, trash)
     pip.drop_tip()
 
     # EtOH washes - racks 2 and 3
@@ -169,10 +181,6 @@ def run(ctx: protocol_api.ProtocolContext):
         if not DRY_RUN:
             ctx.delay(seconds=25)
         remove(etohvol, plate1['A1'], trash, type = 'full')
-        #pip.aspirate(etohvol * 1.1, plate1['A1'], rate= 0.1)
-        #slow_tip_withdrawal(pip, plate1['A1'])
-        #pip.dispense(etohvol * 1.1, trash)
-        #supernatant_removal(etohvol * 1.1, plate1['A1'], waste['A1'])
         pip.drop_tip()
 
     # Move plate back to resuspend beads - column loading
@@ -188,12 +196,13 @@ def run(ctx: protocol_api.ProtocolContext):
     
     comment(ctx, "Resuspend beads")
     
-    pip.transfer(
+    pip.distribute(
         ebvol, 
         reservoir[ebpos], 
-        rowA_start[0:ncols], 
-        mix_after = (15, ebvol * 0.8), 
-        new_tip = 'always'
+        [i.top().move(types.Point(0,0,1)) for i in rowA_start[0:ncols]], # dispense from above
+        #mix_after = (15, ebvol * 0.8), 
+        new_tip = 'always', 
+        disposal_volume = ebvol * 0.5
     )
 
     # full head loading ################################################################
@@ -208,6 +217,15 @@ def run(ctx: protocol_api.ProtocolContext):
             pip.pick_up_tip(rack_full_4['A1'])
             pip.mix(repetitions=10, volume= ebvol * 0.8, location=plate1['A1'], rate=0.8)
             pip.return_tip()
+    else:
+        pip.pick_up_tip(rack_full_4['A1'])
+        pip.mix(repetitions=10, volume= ebvol * 0.8, location=plate1['A1'], rate=0.8)
+        if BEADSMIX:
+            pip.return_tip()
+        else:
+            pip.drop_tip()
+        if not DRY_RUN:
+            ctx.delay(minutes = inctime)
 
     # Move plate to magnet and final elution
     # use tips to mix once on the magnet after resusp
@@ -224,9 +242,6 @@ def run(ctx: protocol_api.ProtocolContext):
     comment(ctx, 'Final elution')
     pip.pick_up_tip(rack_full_5['A1'])
     remove(ebvol, plate1['A1'], plate2['A1'], type = 'partial')
-    #pip.aspirate(ebvol * 1.1, plate1['A1'], rate=0.1)
-    #slow_tip_withdrawal(pip, plate1['A1'])
-    #pip.dispense(ebvol * 1.1, plate2['A1'], rate = 0.5, push_out=5)
     pip.drop_tip()
     
     comment(ctx, 'END')

@@ -15,7 +15,7 @@ requirements = {
     }
 
 ###     Variables            ###
-ncols =       7
+ncols =      7
 samplevol =  50
 beadspos =  'A1'
 beadsvol =   50
@@ -80,6 +80,26 @@ def run(ctx: protocol_api.ProtocolContext):
         pipette.default_speed /= factor_slow
         pipette.move_to(well.top(-3))
         pipette.default_speed *= factor_slow
+
+    # aspirate, dispence x times at well top (leave 0.1x dispvol in tip), air gap 
+    def distribute_custom(aspvol, aspmixtimes, source, dispvol, dest = [], disprate = 1):
+        ndisp = math.floor(aspvol / dispvol)
+        aspvol = aspvol + dispvol * 0.5
+        if dispvol + dispvol * 0.5 > aspvol:
+            raise ValueError("Wrong volumes are used")
+        if aspvol > pip.max_volume:
+            raise ValueError("Asp vol exceeds max volume")
+        if ndisp != len(dest):
+            raise ValueError("Check dest list")
+        
+        pip.mix(aspmixtimes, aspvol, source)
+        pip.aspirate(aspvol, source)
+        for i in dest:
+            pip.dispense(dispvol, i.top().move(types.Point(0,0,1)), rate = disprate)
+        pip.aspirate(10, dest[-1].top().move(types.Point(0,0,1)))
+        
+
+
     
     def remove(removal_vol, source, dest, type):
         # type - 'full' or 'partial'
@@ -101,38 +121,31 @@ def run(ctx: protocol_api.ProtocolContext):
         slow_tip_withdrawal(pip, source)
         pip.dispense(disp_vol, dest, push_out=0)
         ctx.comment("------------------------")
-    # def distribute_high(vol, source, times, dest):
-    #     if vol * times <= pip.max_volume:
-    #         asp = vol * times
-    #     else:
-    #         asp = pip.max_volume
-        
-
 
     ########################################################################
     pip_config('partial')
     ########################################################################
-
     pip.flow_rate.aspirate = original_flow_rate_aspirate / speed_factor_aspirate
     
-
     # Add beads to samples, use single column here to keep beads in A1 of reservoir
     rowA_start = plate1.rows()[0]
     #rowA_end = plate2.rows()[0]
 
     comment(ctx, "Adding beads to columns " + str(rowA_start[:ncols]))
-    
+    pip.pick_up_tip()
+    distribute_custom(beadsvol * ncols, 10, reservoir[beadspos], beadsvol, rowA_start[:ncols], disprate= 0.2)
+    pip.drop_tip()
     # single column loading
-    pip.distribute(
-        beadsvol,
-        reservoir[beadspos],
-        [i.top().move(types.Point(0,0,1)) for i in rowA_start[0:ncols]], # dispense from above
-        mix_before = (10, beadsvol * 0.8), 
-        disposal_volume = beadsvol*0.5
-        #mix_after = (10, (samplevol + beadsvol) * 0.8), 
-        #blow_out = True, blowout_location = "destination well",
-        #new_tip = 'always'
-    )
+    # pip.distribute(
+    #     beadsvol,
+    #     reservoir[beadspos],
+    #     [i.top().move(types.Point(0,0,1)) for i in rowA_start[0:ncols]], # dispense from above
+    #     mix_before = (10, beadsvol * 0.8), 
+    #     disposal_volume = beadsvol*0.5
+    #     #mix_after = (10, (samplevol + beadsvol) * 0.8), 
+    #     #blow_out = True, blowout_location = "destination well",
+    #     #new_tip = 'always'
+    # )
     
     
     # Mixing beads during inc
@@ -183,14 +196,20 @@ def run(ctx: protocol_api.ProtocolContext):
         ########################################################################
         pip_config('partial')
         ########################################################################
-        pip.flow_rate.dispense = original_flow_rate_dispense * 0.2
+        
         if ncols <= 6:
-            pip.distribute(etohvol, reservoir[etohpos[0]], [i.top().move(types.Point(0,0,1)) for i in rowA_start[0:ncols]])
+            #pip.distribute(etohvol, reservoir[etohpos[0]], [i.top().move(types.Point(0,0,1)) for i in rowA_start[0:ncols]])
+            pip.pick_up_tip()
+            distribute_custom(etohvol * ncols, 0, reservoir[etohpos[0]], etohvol,rowA_start[:ncols], disprate=0.2)
+            pip.drop_tip()
         else:
-            pip.distribute(etohvol, reservoir[etohpos[0]], [i.top().move(types.Point(0,0,1)) for i in rowA_start[0:6]])
-            pip.distribute(etohvol, reservoir[etohpos[1]], [i.top().move(types.Point(0,0,1)) for i in rowA_start[6:ncols]])
-        if not DRY_RUN:
-            ctx.delay(seconds=25)
+            #pip.distribute(etohvol, reservoir[etohpos[0]], [i.top().move(types.Point(0,0,1)) for i in rowA_start[0:6]])
+            #pip.distribute(etohvol, reservoir[etohpos[1]], [i.top().move(types.Point(0,0,1)) for i in rowA_start[6:ncols]])
+            pip.pick_up_tip()
+            distribute_custom(etohvol * 6, 0, reservoir[etohpos[0]], etohvol,rowA_start[0:6], disprate=0.2)
+            distribute_custom(etohvol * (ncols - 6), 0, reservoir[etohpos[1]], etohvol,rowA_start[6:ncols], disprate=0.2)
+
+            pip.drop_tip()
         pip.flow_rate.dispense = original_flow_rate_dispense
 
         pip_config('full')

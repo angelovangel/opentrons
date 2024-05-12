@@ -40,8 +40,8 @@ def comment(myctx, message):
 
 def run(ctx: protocol_api.ProtocolContext):
     rack_partial = ctx.load_labware(load_name="opentrons_flex_96_filtertiprack_1000ul", location='A1')
-    fullpositions = ['B3', 'C3', 'D3', 'A2', 'B2']
-    rack_full_1, rack_full_2, rack_full_3, rack_full_4, rack_full_5 = [
+    fullpositions = ['B3', 'C3', 'D3', 'A2']
+    rack_full_1, rack_full_2, rack_full_3, rack_full_4 = [
         ctx.load_labware(
             load_name="opentrons_flex_96_filtertiprack_200ul", 
             location=loc, adapter="opentrons_flex_96_tiprack_adapter"
@@ -229,11 +229,11 @@ def run(ctx: protocol_api.ProtocolContext):
         for _ in range(2):
             if not DRY_RUN:
                 ctx.delay(minutes = inctime/2)
-            pip.pick_up_tip(rack_full_4['A1'])
+            pip.pick_up_tip(rack_full_3['A1'])
             pip.mix(repetitions=10, volume= ebvol * 0.8, location=plate1['A1'], rate=0.8)
             pip.return_tip()
     else:
-        pip.pick_up_tip(rack_full_4['A1'])
+        pip.pick_up_tip(rack_full_3['A1'])
         pip.mix(repetitions=10, volume= ebvol * 0.8, location=plate1['A1'], rate=0.8)
         if BEADSMIX:
             pip.return_tip()
@@ -247,7 +247,7 @@ def run(ctx: protocol_api.ProtocolContext):
     ctx.move_labware(plate1, magnet, use_gripper=True)
     
     if BEADSMIX:
-        pip.pick_up_tip(rack_full_4['A1'])
+        pip.pick_up_tip(rack_full_3['A1'])
         pip.mix(2, ebvol * 0.8, plate1['A1'])
         pip.drop_tip()
 
@@ -255,7 +255,7 @@ def run(ctx: protocol_api.ProtocolContext):
         ctx.delay(minutes=2)
     
     comment(ctx, 'Final elution')
-    pip.pick_up_tip(rack_full_5['A1'])
+    pip.pick_up_tip(rack_full_4['A1'])
     remove(ebvol, plate1['A1'], plate2['A1'], type = 'partial')
     pip.drop_tip()
     

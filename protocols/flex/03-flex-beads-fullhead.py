@@ -39,8 +39,8 @@ def comment(myctx, message):
 
 
 def run(ctx: protocol_api.ProtocolContext):
-    rack_partial = ctx.load_labware(load_name="opentrons_flex_96_filtertiprack_1000ul", location='A1')
-    fullpositions = ['B3', 'C3', 'D3', 'A2']
+    rack_partial = ctx.load_labware(load_name="opentrons_flex_96_filtertiprack_1000ul", location='A2')
+    fullpositions = ['B3', 'C3', 'B2', 'C2']
     rack_full_1, rack_full_2, rack_full_3, rack_full_4 = [
         ctx.load_labware(
             load_name="opentrons_flex_96_filtertiprack_200ul", 

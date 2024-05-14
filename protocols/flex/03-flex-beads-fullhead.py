@@ -5,7 +5,7 @@ import math
 
 metadata = {
     "protocolName": "Beads cleanup Flex 96-channel, full head loading",
-    "description": """This protocol is for performing bead cleanup with variable number of columns (1 to 12)""",
+    "description": """Perform bead cleanup with variable number of columns (1 to 12)""",
     "author": "angel.angelov@kaust.edu.sa"
     }
 
@@ -22,7 +22,7 @@ beadsvol =   50
 ebpos =     'A2'
 ebvol =      40
 etohvol =   150
-etohpos =   ['A3', 'A4']
+etohpos =   ['A3', 'A4', 'A5'] # one pos for every 4 columns, can accomodate 200 ul EtOH per well
 inctime =    10
 speed_factor_aspirate = 1
 DRY_RUN = False
@@ -84,22 +84,19 @@ def run(ctx: protocol_api.ProtocolContext):
     # aspirate, dispence x times at well top (leave 0.1x dispvol in tip), air gap 
     def distribute_custom(aspvol, aspmixtimes, source, dispvol, dest = [], disprate = 1):
         ndisp = math.floor(aspvol / dispvol)
-        aspvol = aspvol + dispvol * 0.5
-        if dispvol + dispvol * 0.5 > aspvol:
+        aspvol = aspvol + dispvol * 0.3
+        if dispvol + dispvol * 0.3 > aspvol:
             raise ValueError("Wrong volumes are used")
         if aspvol > pip.max_volume:
             raise ValueError("Asp vol exceeds max volume")
         if ndisp != len(dest):
             raise ValueError("Check dest list")
         
-        pip.mix(aspmixtimes, aspvol, source)
+        pip.mix(aspmixtimes, aspvol*0.8, source)
         pip.aspirate(aspvol, source)
         for i in dest:
             pip.dispense(dispvol, i.top().move(types.Point(0,0,1)), rate = disprate)
         pip.aspirate(10, dest[-1].top().move(types.Point(0,0,1)))
-        
-
-
     
     def remove(removal_vol, source, dest, type):
         # type - 'full' or 'partial'
@@ -135,18 +132,6 @@ def run(ctx: protocol_api.ProtocolContext):
     pip.pick_up_tip()
     distribute_custom(beadsvol * ncols, 10, reservoir[beadspos], beadsvol, rowA_start[:ncols], disprate= 0.2)
     pip.drop_tip()
-    # single column loading
-    # pip.distribute(
-    #     beadsvol,
-    #     reservoir[beadspos],
-    #     [i.top().move(types.Point(0,0,1)) for i in rowA_start[0:ncols]], # dispense from above
-    #     mix_before = (10, beadsvol * 0.8), 
-    #     disposal_volume = beadsvol*0.5
-    #     #mix_after = (10, (samplevol + beadsvol) * 0.8), 
-    #     #blow_out = True, blowout_location = "destination well",
-    #     #new_tip = 'always'
-    # )
-    
     
     # Mixing beads during inc
     # full head loading ################################################################
@@ -196,20 +181,32 @@ def run(ctx: protocol_api.ProtocolContext):
         ########################################################################
         pip_config('partial')
         ########################################################################
+        # split ETOH distribution in batches of 4 columns
+        batches = math.ceil(ncols / 4)
+        pip.pick_up_tip()
+        for j in range(batches):
+            batch = j + 1
+            if ncols >= batch * 4: 
+                colsinbatch = 4 
+            else: 
+                colsinbatch =  4 - (batch * 4 - ncols)  #  how many columns in this batch? 
+            batchstart = batch * 4 - 4
+            batchend = batchstart + colsinbatch
+            #print(batch, colsinbatch, batchstart, batchend)
+            comment(ctx, "EtOH wash " + str(i) + " : distribute batch " + str(batch) + " with " + str(colsinbatch) + " columns")
+            distribute_custom(
+                etohvol * colsinbatch, 
+                0, 
+                reservoir[etohpos[j]], 
+                etohvol,
+                rowA_start[batchstart:batchend], 
+                disprate=0.2
+            )
+            
+            #distribute_custom(etohvol * 6, 0, reservoir[etohpos[0]], etohvol,rowA_start[0:6], disprate=0.2)
+            #distribute_custom(etohvol * (ncols - 6), 0, reservoir[etohpos[1]], etohvol,rowA_start[6:ncols], disprate=0.2)
         
-        if ncols <= 6:
-            #pip.distribute(etohvol, reservoir[etohpos[0]], [i.top().move(types.Point(0,0,1)) for i in rowA_start[0:ncols]])
-            pip.pick_up_tip()
-            distribute_custom(etohvol * ncols, 0, reservoir[etohpos[0]], etohvol,rowA_start[:ncols], disprate=0.2)
-            pip.drop_tip()
-        else:
-            #pip.distribute(etohvol, reservoir[etohpos[0]], [i.top().move(types.Point(0,0,1)) for i in rowA_start[0:6]])
-            #pip.distribute(etohvol, reservoir[etohpos[1]], [i.top().move(types.Point(0,0,1)) for i in rowA_start[6:ncols]])
-            pip.pick_up_tip()
-            distribute_custom(etohvol * 6, 0, reservoir[etohpos[0]], etohvol,rowA_start[0:6], disprate=0.2)
-            distribute_custom(etohvol * (ncols - 6), 0, reservoir[etohpos[1]], etohvol,rowA_start[6:ncols], disprate=0.2)
-
-            pip.drop_tip()
+        pip.drop_tip()
         pip.flow_rate.dispense = original_flow_rate_dispense
 
         pip_config('full')

@@ -95,7 +95,9 @@ def run(ctx: protocol_api.ProtocolContext):
             pip.mix(aspmixtimes, aspvol*0.8, source)
         pip.aspirate(aspvol, source)
         for i in dest:
-            pip.dispense(dispvol, i.top().move(types.Point(0,0,1)), rate = disprate)
+            pip.dispense(dispvol, i.top().move(types.Point(0,0,0)), rate = disprate)
+            pip.move_to(i.top().move(types.Point(-2,0,0))) # touch tip
+            pip.move_to(i.top().move(types.Point(2,0,0))) # touch tip
         pip.aspirate(20, dest[-1].top().move(types.Point(0,0,1)))
     
     def remove(removal_vol, source, dest, type):

@@ -82,7 +82,7 @@ def run(ctx: protocol_api.ProtocolContext):
         pipette.default_speed *= factor_slow
 
     # aspirate, dispence x times at well top (leave 0.1x dispvol in tip), air gap 
-    def distribute_custom(aspvol, aspmixtimes, source, dispvol, dest = [], disprate = 1):
+    def distribute_custom(aspvol, aspmixtimes, source, dispvol, dest = [], disprate = 1, mix = False):
         ndisp = math.floor(aspvol / dispvol)
         aspvol = aspvol + dispvol * 0.3
         if dispvol + dispvol * 0.3 > aspvol:
@@ -91,12 +91,12 @@ def run(ctx: protocol_api.ProtocolContext):
             raise ValueError("Asp vol exceeds max volume")
         if ndisp != len(dest):
             raise ValueError("Check dest list")
-        
-        pip.mix(aspmixtimes, aspvol*0.8, source)
+        if mix:
+            pip.mix(aspmixtimes, aspvol*0.8, source)
         pip.aspirate(aspvol, source)
         for i in dest:
             pip.dispense(dispvol, i.top().move(types.Point(0,0,1)), rate = disprate)
-        pip.aspirate(10, dest[-1].top().move(types.Point(0,0,1)))
+        pip.aspirate(20, dest[-1].top().move(types.Point(0,0,1)))
     
     def remove(removal_vol, source, dest, type):
         # type - 'full' or 'partial'
@@ -130,7 +130,7 @@ def run(ctx: protocol_api.ProtocolContext):
 
     comment(ctx, "Adding beads to columns " + str(rowA_start[:ncols]))
     pip.pick_up_tip()
-    distribute_custom(beadsvol * ncols, 10, reservoir[beadspos], beadsvol, rowA_start[:ncols], disprate= 0.2)
+    distribute_custom(beadsvol * ncols, 10, reservoir[beadspos], beadsvol, rowA_start[:ncols], disprate= 0.2, mix = True)
     pip.drop_tip()
     
     # Mixing beads during inc
@@ -138,21 +138,12 @@ def run(ctx: protocol_api.ProtocolContext):
     pip_config('full')
     # full head loading ################################################################
 
-    if BEADSMIX:
-        comment(ctx, "Mixing sample + beads during inc")
-        for _ in range(2):
-            pip.pick_up_tip(rack_full_1['A1'])
-            pip.mix(repetitions=10, volume=(samplevol + beadsvol) * 0.8, location=plate1['A1'], rate=0.8)
-            pip.return_tip()
-            if not DRY_RUN:
-                ctx.delay(minutes = inctime/2)
-    else:
-        comment(ctx, "Mixing sample + beads")
-        pip.pick_up_tip(rack_full_1['A1'])
-        pip.mix(repetitions=10, volume=(samplevol + beadsvol) * 0.8, location=plate1['A1'], rate=0.8)
-        pip.return_tip()
-        if not DRY_RUN:
-            ctx.delay(minutes = inctime)
+    comment(ctx, "Mixing sample + beads")
+    pip.pick_up_tip(rack_full_1['A1'])
+    pip.mix(repetitions=10, volume=(samplevol + beadsvol) * 0.8, location=plate1['A1'], rate=0.8)
+    pip.return_tip()
+    if not DRY_RUN:
+        ctx.delay(minutes = inctime)
 
     ########################################################################
 
@@ -200,7 +191,8 @@ def run(ctx: protocol_api.ProtocolContext):
                 reservoir[etohpos[j]], 
                 etohvol,
                 rowA_start[batchstart:batchend], 
-                disprate=0.2
+                disprate=0.2,
+                mix = False
             )
             
             #distribute_custom(etohvol * 6, 0, reservoir[etohpos[0]], etohvol,rowA_start[0:6], disprate=0.2)
@@ -241,22 +233,24 @@ def run(ctx: protocol_api.ProtocolContext):
     # full head loading ################################################################
 
     comment(ctx, 'Incubate ' + str(inctime) + ' minutes')
+    
+    
+    pip.pick_up_tip(rack_full_3['A1'])
+    for _ in range(15):
+        pip.aspirate(ebvol * 0.8, plate1['A1'].bottom().move(types.Point(0,0,1)), rate=1)
+        pip.dispense(ebvol * 0.8, plate1['A1'].bottom().move(types.Point(0,0,5)), rate = 0.8)
+    # pip.mix(
+    #     repetitions=15, 
+    #     volume= ebvol * 0.8, 
+    #     location=plate1['A1'].bottom().move(type.Point(0, 0, 3)), 
+    #     rate=0.8
+    # )
     if BEADSMIX:
-        for _ in range(2):
-            if not DRY_RUN:
-                ctx.delay(minutes = inctime/2)
-            pip.pick_up_tip(rack_full_3['A1'])
-            pip.mix(repetitions=10, volume= ebvol * 0.8, location=plate1['A1'], rate=0.8)
-            pip.return_tip()
+        pip.return_tip()
     else:
-        pip.pick_up_tip(rack_full_3['A1'])
-        pip.mix(repetitions=10, volume= ebvol * 0.8, location=plate1['A1'], rate=0.8)
-        if BEADSMIX:
-            pip.return_tip()
-        else:
-            pip.drop_tip()
-        if not DRY_RUN:
-            ctx.delay(minutes = inctime)
+        pip.drop_tip()
+    if not DRY_RUN:
+        ctx.delay(minutes = inctime)
 
     # Move plate to magnet and final elution
     # use tips to mix once on the magnet after resusp

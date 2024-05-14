@@ -171,7 +171,7 @@ def run(ctx: protocol_api.ProtocolContext):
     
     # ODTC
     odtc.open_lid()
-    #odtc.set_block_temperature(temperature = 15)
+    odtc.set_block_temperature(temperature = 10)
     
     # full column transfers first
     # plate

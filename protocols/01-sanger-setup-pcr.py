@@ -12,13 +12,13 @@ metadata = {
 }
 
 ### Replaced by Shiny app
-sourcewells1=['','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','']
+sourcewells1=['','','','F1','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','']
 destwells1=['A1', 'B1', 'C1', 'D1', 'E1', 'F1', 'G1', 'H1', 'A2', 'B2', 'C2', 'D2', 'E2', 'F2', 'G2', 'H2', 'A3', 'B3', 'C3', 'D3', 'E3', 'F3', 'G3', 'H3', 'A4', 'B4', 'C4', 'D4', 'E4', 'F4', 'G4', 'H4', 'A5', 'B5', 'C5', 'D5', 'E5', 'F5', 'G5', 'H5', 'A6', 'B6', 'C6', 'D6', 'E6', 'F6', 'G6', 'H6', 'A7', 'B7', 'C7', 'D7', 'E7', 'F7', 'G7', 'H7', 'A8', 'B8', 'C8', 'D8', 'E8', 'F8', 'G8', 'H8', 'A9', 'B9', 'C9', 'D9', 'E9', 'F9', 'G9', 'H9', 'A10', 'B10', 'C10', 'D10', 'E10', 'F10', 'G10', 'H10', 'A11', 'B11', 'C11', 'D11', 'E11', 'F11', 'G11', 'H11', 'A12', 'B12', 'C12', 'D12', 'E12', 'F12', 'G12', 'H12']
-volume1=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+volume1=[0, 0, 0, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 sourcewells2=['A1','B1','C1','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','']
 destwells2=['A1', 'B1', 'C1', 'D1', 'E1', 'F1', 'G1', 'H1', 'A2', 'B2', 'C2', 'D2', 'E2', 'F2', 'G2', 'H2', 'A3', 'B3', 'C3', 'D3', 'E3', 'F3', 'G3', 'H3', 'A4', 'B4', 'C4', 'D4', 'E4', 'F4', 'G4', 'H4', 'A5', 'B5', 'C5', 'D5', 'E5', 'F5', 'G5', 'H5', 'A6', 'B6', 'C6', 'D6', 'E6', 'F6', 'G6', 'H6', 'A7', 'B7', 'C7', 'D7', 'E7', 'F7', 'G7', 'H7', 'A8', 'B8', 'C8', 'D8', 'E8', 'F8', 'G8', 'H8', 'A9', 'B9', 'C9', 'D9', 'E9', 'F9', 'G9', 'H9', 'A10', 'B10', 'C10', 'D10', 'E10', 'F10', 'G10', 'H10', 'A11', 'B11', 'C11', 'D11', 'E11', 'F11', 'G11', 'H11', 'A12', 'B12', 'C12', 'D12', 'E12', 'F12', 'G12', 'H12']
 volume2=[10, 10, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-sourcewells3=['A1','A1','A1','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','']
+sourcewells3=['A1','B1','C1','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','']
 destwells3=['A1', 'B1', 'C1', 'D1', 'E1', 'F1', 'G1', 'H1', 'A2', 'B2', 'C2', 'D2', 'E2', 'F2', 'G2', 'H2', 'A3', 'B3', 'C3', 'D3', 'E3', 'F3', 'G3', 'H3', 'A4', 'B4', 'C4', 'D4', 'E4', 'F4', 'G4', 'H4', 'A5', 'B5', 'C5', 'D5', 'E5', 'F5', 'G5', 'H5', 'A6', 'B6', 'C6', 'D6', 'E6', 'F6', 'G6', 'H6', 'A7', 'B7', 'C7', 'D7', 'E7', 'F7', 'G7', 'H7', 'A8', 'B8', 'C8', 'D8', 'E8', 'F8', 'G8', 'H8', 'A9', 'B9', 'C9', 'D9', 'E9', 'F9', 'G9', 'H9', 'A10', 'B10', 'C10', 'D10', 'E10', 'F10', 'G10', 'H10', 'A11', 'B11', 'C11', 'D11', 'E11', 'F11', 'G11', 'H11', 'A12', 'B12', 'C12', 'D12', 'E12', 'F12', 'G12', 'H12']
 volume3=[5, 5, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 dmso=[1.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
@@ -67,6 +67,7 @@ destwells2_pcr = [destwells2[i] for i in destwells2_ne_index]
 # get columns with at least one rxn, use this to transfer PCR mm for the whole column
 # e.g. wet lab has to try to fill columns with reactions
 destwells_all_pcr = destwells1_pcr + destwells2_pcr
+#print(destwells_all_pcr)
 destcolumns_num_sorted_pcr = sorted(list(set([int(col[1:]) for col in destwells_all_pcr]))) # converting the list to a set gives unique elements
 destcolumns_pcr = ['A' + str(x) for x in destcolumns_num_sorted_pcr] # restore well names to use with p20_multi
 # print(destcolumns)
@@ -159,7 +160,7 @@ def run(ctx: protocol_api.ProtocolContext):
     # destplate = ctx.load_labware('pcrplate_96_wellplate_200ul', '5', 'Destination plate') # stack of 96 well base plate and PCR plate
     sourceplate = ctx.load_labware(sourceplate_type, '6', 'Source plate') # stack of 96 well base plate and PCR plate
     sourcestrip = ctx.load_labware('stack_strip_biorad96well', '4', 'Source strip') # stack of 96 well base plate and strips
-    mmstrip = ctx.load_labware('stack_strip_biorad96well', '9', 'Sequencing master mix in strip') # stack of 96 well base plate and strips
+    #mmstrip = ctx.load_labware('stack_strip_biorad96well', '9', 'Sequencing master mix in strip') # stack of 96 well base plate and strips
     sourcetube = ctx.load_labware('opentrons_24_tuberack_eppendorf_1.5ml_safelock_snapcap', '5', 'Primers in tube rack')
     
     tips_left = [ctx.load_labware(left_tips, slot) for slot in ['1']]
@@ -172,6 +173,33 @@ def run(ctx: protocol_api.ProtocolContext):
     # ODTC
     odtc.open_lid()
     odtc.set_block_temperature(temperature = 10)
+
+    message1 = str(f"{rxns} reactions will be transferred.\nPlease prepare {mastermix:.1f} ul mastermix and place it in D6 of Eppendorf tube rack. The mastermix will be distributed first to the A1 strip in position 6, and then to columns {destcolumns_pcr} in the destination plate.")
+    ctx.comment(message1)
+    # distribute MM without changing tip
+    s20.distribute(
+        5, 
+        sourcetube['D6'], 
+        [destplate.wells_by_name()[v] for v in destwells_all_pcr ]
+    )
+    # distribute master mix to col 1 
+    # s20.distribute(
+    #     list(rows_mm_vols.values()), 
+    #     sourcetube.wells_by_name()[mm_pos], # fixed position, place MM in D6 of Epi tuberack
+    #     mmstrip.columns()[0],
+    #     new_tip = 'once', disposal_volume = 0, blow_out = False)
+    # ctx.comment("--------------------------------------")
+    
+    # # transfer master mix
+    # m20.transfer(
+    #     5,
+    #     mmstrip.columns()[0], # only column 1 is used
+    #     [destplate.wells_by_name()[well_name] for well_name in destcolumns_pcr], 
+    #     new_tip = 'once', 
+    #     #mix_after = (5, 15), 
+    #     blow_out = True, 
+    #     blowout_location = 'destination well'
+    # )
     
     # full column transfers first
     # plate
@@ -181,7 +209,8 @@ def run(ctx: protocol_api.ProtocolContext):
         m20.transfer(
         svol1_fulltransfer[i], 
         sourceplate.wells_by_name()['A' + scols1_fulltransfer[i]], 
-        destplate.wells_by_name()['A' + dcols1_fulltransfer[i]]
+        destplate.wells_by_name()['A' + dcols1_fulltransfer[i]], 
+        mix_after = (4, 5)
         )
     
     # strip
@@ -190,7 +219,9 @@ def run(ctx: protocol_api.ProtocolContext):
         m20.transfer(
         svol2_fulltransfer[i], 
         sourcestrip.wells_by_name()['A' + scols2_fulltransfer[i]], 
-        destplate.wells_by_name()['A' + dcols2_fulltransfer[i]])
+        destplate.wells_by_name()['A' + dcols2_fulltransfer[i]],
+        mix_after = (4, 5)
+        )
     
     # first take primer then air gap then sample, all in one mmove
     # process both source1 and source2!!
@@ -198,7 +229,7 @@ def run(ctx: protocol_api.ProtocolContext):
                              vol2, src_type2, src_well2, # strip
                              vol3, src_type3, src_well3, # primer
                              dest_type, dest_well, 
-                             cpt = True):
+                             chtip = True):
         
         if vol1 <= 0 and vol2 <= 0 and vol3 <= 0: 
             return
@@ -210,7 +241,7 @@ def run(ctx: protocol_api.ProtocolContext):
         if vol3 > 0:    
             s20.aspirate(vol3, src_type3.wells_by_name()[src_well3])
             s20.air_gap(1)
-            if cpt:
+            if chtip:
                 ctx.comment("Changing tip")
                 s20.dispense(location = dest_type.wells_by_name()[dest_well])
                 s20.drop_tip()
@@ -228,6 +259,7 @@ def run(ctx: protocol_api.ProtocolContext):
             s20.aspirate(vol2, src_type2.wells_by_name()[src_well2])
         if s20.current_volume > 0:
             s20.dispense(location = dest_type.wells_by_name()[dest_well])
+            s20.mix(4, 5, dest_type.wells_by_name()[dest_well])
         
         if s20.has_tip:
             s20.drop_tip()
@@ -239,7 +271,7 @@ def run(ctx: protocol_api.ProtocolContext):
             volume2[i], sourcestrip, sourcewells2[i], 
             volume3[i], sourcetube, sourcewells3[i], 
             destplate, destwells1[i], 
-            cpt = change_primer_tip
+            chtip = change_primer_tip
             )
     ctx.comment("--------------------------------------")
     
@@ -253,36 +285,6 @@ def run(ctx: protocol_api.ProtocolContext):
                 blow_out = True, blowout_location = 'destination well'
             )
 
-	# pause here, prompt adding reservoir with PCR master mix
-    # try to attract attention too!
-    
-    for _ in range(3):
-        ctx.set_rail_lights(False)
-        ctx.delay(1)
-        ctx.set_rail_lights(True)
-        ctx.delay(1)
-    #message = str(f"{rxns} reactions were transferred.\nPlease prepare {mastermix} ul Sequencing mastermix, pipet {mastermix/8:.1f} ul in each tube of the strip (deck position 2, column 1) and resume.\nThe mastermix will be distributed to columns {destcolumns_pcr} in the destination plate.")
-    message1 = str(f"{rxns} reactions were transferred.\nPlease prepare {mastermix:.1f} ul mastermix and place it in D6 of Eppendorf tube rack. The mastermix will be distributed first to the A1 strip in position 6, and then to columns {destcolumns_pcr} in the destination plate.")
-    ctx.pause(msg = message1)
-
-    # distribute master mix to col 1 
-    s20.distribute(
-        list(rows_mm_vols.values()), 
-        sourcetube.wells_by_name()[mm_pos], # fixed position, place MM in D6 of Epi tuberack
-        mmstrip.columns()[0],
-        new_tip = 'once', disposal_volume = 0, blow_out = False)
-    ctx.comment("--------------------------------------")
-    
-    # transfer master mix
-    m20.transfer(
-        5,
-        mmstrip.columns()[0], # only column 1 is used
-        [destplate.wells_by_name()[well_name] for well_name in destcolumns_pcr], 
-        new_tip = 'always', 
-        mix_after = (5, 15), 
-        blow_out = True, 
-        blowout_location = 'destination well'
-    )
     # this is optional in the Shiny app to cover rxn plate
     if nopcr_run:
         ctx.comment("Protocol finished!")

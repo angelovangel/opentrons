@@ -111,7 +111,7 @@ def run(ctx: protocol_api.ProtocolContext):
         ctx.comment("--- Removing supernatant")
         ctx.comment("Extra vol = " + str(extra_vol))
         if type == 'partial':
-            pip.aspirate(removal_vol * 0.9, source, rate = 0.1)
+            pip.aspirate(removal_vol * 0.9, source.bottom().move(types.Point(0, 0, 0.7)), rate = 0.1)
             disp_vol = removal_vol
         else:
             pip.aspirate(removal_vol, source.bottom().move(types.Point(0, 0, 0.7)), rate = 0.1)

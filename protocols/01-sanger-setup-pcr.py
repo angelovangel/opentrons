@@ -179,7 +179,7 @@ def run(ctx: protocol_api.ProtocolContext):
     # distribute MM without changing tip
     s20.distribute(
         5, 
-        sourcetube['D6'], 
+        sourcetube[mm_pos], 
         [destplate.wells_by_name()[v] for v in destwells_all_pcr ]
     )
     # distribute master mix to col 1 

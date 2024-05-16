@@ -82,7 +82,7 @@ def run(ctx: protocol_api.ProtocolContext):
         pipette.default_speed *= factor_slow
 
     # aspirate, dispence x times at well top (leave 0.1x dispvol in tip), air gap 
-    def distribute_custom(aspvol, aspmixtimes, source, dispvol, dest = [], disprate = 1, mix = False):
+    def distribute_custom(aspvol, aspmixtimes, source, dispvol, dest = [], disprate = 1, airgap = True, mixbefore = False):
         ndisp = math.floor(aspvol / dispvol)
         aspvol = aspvol + dispvol * 0.3
         if dispvol + dispvol * 0.3 > aspvol:
@@ -91,10 +91,11 @@ def run(ctx: protocol_api.ProtocolContext):
             raise ValueError("Asp vol exceeds max volume")
         if ndisp != len(dest):
             raise ValueError("Check dest list")
-        if mix:
+        if mixbefore:
             pip.mix(aspmixtimes, aspvol*0.8, source)
         pip.aspirate(aspvol, source)
-        pip.aspirate(10, source.top()) # air gap
+        if airgap:
+            pip.aspirate(10, source.top()) # air gap
         for i in dest:
             pip.dispense(dispvol, i.top().move(types.Point(0,0,0)), rate = disprate)
             pip.move_to(i.top().move(types.Point(-2,0,0))) # touch tip
@@ -134,7 +135,7 @@ def run(ctx: protocol_api.ProtocolContext):
 
     comment(ctx, "Adding beads to columns " + str(rowA_start[:ncols]))
     pip.pick_up_tip()
-    distribute_custom(beadsvol * ncols, 10, reservoir[beadspos], beadsvol, rowA_start[:ncols], disprate= 0.2, mix = True)
+    distribute_custom(beadsvol * ncols, 10, reservoir[beadspos], beadsvol, rowA_start[:ncols], disprate= 0.2, airgap = False, mixbefore = True)
     pip.drop_tip()
     
     # Mixing beads during inc
@@ -196,7 +197,8 @@ def run(ctx: protocol_api.ProtocolContext):
                 etohvol,
                 rowA_start[batchstart:batchend], 
                 disprate=0.2,
-                mix = False
+                airgap = True,
+                mixbefore = False
             )
             
             #distribute_custom(etohvol * 6, 0, reservoir[etohpos[0]], etohvol,rowA_start[0:6], disprate=0.2)
@@ -224,7 +226,7 @@ def run(ctx: protocol_api.ProtocolContext):
     comment(ctx, "Resuspend beads")
     pip.pick_up_tip()
     distribute_custom(
-        ebvol * ncols, 0, reservoir[ebpos], ebvol, rowA_start[0:ncols], mix = False
+        ebvol * ncols, 0, reservoir[ebpos], ebvol, rowA_start[0:ncols], airgap = False, mixbefore = False
     )
     pip.drop_tip()
     # pip.distribute(

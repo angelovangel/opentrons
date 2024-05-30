@@ -28,7 +28,6 @@ def add_parameters(parameters):
 ### Parameters ###
 
 ###     Variables            ###
-ncols =      7
 samplevol =  50
 beadspos =  'A1'
 beadsvol =   50

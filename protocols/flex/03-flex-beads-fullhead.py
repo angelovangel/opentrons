@@ -11,8 +11,21 @@ metadata = {
 
 requirements = {
     "robotType": "Flex",
-    "apiLevel": "2.16"
+    "apiLevel": "2.18"
     }
+
+### Parameters ###
+def add_parameters(parameters):
+    parameters.add_int(
+        variable_name='ncolumns', 
+        display_name="Number of columns",
+        description="How many columns to process",
+        default=2,
+        minimum=1,
+        maximum=12,
+        unit="columns"
+    )
+### Parameters ###
 
 ###     Variables            ###
 ncols =      7
@@ -39,6 +52,10 @@ def comment(myctx, message):
 
 
 def run(ctx: protocol_api.ProtocolContext):
+    # use params supplied at runtime
+    ncols = ctx.params.ncolumns
+    # use params supplied at runtime
+    
     rack_partial = ctx.load_labware(load_name="opentrons_flex_96_filtertiprack_1000ul", location='A2')
     fullpositions = ['B3', 'C3', 'B2', 'C2']
     rack_full_1, rack_full_2, rack_full_3, rack_full_4 = [
@@ -121,7 +138,7 @@ def run(ctx: protocol_api.ProtocolContext):
             pip.aspirate(extra_vol, source.bottom().move(types.Point(0, 0, 0.5)), rate = 0.05)
             disp_vol = removal_vol + extra_vol
         slow_tip_withdrawal(pip, source)
-        pip.dispense(disp_vol, dest, push_out=0)
+        pip.dispense(None, dest, push_out=0)
         ctx.comment("------------------------")
 
     ########################################################################

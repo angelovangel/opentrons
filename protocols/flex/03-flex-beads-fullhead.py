@@ -25,20 +25,64 @@ def add_parameters(parameters):
         maximum=12,
         unit="columns"
     )
+
+    parameters.add_int(
+        variable_name="sample_volume",
+        display_name="Sample volume",
+        description="Sample volume",
+        default=50,
+        minimum=20,
+        maximum=90,
+        unit="uL"
+)
+    parameters.add_int(
+        variable_name="beads_volume",
+        display_name="Beads volume",
+        description="Beads volume",
+        default=50,
+        minimum=20,
+        maximum=90,
+        unit="uL"
+)
+    parameters.add_int(
+        variable_name="eb_volume",
+        display_name="EB volume",
+        description="Elution buffer volume",
+        default=40,
+        minimum=15,
+        maximum=90,
+        unit="uL"
+)
+    parameters.add_int(
+        variable_name="inc_time",
+        display_name="Incubation time",
+        description="Binding/elution incubation time (minutes)",
+        default=10,
+        minimum=3,
+        maximum=20,
+        unit="min"
+)
+    parameters.add_bool(
+        variable_name="dry_run",
+        display_name="Dry Run",
+        description="Skip incubation delays.",
+        default=False
+)
 ### Parameters ###
 
 ###     Variables            ###
+# use no spacing around '=' to discriminate the replacements made by the shiny app from the assignments of runtime params
 ncols=7
-samplevol =  50
+samplevol=50
 beadspos =  'A1'
-beadsvol =   50
+beadsvol=50
 ebpos =     'A2'
-ebvol =      40
+ebvol=40
 etohvol =   150
 etohpos =   ['A3', 'A4', 'A5'] # one pos for every 4 columns, can accomodate 200 ul EtOH per well
-inctime =    10
+inctime=10
 speed_factor_aspirate = 1
-DRY_RUN = False
+DRY_RUN=False
 BEADSMIX = False
 ################################
 
@@ -54,6 +98,11 @@ def comment(myctx, message):
 def run(ctx: protocol_api.ProtocolContext):
     # use params supplied at runtime
     ncols = ctx.params.ncolumns
+    samplevol = ctx.params.sample_volume
+    beadsvol = ctx.params.beads_volume
+    ebvol = ctx.params.eb_volume
+    inctime = ctx.params.inc_time
+    DRY_RUN = ctx.params.dry_run
     # use params supplied at runtime
     
     rack_partial = ctx.load_labware(load_name="opentrons_flex_96_filtertiprack_1000ul", location='A2')

@@ -1,6 +1,6 @@
-# Kinnex PCR protocol
+# Kinnex PCR protocol for OT2
 # doing only the Kinnex step for PacBio 16S (103-072-100), full-length RNA (103-072-000) or single-cell RNA (103-072-200)
-# Kinnex arrays - 16S = 12X, full-length RNA = 8X, single-cell RNA = 16X
+# Kinnex segments - 16S = 12X, full-length RNA = 8X, single-cell RNA = 16X
 # max 6 samples
 # empty 1.5 ml tubes in A5..B6 of rack to collect pools after PCR 
 # the Kinnex primer mixes go in A1..D4 of 2 ml aluminium block
@@ -8,45 +8,110 @@
 from opentrons import protocol_api
 
 metadata = {
-    'protocolName': '08-kinnex-pcr.py',
+    'protocolName': 'PacBio Kinnex PCR',
     'author': 'BCL <angel.angelov@kaust.edu.sa>',
-    'description': 'Perform Kinnex-PCR for the PacBio 16S, full-length RNA or single-cell RNA kits',
-    'apiLevel': '2.15'
+    'description': 'Perform PacBio Kinnex-PCR for the PacBio 16S, full-length RNA or single-cell RNA kits',
+    'apiLevel': '2.18'
 }
+
+def comment(myctx, message):
+    myctx.comment("-----------")
+    myctx.comment(message)
+    myctx.comment("-----------")
+
+# Runtime params
 #================================================================
-ncycles = 9
-primervol = 2.5
-extensiontime = 240
-MMvol = 22.5
-MMwells = ['A1', 'B1', 'C1'] # on rack
-#MMwells = ['A1', 'B1', 'C1', 'D1', 'A2', 'B2'] # on rack
-poolwells = ['A5', 'B5', 'C5'] # on rack
-nsamples = len(MMwells)
-primerwells = ['A1', 'B1', 'C1', 'D1', 'A2', 'B2', 'C2', 'D2', 'A3', 'B3', 'C3', 'D3', 'A4', 'B4', 'C4', 'D4'] # on block
-# for building the wells to distribute to, based on MMwell index and plex
-# works for any plex number
-plex = 12
-rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
-left_pipette = 'p300_single_gen2'
-
-
-pcrprofile = [
-    {'temperature':98, 'hold_time_seconds':20},
-    {'temperature':68, 'hold_time_seconds':30},
-    {'temperature':72, 'hold_time_seconds':extensiontime}
-    ]
+def add_parameters(parameters):
+    parameters.add_str(
+        variable_name="protocol",
+        display_name="Kinnex protocol type",
+        description="Select which Kinnex PCR protocol to run",
+        choices=[
+            {"display_name": "16S amplicons", "value": "16S"},
+            {"display_name": "Full-length RNA", "value": "fl_rna"},
+            {"display_name": "Single-cell RNA", "value": "sc_rna"}
+        ],
+        default="16S",
+    )
+    parameters.add_str(
+        variable_name="left_pip",
+        display_name="Left mount pipette",
+        description="Type of single channel pipette on left mount",
+        choices=[
+            {"display_name": "P20 single-channel GEN2", "value": "p20_single_gen2"},
+            {"display_name": "P300 single-channel GEN2", "value": "p300_single_gen2"}
+        ],
+        default="p300_single_gen2",
+    )
+    parameters.add_int(
+        variable_name='num_samples', 
+        display_name="Number of samples",
+        description="How many Kinnex PCR reactions to perform (max 6 are allowed)",
+        default=1,
+        minimum=1,
+        maximum=6,
+        unit="rxns"
+    )
+    parameters.add_int(
+        variable_name='num_cycles',
+        display_name='Number of Kinnex PCR cycles',
+        description='Number of Kinnex PCR cycles',
+        default=9,
+        minimum=9,
+        maximum=12
+    )
 #================================================================
-
-if nsamples > 6 | nsamples < 1:
-    exit('Please use up to 6 samples')
-if len(MMwells) != len(poolwells):
-    exit('Sample and pool wells do not match!')
 
 def run(ctx: protocol_api.ProtocolContext):
-    ctx.comment('Running Kinnex PCR')
-    ctx.comment('--------------------------------')
-    ctx.comment('Total number of samples: ' + str(nsamples) + ' in wells ' + str(MMwells))
-    ctx.comment('--------------------------------')
+    # subset according to nsamples
+    MMwells = ['A1', 'B1', 'C1', 'D1', 'A2', 'B2'] # on rack
+    poolwells = ['A5', 'B5', 'C5', 'D5', 'A6', 'B6'] # on rack
+    # subset accordingto plex
+    primerwells = ['A1', 'B1', 'C1', 'D1', 'A2', 'B2', 'C2', 'D2', 'A3', 'B3', 'C3', 'D3', 'A4', 'B4', 'C4', 'D4'] # on block
+    
+    # Setup runtime and Shiny app varaibles
+    nsamples = ctx.params.num_samples
+    MMwells = MMwells[:nsamples]
+    poolwells = poolwells[:nsamples]
+
+    # Left pipette
+    left_pipette = ctx.params.left_pip
+
+    #plex and ext time are determined by protocol
+    if ctx.params.protocol == 'fl_rna':
+        plex = 8
+    elif ctx.params.protocol == '16S':
+        plex = 12
+    elif ctx.params.protocol == 'sc_rna':
+        plex = 16
+
+    if ctx.params.protocol == '16S':
+        extensiontime = 90
+    else:
+        extensiontime = 240
+    
+    # these can be set optionally 
+    ncycles = ctx.params.num_cycles
+    primervol = 2.5
+    MMvol = 22.5
+
+    # for building the wells to distribute to/consolidate from, based on MMwell index and plex
+    # works for any plex number
+    rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
+
+    pcrprofile = [
+        {'temperature':98, 'hold_time_seconds':20},
+        {'temperature':68, 'hold_time_seconds':30},
+        {'temperature':72, 'hold_time_seconds':extensiontime}
+    ]
+
+    if nsamples > 6 | nsamples < 1:
+        exit('Please use up to 6 samples')
+    if len(MMwells) != len(poolwells):
+        exit('Number of sample and pool wells do not match!')
+    
+    comment(ctx, 'Running Kinnex PCR --> ' + str(ctx.params.protocol))
+    comment(ctx, 'Total number of samples: ' + str(nsamples) + ' in wells ' + str(MMwells))
     
     odtc = ctx.load_module(module_name='thermocyclerModuleV2')
     primerblock = ctx.load_labware('opentrons_24_aluminumblock_nest_0.5ml_screwcap', '5', 'Alu block')
@@ -62,22 +127,15 @@ def run(ctx: protocol_api.ProtocolContext):
     lp = ctx.load_instrument(left_pipette, mount='left', tip_racks=tips_left)
     m20 = ctx.load_instrument('p20_multi_gen2', mount='right', tip_racks=tips20_multi)
 
-    # set s20 flow rates globally, default is 7.56 
-    # s20.flow_rate.aspirate = 5
-    # s20.flow_rate.dispense = 4
-
     # setup ODTC
     odtc.open_lid()
     odtc.set_block_temperature(temperature = 10)
     odtc.set_lid_temperature(100)
 
-    
     # distribute MM
     for i, v in enumerate(MMwells):
         distribute_wells =  [ j + str(i*2 + 1) for j in rows ] + [ j + str(i*2 + 2) for j in rows ]
-        ctx.comment('Distributing sample ' + str(MMwells[i]) + ' in PCR plate wells:')
-        ctx.comment(str(distribute_wells[:plex]))
-        ctx.comment("--------------------------------------")
+        comment(ctx, 'Distributing sample ' + str(MMwells[i]) + ' to PCR plate wells: ' + str(distribute_wells[:plex]))
         lp.distribute(
             MMvol,
             rack.wells_by_name()[v],
@@ -89,8 +147,8 @@ def run(ctx: protocol_api.ProtocolContext):
         )
 
     # Transfer primers from block to intermediate plate
-    ctx.comment("Transfer primers from block to intermediate plate")
-    ctx.comment("--------------------------------------")
+    comment(ctx, "Transfer primers from block to intermediate plate")
+    
     # make sure accurate pipetting if P300 is used
     thisvolume = primervol * nsamples * 1.5
     if left_pipette == 'p300_single_gen2' and thisvolume < 10:
@@ -107,13 +165,11 @@ def run(ctx: protocol_api.ProtocolContext):
         mix_before = (3, thisvolume/2), 
         new_tip = 'always'
     )
-    ctx.comment("--------------------------------------")
 
     # Add primers with multichannel
     for i in range(nsamples):
         samplecols = 'A' + str(i*2 + 1)
-        ctx.comment('Add primers to PCR plate for sample ' + MMwells[i])
-        ctx.comment('--------------------------------------')
+        comment(ctx, 'Add primers to PCR plate for sample ' + MMwells[i])
         m20.transfer(
             primervol,
             int_primerplate['A1'],
@@ -134,28 +190,8 @@ def run(ctx: protocol_api.ProtocolContext):
                 blow_out = True,
                 blowout_location = 'destination well'
             )
-        ctx.comment('--------------------------------------')
-
-
-    # # Primer mix addition
-    # for i in range(nsamples):
-    #     distribute_wells =  [ j + str(i*2 + 1) for j in rows ] + [ j + str(i*2 + 2) for j in rows ]
-    #     if len(distribute_wells[:plex]) != len(primerwells[:plex]):
-    #         exit('Primer and PCR plate wells do not match!')
-    #     ctx.comment('Adding primers to wells:')
-    #     ctx.comment(str(distribute_wells[:plex]))
-    #     ctx.comment("--------------------------------------")
-    #     s20.transfer(
-    #         primervol,
-    #         [primerblock[well] for well in primerwells[:plex]],
-    #         [pcrplate[well] for well in distribute_wells[:plex]], 
-    #         new_tip = 'always', 
-    #         air_gap = 1,
-    #         mix_after = (3, 15), 
-    #         blow_out = False
-    #         )
-
     # PCR
+    comment(ctx, 'Kinnex PCR')
     ctx.pause("Cover plate with aluminum foil") 
     odtc.close_lid()
     odtc.set_block_temperature(temperature=98, hold_time_minutes=3)
@@ -165,21 +201,16 @@ def run(ctx: protocol_api.ProtocolContext):
     odtc.open_lid()
     odtc.deactivate_lid()
     odtc.deactivate_block()
-    ctx.comment("--------------------------------------")
     ctx.pause("Uncover plate before pooling")
     
     # # Consolidate PCRs
     for i, v in enumerate(poolwells):
         distribute_wells =  [ j + str(i*2 + 1) for j in rows ] + [ j + str(i*2 + 2) for j in rows ]
-        ctx.comment("Consolidating PCR wells " + str(distribute_wells[:plex]) + ' into pool well ' + v)
-        ctx.comment("--------------------------------------")
+        comment(ctx, "Consolidating PCR wells " + str(distribute_wells[:plex]) + ' into pool well ' + v)
         lp.consolidate(
             MMvol+primervol, 
             [pcrplate[well] for well in distribute_wells[:plex]], 
             rack.wells_by_name()[v]
         )
-        ctx.comment("--------------------------------------")
 
-    ctx.comment('--------------------------------')
-    ctx.comment('Kinnex-PCR done!')
-    ctx.comment('--------------------------------')
+    comment(ctx, 'Kinnex-PCR done!')

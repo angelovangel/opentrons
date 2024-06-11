@@ -16,6 +16,17 @@ requirements = {
 
 ### Parameters ###
 def add_parameters(parameters):
+    parameters.add_str(
+        variable_name="start_plate",
+        display_name="Sample plate type",
+        description="Select the type of the starting (sample) plate",
+        choices=[
+            {"display_name": "Bio-Rad plate 200 uL", "value": "biorad_96_wellplate_200ul_pcr"},
+            {"display_name": "NEST deepwell plate 2mL", "value": "nest_96_wellplate_2ml_deep"},
+            {"display_name": "Thermo deepwell plate 0.8ml", "value": "thermo_96_wellplate_0.8ml"},  
+        ],
+        default="biorad_96_wellplate_200ul_pcr",
+    )
     parameters.add_int(
         variable_name='ncolumns', 
         display_name="Number of columns",
@@ -72,6 +83,7 @@ def add_parameters(parameters):
 
 ###     Variables            ###
 # use no spacing around '=' to discriminate the replacements made by the shiny app from the assignments of runtime params
+sample_plate='biorad_96_wellplate_200ul_pcr'
 ncols=7
 samplevol=50
 beadspos =  'A1'
@@ -97,6 +109,7 @@ def comment(myctx, message):
 
 def run(ctx: protocol_api.ProtocolContext):
     # use params supplied at runtime
+    sample_plate = ctx.params.start_plate
     ncols = ctx.params.ncolumns
     samplevol = ctx.params.sample_volume
     beadsvol = ctx.params.beads_volume
@@ -125,7 +138,7 @@ def run(ctx: protocol_api.ProtocolContext):
     # labware
     reservoir = ctx.load_labware("nest_12_reservoir_15ml", "D2")
     #etoh = ctx.load_labware("axygen_1_reservoir_90ml", "C2")
-    plate1 = ctx.load_labware("biorad_96_wellplate_200ul_pcr", "D1")
+    plate1 = ctx.load_labware(sample_plate, "D1")
     plate2 = ctx.load_labware("biorad_96_wellplate_200ul_pcr", "B1")
     trash = ctx.load_trash_bin("A3")
 

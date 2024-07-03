@@ -230,6 +230,7 @@ def run(ctx: protocol_api.ProtocolContext):
     #++++++++++++++++++++++++++++++++++++++++++++++++
         
     ctx.comment("================= Starting barcode transfer ==========================")
+    ctx.pause("Pause before barcode transfer") 
     
     for i, v in enumerate(scols3_fulltransfer):
         ctx.comment("Full column transfer barcode plate: " + str(barcode_vol) + "ul from A" + v + " to A" + dcols3_fulltransfer[i])

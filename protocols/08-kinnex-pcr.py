@@ -8,9 +8,9 @@
 from opentrons import protocol_api
 
 metadata = {
-    'protocolName': 'PacBio Kinnex PCR',
-    'author': 'BCL <angel.angelov@kaust.edu.sa>',
-    'description': 'Perform PacBio Kinnex-PCR for the PacBio 16S, full-length RNA or single-cell RNA kits',
+    'protocolName': 'PacBio Kinnex\u2122 PCR',
+    'author': 'Angel Angelov <angel.angelov@kaust.edu.sa>',
+    'description': 'Perform PacBio Kinnex\u2122 PCR for the PacBio 16S, full-length RNA or single-cell RNA kits',
     'apiLevel': '2.18'
 }
 
@@ -24,7 +24,7 @@ def comment(myctx, message):
 def add_parameters(parameters):
     parameters.add_str(
         variable_name="protocol",
-        display_name="Kinnex protocol type",
+        display_name="Kinnex\u2122 protocol type",
         description="Select which Kinnex PCR protocol to run",
         choices=[
             {"display_name": "16S amplicons", "value": "16S"},
@@ -54,7 +54,7 @@ def add_parameters(parameters):
     )
     parameters.add_int(
         variable_name='num_cycles',
-        display_name='Number of Kinnex PCR cycles',
+        display_name='Number of Kinnex\u2122 PCR cycles',
         description='Number of Kinnex PCR cycles',
         default=9,
         minimum=9,
@@ -110,26 +110,51 @@ def run(ctx: protocol_api.ProtocolContext):
     if len(MMwells) != len(poolwells):
         exit('Number of sample and pool wells do not match!')
     
-    comment(ctx, 'Running Kinnex PCR --> ' + str(ctx.params.protocol))
-    comment(ctx, 'Total number of samples: ' + str(nsamples) + ' in wells ' + str(MMwells))
+    comment(
+        ctx,
+        "Preparing Kinnex\u2122 using" + " Kinnex " + str(ctx.params.protocol) + " kit"
+    )
+    comment(
+        ctx, 'Total number of samples: ' + str(nsamples) + ' in wells ' + str(MMwells)
+        )
     
-    odtc = ctx.load_module(module_name='thermocyclerModuleV2')
-    primerblock = ctx.load_labware('opentrons_24_aluminumblock_nest_0.5ml_screwcap', '5', 'Alu block')
-    int_primerplate = ctx.load_labware('biorad_96_wellplate_200ul_pcr', '4','Intermediate primer plate')
-    rack = ctx.load_labware('opentrons_24_tuberack_eppendorf_1.5ml_safelock_snapcap', '9', 'MM tube rack')
-    pcrplate = odtc.load_labware('biorad_96_wellplate_200ul_pcr') # IMPORTANT - use biorad plates!!!
+    odtc = ctx.load_module(
+        module_name='thermocyclerModuleV2'
+    )
+    primerblock = ctx.load_labware(
+        'opentrons_24_aluminumblock_nest_0.5ml_screwcap', '5', 'Alu block'
+    )
+    int_primerplate = ctx.load_labware(
+        'biorad_96_wellplate_200ul_pcr', '4','Intermediate primer plate'
+    )
+    rack = ctx.load_labware(
+        'opentrons_24_tuberack_eppendorf_1.5ml_safelock_snapcap', '9', 'MM tube rack'
+    )
+    pcrplate = odtc.load_labware(
+        'biorad_96_wellplate_200ul_pcr'
+    ) # IMPORTANT - use biorad plates!!!
 
     if left_pipette == 'p20_single_gen2':
-        tips_left = [ctx.load_labware('opentrons_96_filtertiprack_20ul', slot) for slot in ['1', '2']]
+        tips_left = [
+            ctx.load_labware('opentrons_96_filtertiprack_20ul', slot) for slot in ['1', '2']
+        ]
     else:
-        tips_left = [ctx.load_labware('opentrons_96_filtertiprack_200ul', slot) for slot in ['1', '2']]
-    tips20_multi = [ctx.load_labware('opentrons_96_filtertiprack_20ul', slot) for slot in ['3']]
-    lp = ctx.load_instrument(left_pipette, mount='left', tip_racks=tips_left)
-    m20 = ctx.load_instrument('p20_multi_gen2', mount='right', tip_racks=tips20_multi)
+        tips_left = [
+            ctx.load_labware('opentrons_96_filtertiprack_200ul', slot) for slot in ['1', '2']
+        ]
+    tips20_multi = [
+        ctx.load_labware('opentrons_96_filtertiprack_20ul', slot) for slot in ['3']
+    ]
+    lp = ctx.load_instrument(
+        left_pipette, mount='left', tip_racks=tips_left
+    )
+    m20 = ctx.load_instrument(
+        'p20_multi_gen2', mount='right', tip_racks=tips20_multi
+    )
     
     # define liquids
     mastermix_liquid = ctx.define_liquid(
-        name = 'Kinnex master mix',
+        name = 'Kinnex\u2122 master mix',
         description = 'Kinnex PCR mix 103-107-700',
         display_color = '#6aa84f'
     )
@@ -137,7 +162,7 @@ def run(ctx: protocol_api.ProtocolContext):
         loc.load_liquid(mastermix_liquid, MMvol)
         
     primers_liquid = ctx.define_liquid(
-        name = 'Kinnex primer mix',
+        name = 'Kinnex\u2122 primer mix',
         description = 'Kinnex primer mix',
         display_color = '#ff8234'
     )
@@ -153,7 +178,13 @@ def run(ctx: protocol_api.ProtocolContext):
     # distribute MM
     for i, v in enumerate(MMwells):
         distribute_wells =  [ j + str(i*2 + 1) for j in rows ] + [ j + str(i*2 + 2) for j in rows ]
-        comment(ctx, 'Distributing sample ' + str(MMwells[i]) + ' to PCR plate wells: ' + str(distribute_wells[:plex]))
+        comment(
+            ctx, 
+            'Distributing sample ' 
+            + str(MMwells[i]) 
+            + ' to PCR plate wells: ' 
+            + str(distribute_wells[:plex])
+        )
         lp.distribute(
             MMvol,
             rack.wells_by_name()[v],
@@ -165,13 +196,20 @@ def run(ctx: protocol_api.ProtocolContext):
         )
 
     # Transfer primers from block to intermediate plate
-    comment(ctx, "Transfer primers from block to intermediate plate")
+    comment(
+        ctx, 
+        "Transfer primers from block to intermediate plate"
+    )
     
     # make sure accurate pipetting if P300 is used
     thisvolume = primervol * nsamples * 1.5
     if left_pipette == 'p300_single_gen2' and thisvolume < 10:
         thisvolume = 10
-        ctx.pause('Using p300 for pipetting less than 20 ul! Will distribute 10 ul primer mix to intermediate plate, but ' + str(primervol * nsamples * 1.1) + ' will be used')
+        ctx.pause(
+            'Using p300 for pipetting less than 20 ul! Will distribute 10 ul primer mix to intermediate plate, but ' 
+            + str(primervol * nsamples * 1.1) 
+            + ' will be used'
+        )
     # make sure enough primer is available in the intermediate plate even for 1 sample
     if thisvolume < 5:
         thisvolume = 5
@@ -187,7 +225,11 @@ def run(ctx: protocol_api.ProtocolContext):
     # Add primers with multichannel
     for i in range(nsamples):
         samplecols = 'A' + str(i*2 + 1)
-        comment(ctx, 'Add primers to PCR plate for sample ' + MMwells[i])
+        comment(
+            ctx, 
+            'Add primers to PCR plate for sample ' 
+            + MMwells[i]
+        )
         m20.transfer(
             primervol,
             int_primerplate['A1'],
@@ -209,7 +251,7 @@ def run(ctx: protocol_api.ProtocolContext):
                 blowout_location = 'destination well'
             )
     # PCR
-    comment(ctx, 'Kinnex PCR')
+    comment(ctx, 'Kinnex\u2122 PCR')
     ctx.pause("Cover plate with aluminum foil") 
     odtc.close_lid()
     odtc.set_block_temperature(temperature=98, hold_time_minutes=3)
@@ -224,11 +266,17 @@ def run(ctx: protocol_api.ProtocolContext):
     # # Consolidate PCRs
     for i, v in enumerate(poolwells):
         distribute_wells =  [ j + str(i*2 + 1) for j in rows ] + [ j + str(i*2 + 2) for j in rows ]
-        comment(ctx, "Consolidating PCR wells " + str(distribute_wells[:plex]) + ' into pool well ' + v)
+        comment(
+            ctx, 
+            "Consolidating PCR wells " 
+            + str(distribute_wells[:plex]) 
+            + ' into pool well ' 
+            + v
+        )
         lp.consolidate(
             MMvol+primervol, 
             [pcrplate[well] for well in distribute_wells[:plex]], 
             rack.wells_by_name()[v]
         )
 
-    comment(ctx, 'Kinnex-PCR done!')
+    comment(ctx, 'Kinnex\u2122 PCR done!')

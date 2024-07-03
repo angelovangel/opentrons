@@ -280,6 +280,7 @@ def run(ctx: protocol_api.ProtocolContext):
         odtc.set_block_temperature(80, hold_time_minutes = 2)
         odtc.set_block_temperature(15)
         odtc.open_lid()
+        ctx.pause("Remove cover before pooling")
 
     # Pool
     ctx.comment("================= Pool samples =========================")

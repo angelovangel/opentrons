@@ -1,0 +1,108 @@
+    reg_res = ctx.load_labware("nest_12_reservoir_15ml", "A1", "reagent reservoir")
+    chute = ctx.load_waste_chute()
+
+    # -------------------------- plate mapping ------------------------- #
+    beads = reg_res.wells()[2:4]
+    beads_list1 = beads * cols_1
+    beads_list2 = beads * cols_2
+    beads_list3 = beads * cols_3
+
+    # # ------------------------------------------------------------------ #
+    # #                               liquids                              #
+    # # ------------------------------------------------------------------ #
+    l_locations = [
+        beads[0],
+        beads[1],
+    ]
+    l_volumes = [
+        7000,
+        7000,
+    ]
+    liquids = [
+        "Working Dilution Beads  ",
+        "Working Dilution Beads  ",
+    ]
+    descriptions = [
+        "Working Dilution Beads  ",
+        "Working Dilution Beads  ",
+    ]
+
+    colors_full = [
+        "#FF0000",  # Red
+        "#0000FF",  # Blue
+        "#008000",  # Green
+        "#FFFF00",  # Yellow
+        "#FFC0CB",  # Pink
+        "#800080",  # Purple
+        "#FFA500",  # Orange
+        "#808080",  # Grey
+        "#00FFFF",  # Cyan
+        "#FF00FF",  # Magenta
+        "#00FF00",  # Lime
+        "#000080",  # Navy
+        "#800000",  # Maroon
+        "#808000",  # Olive
+        "#008080",  # Teal
+        "#C0C0C0",  # Silver
+        "#FF6347",  # Tomato
+        "#4682B4",  # SteelBlue
+        "#D2691E",  # Chocolate
+        "#FF4500",  # OrangeRed
+        "#8A2BE2",  # BlueViolet
+        "#A52A2A",  # Brown
+        "#DEB887",  # BurlyWood
+        "#5F9EA0",  # CadetBlue
+        "#7FFF00",  # Chartreuse
+        "#D2691E",  # Chocolate
+        "#FF7F50",  # Coral
+        "#6495ED",  # CornflowerBlue
+        "#FFF8DC",  # Cornsilk
+        "#DC143C",  # Crimson
+        "#00FFFF",  # Cyan
+        "#00008B",  # DarkBlue
+        "#008B8B",  # DarkCyan
+        "#B8860B",  # DarkGoldenRod
+        "#A9A9A9",  # DarkGray
+        "#006400",  # DarkGreen
+        "#BDB76B",  # DarkKhaki
+        "#8B008B",  # DarkMagenta
+        "#556B2F",  # DarkOliveGreen
+        "#FF8C00",  # DarkOrange
+    ]  # 40 colors
+
+    colors_full = [x.upper() for x in colors_full]
+
+    # make a new color list to match the liquids order.
+    # Use the same color for the same liquid.
+    # If the liquid is used more than once,
+    # use the same color for all instances.
+    colors = []
+    for i, liquid in enumerate(liquids):
+        if liquid not in liquids[:i]:
+            colors.append(colors_full[i])
+        else:
+            colors.append(colors[liquids.index(liquid)])
+
+    for liquid, des, color, v, loc in zip(
+        liquids, descriptions, colors, l_volumes, l_locations
+    ):
+        liq = ctx.define_liquid(
+            name=str(liquid), description=str(des), display_color=color
+        )
+        loc.load_liquid(liquid=liq, volume=v)
+
+    # load liquids to the sample plates in the same color(1,2 if necessary)
+    sample_plate_1_wells = sample_plate_1.wells()[:num_samples_1]
+    if num_samples_2 > 0:
+        sample_plate_2_wells = sample_plate_2.wells()[:num_samples_2]
+    else:
+        sample_plate_2_wells = []
+    sample_wells = sample_plate_1_wells + sample_plate_2_wells
+
+    for well in sample_wells:
+        liq = ctx.define_liquid(
+            name="Sample", description="Sample", display_color=colors_full[len(colors)]
+        )
+        well.load_liquid(
+            liquid=liq, volume=200
+        )  # 200 is a random number here for loading the sample volume

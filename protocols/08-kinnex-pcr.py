@@ -126,6 +126,24 @@ def run(ctx: protocol_api.ProtocolContext):
     tips20_multi = [ctx.load_labware('opentrons_96_filtertiprack_20ul', slot) for slot in ['3']]
     lp = ctx.load_instrument(left_pipette, mount='left', tip_racks=tips_left)
     m20 = ctx.load_instrument('p20_multi_gen2', mount='right', tip_racks=tips20_multi)
+    
+    # define liquids
+    mastermix_liquid = ctx.define_liquid(
+        name = 'Kinnex master mix',
+        description = 'Kinnex PCR mix 103-107-700',
+        display_color = '#6aa84f'
+    )
+    for loc in rack.wells()[:nsamples]:
+        loc.load_liquid(mastermix_liquid, MMvol)
+        
+    primers_liquid = ctx.define_liquid(
+        name = 'Kinnex primer mix',
+        description = 'Kinnex primer mix',
+        display_color = '#ff8234'
+    )
+
+    for loc in primerblock.wells()[:plex]:
+        loc.load_liquid(primers_liquid, primervol)
 
     # setup ODTC
     odtc.open_lid()

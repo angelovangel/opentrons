@@ -31,7 +31,7 @@ def add_parameters(parameters):
         variable_name='ncolumns', 
         display_name="Number of columns",
         description="How many columns to process",
-        default=2,
+        default=1,
         minimum=1,
         maximum=12,
         unit="columns"
@@ -137,10 +137,10 @@ def run(ctx: protocol_api.ProtocolContext):
     # ----------------------------------------------
     # labware
     reservoir = ctx.load_labware("nest_12_reservoir_15ml", "D2")
-    #etoh = ctx.load_labware("axygen_1_reservoir_90ml", "C2")
+    #etohlid = ctx.load_labware("axygen_1_reservoir_90ml", "C2")
     plate1 = ctx.load_labware(sample_plate, "D1")
     plate2 = ctx.load_labware("biorad_96_wellplate_200ul_pcr", "B1")
-    trash = ctx.load_trash_bin("A3")
+    trash = ctx.load_waste_chute()
 
     #-----------------------------------------------
     # helper functions

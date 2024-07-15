@@ -163,8 +163,8 @@ def run(ctx: protocol_api.ProtocolContext):
     #mmstrip = ctx.load_labware('stack_strip_biorad96well', '9', 'Sequencing master mix in strip') # stack of 96 well base plate and strips
     sourcetube = ctx.load_labware('opentrons_24_tuberack_eppendorf_1.5ml_safelock_snapcap', '5', 'Primers in tube rack')
     
-    tips_left = [ctx.load_labware(left_tips, slot) for slot in ['1']]
-    tips20_multi = [ctx.load_labware('opentrons_96_filtertiprack_20ul', slot) for slot in ['2', '3']]
+    tips_left = [ctx.load_labware(left_tips, slot) for slot in ['1', '2']]
+    tips20_multi = [ctx.load_labware('opentrons_96_filtertiprack_20ul', slot) for slot in ['3']]
     
 
     s20 = ctx.load_instrument(left_mount, mount='left', tip_racks=tips_left)

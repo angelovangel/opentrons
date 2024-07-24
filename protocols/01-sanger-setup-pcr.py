@@ -167,7 +167,7 @@ def run(ctx: protocol_api.ProtocolContext):
     sourceplate = ctx.load_labware(sourceplate_type, '6', 'Source plate') # stack of 96 well base plate and PCR plate
     sourcestrip = ctx.load_labware('stack_strip_biorad96well', '4', 'Source strip') # stack of 96 well base plate and strips
     #mmstrip = ctx.load_labware('stack_strip_biorad96well', '9', 'Sequencing master mix in strip') # stack of 96 well base plate and strips
-    sourcetube = ctx.load_labware('opentrons_24_tuberack_eppendorf_1.5ml_safelock_snapcap', '5', 'Tube rack')
+    sourcetube = ctx.load_labware('opentrons_24_aluminumblock_generic_2ml_screwcap', '5', 'Tube block')
     
     tips_left = [ctx.load_labware(left_tips, slot) for slot in ['1', '2']]
     tips20_multi = [ctx.load_labware('opentrons_96_filtertiprack_20ul', slot) for slot in ['3']]

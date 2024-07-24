@@ -21,7 +21,7 @@ volume2=[10, 10, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 sourcewells3=['A1','B1','C1','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','']
 destwells3=['A1', 'B1', 'C1', 'D1', 'E1', 'F1', 'G1', 'H1', 'A2', 'B2', 'C2', 'D2', 'E2', 'F2', 'G2', 'H2', 'A3', 'B3', 'C3', 'D3', 'E3', 'F3', 'G3', 'H3', 'A4', 'B4', 'C4', 'D4', 'E4', 'F4', 'G4', 'H4', 'A5', 'B5', 'C5', 'D5', 'E5', 'F5', 'G5', 'H5', 'A6', 'B6', 'C6', 'D6', 'E6', 'F6', 'G6', 'H6', 'A7', 'B7', 'C7', 'D7', 'E7', 'F7', 'G7', 'H7', 'A8', 'B8', 'C8', 'D8', 'E8', 'F8', 'G8', 'H8', 'A9', 'B9', 'C9', 'D9', 'E9', 'F9', 'G9', 'H9', 'A10', 'B10', 'C10', 'D10', 'E10', 'F10', 'G10', 'H10', 'A11', 'B11', 'C11', 'D11', 'E11', 'F11', 'G11', 'H11', 'A12', 'B12', 'C12', 'D12', 'E12', 'F12', 'G12', 'H12']
 volume3=[5, 5, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-dmso=[1.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+dmso=[1.5, 0, 1.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
 left_mount = 'p300_single_gen2'
 if left_mount == 'p20_single_gen2':
@@ -139,10 +139,16 @@ for i, v in enumerate(destwells2):
 
 
 ######################## Calculations for full column transfer ########################
+def comment(myctx, message):
+    myctx.comment("-----------")
+    myctx.comment(message)
+    myctx.comment("-----------")
+
 
 def run(ctx: protocol_api.ProtocolContext):
 
-    ctx.comment(
+    comment(
+        ctx,
         "Starting setup of " + 
         str(rxns) +
          " reactions in " + 
@@ -161,7 +167,7 @@ def run(ctx: protocol_api.ProtocolContext):
     sourceplate = ctx.load_labware(sourceplate_type, '6', 'Source plate') # stack of 96 well base plate and PCR plate
     sourcestrip = ctx.load_labware('stack_strip_biorad96well', '4', 'Source strip') # stack of 96 well base plate and strips
     #mmstrip = ctx.load_labware('stack_strip_biorad96well', '9', 'Sequencing master mix in strip') # stack of 96 well base plate and strips
-    sourcetube = ctx.load_labware('opentrons_24_tuberack_eppendorf_1.5ml_safelock_snapcap', '5', 'Primers in tube rack')
+    sourcetube = ctx.load_labware('opentrons_24_tuberack_eppendorf_1.5ml_safelock_snapcap', '5', 'Tube rack')
     
     tips_left = [ctx.load_labware(left_tips, slot) for slot in ['1', '2']]
     tips20_multi = [ctx.load_labware('opentrons_96_filtertiprack_20ul', slot) for slot in ['3']]
@@ -169,43 +175,47 @@ def run(ctx: protocol_api.ProtocolContext):
 
     s20 = ctx.load_instrument(left_mount, mount='left', tip_racks=tips_left)
     m20 = ctx.load_instrument('p20_multi_gen2', mount='right', tip_racks=tips20_multi)
+
+    s20_original_flowrate = s20.flow_rate.aspirate
     
     # ODTC
     odtc.open_lid()
     odtc.set_block_temperature(temperature = 10)
 
-    message1 = str(f"{rxns} reactions will be transferred.\nPlease prepare {mastermix:.1f} ul mastermix and place it in D6 of Eppendorf tube rack. The mastermix will be distributed first to the A1 strip in position 6, and then to columns {destcolumns_pcr} in the destination plate.")
-    ctx.comment(message1)
+    message1 = str(f"MM distribute. \nFor {rxns} reactions, please prepare {mastermix:.1f} ul mastermix and place it in D6 of Eppendorf tube rack.")
+    comment(ctx, message1)
+    
     # distribute MM without changing tip
     s20.distribute(
         5, 
         sourcetube[mm_pos], 
-        [destplate.wells_by_name()[v] for v in destwells_all_pcr ]
+        [ destplate.wells_by_name()[v] for v in destwells_all_pcr ]
     )
-    # distribute master mix to col 1 
-    # s20.distribute(
-    #     list(rows_mm_vols.values()), 
-    #     sourcetube.wells_by_name()[mm_pos], # fixed position, place MM in D6 of Epi tuberack
-    #     mmstrip.columns()[0],
-    #     new_tip = 'once', disposal_volume = 0, blow_out = False)
-    # ctx.comment("--------------------------------------")
+
+    # DMSO distribute, use s20 only, fixed position on C6
+    dmsorxns = len(list(filter(lambda x: x > 0, dmso)))
+    comment(ctx, str(f"DMSO distribute for {dmsorxns} reactions."))
+    s20.flow_rate.aspirate = s20_original_flowrate/4
+    s20.flow_rate.dispense = s20_original_flowrate/4
+
+    s20.distribute(
+        1.5, 
+        sourcetube[dmso_pos], 
+        [ destplate[destwells1[i]] for i,v in enumerate(dmso) if v > 0 ], 
+        touch_tip = True, 
+        air_gap = 0,
+        new_tip = 'always', 
+    )
     
-    # # transfer master mix
-    # m20.transfer(
-    #     5,
-    #     mmstrip.columns()[0], # only column 1 is used
-    #     [destplate.wells_by_name()[well_name] for well_name in destcolumns_pcr], 
-    #     new_tip = 'once', 
-    #     #mix_after = (5, 15), 
-    #     blow_out = True, 
-    #     blowout_location = 'destination well'
-    # )
-    
+    s20.flow_rate.aspirate = s20_original_flowrate
+    s20.flow_rate.dispense = s20_original_flowrate
+
     # full column transfers first
     # plate
+    comment(ctx, str(f"Full column transfer for plate cols"))
     for i, v in enumerate(scols1_fulltransfer):
-        ctx.comment("--------------------------------------")
-        ctx.comment("Full column transfer plate : " + str(svol1_fulltransfer[i]) + " ul from A" + v + " to A" + dcols1_fulltransfer[i])
+        #ctx.comment("--------------------------------------")
+        #ctx.comment("Full column transfer plate : " + str(svol1_fulltransfer[i]) + " ul from A" + v + " to A" + dcols1_fulltransfer[i])
         m20.transfer(
         svol1_fulltransfer[i], 
         sourceplate.wells_by_name()['A' + scols1_fulltransfer[i]], 
@@ -214,8 +224,9 @@ def run(ctx: protocol_api.ProtocolContext):
         )
     
     # strip
+    comment(ctx, str(f"Full column transfer for strip cols"))
     for i, v in enumerate(scols2_fulltransfer):
-        ctx.comment("Full column transfer strip : " + str(svol2_fulltransfer[i]) + " ul from A" + v + " to A" + dcols2_fulltransfer[i])
+        #ctx.comment("Full column transfer strip : " + str(svol2_fulltransfer[i]) + " ul from A" + v + " to A" + dcols2_fulltransfer[i])
         m20.transfer(
         svol2_fulltransfer[i], 
         sourcestrip.wells_by_name()['A' + scols2_fulltransfer[i]], 
@@ -265,6 +276,7 @@ def run(ctx: protocol_api.ProtocolContext):
             s20.drop_tip()
 
     # use it
+    comment(ctx, str(f"Single rxns transfer"))
     for i, v in enumerate(destwells1): # could be any destwells
         mytransfer_multistep(
             volume1[i], sourceplate, sourcewells1[i], 
@@ -275,19 +287,10 @@ def run(ctx: protocol_api.ProtocolContext):
             )
     ctx.comment("--------------------------------------")
     
-    # DMSO addition, use s20 only, fixed position on C6
-    for i, v in enumerate(destwells1):
-        if dmso[i] > 0:
-            ctx.comment("Adding DMSO to well " + str(v))
-            ctx.comment("--------------------------------------")
-            s20.transfer(
-                dmso[i], sourcetube[dmso_pos], destplate[v], mix_after = (3, 5), 
-                blow_out = True, blowout_location = 'destination well'
-            )
 
     # this is optional in the Shiny app to cover rxn plate
     if nopcr_run:
-        ctx.comment("Protocol finished!")
+        comment(ctx, "Protocol finished!")
     else:
         message2 = "Cover plate with aluminum foil and press 'Continue' when ready"
         ctx.pause(msg = message2) 
@@ -305,3 +308,4 @@ def run(ctx: protocol_api.ProtocolContext):
         odtc.open_lid()
         odtc.deactivate_lid()
         odtc.set_block_temperature(10)
+        comment(ctx, "Protocol finished!")

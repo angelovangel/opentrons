@@ -20,7 +20,7 @@ def add_parameters(parameters):
         variable_name='ncolumns', 
         display_name="Number of columns",
         description="How many columns to process",
-        default=3,
+        default=12,
         minimum=1,
         maximum=12,
         unit="columns"
@@ -65,7 +65,7 @@ def run(ctx: protocol_api.ProtocolContext):
     
     #labware
     res = ctx.load_labware(ctx.params.beads_reservoir, "C1")
-    plate = ctx.load_labware("stack_plate_biorad96well", "D1")
+    plate = ctx.load_labware("stack_plate_biorad96well", "C2")
     trash = ctx.load_waste_chute()
     beadspos = 'A1'
     waterpos = 'A2'
@@ -90,12 +90,16 @@ def run(ctx: protocol_api.ProtocolContext):
 
     # x-terminator first
     rowA_start = plate.rows()[0]
-    pip.well_bottom_clearance.dispense = 10
+    
+    #pip.mix(10, beadsvol, res[beadspos])
+    pip.well_bottom_clearance.dispense = 20
+    #pip.flow_rate.dispense = 50
     pip.distribute(
         volume = beadsvol, 
         source = res[beadspos], 
         dest = rowA_start[:ncols], 
-        mix_before = (10, beadsvol)
+        mix_before = (10, beadsvol), 
+        blow_out = False
     )
 
     # fill rest with water
@@ -103,6 +107,7 @@ def run(ctx: protocol_api.ProtocolContext):
         pip.distribute(
             volume = watervol, 
             source = res[waterpos], 
-            dest = rowA_start[ncols:]
+            dest = rowA_start[ncols:], 
+            blow_out = False
         )
     

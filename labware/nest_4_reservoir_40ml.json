@@ -1,0 +1,106 @@
+{
+    "ordering": [
+        [
+            "A1"
+        ],
+        [
+            "A2"
+        ],
+        [
+            "A3"
+        ],
+        [
+            "A4"
+        ]
+    ],
+    "brand": {
+        "brand": "NEST",
+        "brandId": [
+            "372790"
+        ]
+    },
+    "metadata": {
+        "displayName": "NEST 4 Reservoir 40 ml",
+        "displayCategory": "reservoir",
+        "displayVolumeUnits": "µL",
+        "tags": []
+    },
+    "dimensions": {
+        "xDimension": 128,
+        "yDimension": 86,
+        "zDimension": 39.2
+    },
+    "wells": {
+        "A1": {
+            "depth": 36,
+            "totalLiquidVolume": 40000,
+            "shape": "rectangular",
+            "xDimension": 24,
+            "yDimension": 68.8,
+            "x": 22.3,
+            "y": 43,
+            "z": 3.2
+        },
+        "A2": {
+            "depth": 36,
+            "totalLiquidVolume": 40000,
+            "shape": "rectangular",
+            "xDimension": 24,
+            "yDimension": 68.8,
+            "x": 49.3,
+            "y": 43,
+            "z": 3.2
+        },
+        "A3": {
+            "depth": 36,
+            "totalLiquidVolume": 40000,
+            "shape": "rectangular",
+            "xDimension": 24,
+            "yDimension": 68.8,
+            "x": 76.3,
+            "y": 43,
+            "z": 3.2
+        },
+        "A4": {
+            "depth": 36,
+            "totalLiquidVolume": 40000,
+            "shape": "rectangular",
+            "xDimension": 24,
+            "yDimension": 68.8,
+            "x": 103.3,
+            "y": 43,
+            "z": 3.2
+        }
+    },
+    "groups": [
+        {
+            "metadata": {
+                "wellBottomShape": "v"
+            },
+            "wells": [
+                "A1",
+                "A2",
+                "A3",
+                "A4"
+            ]
+        }
+    ],
+    "parameters": {
+        "format": "irregular",
+        "quirks": [
+            "centerMultichannelOnWells",
+            "touchTipDisabled"
+        ],
+        "isTiprack": false,
+        "isMagneticModuleCompatible": false,
+        "loadName": "nest_4_reservoir_40ml"
+    },
+    "namespace": "custom_beta",
+    "version": 1,
+    "schemaVersion": 2,
+    "cornerOffsetFromSlot": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+    }
+}

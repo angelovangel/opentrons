@@ -189,7 +189,9 @@ def run(ctx: protocol_api.ProtocolContext):
     s20.distribute(
         5, 
         sourcetube[mm_pos], 
-        [ destplate.wells_by_name()[v] for v in destwells_all_pcr ]
+        [ destplate.wells_by_name()[v] for v in destwells_all_pcr ],
+        blow_out = True, 
+        blowout_location = "source well"
     )
 
     # DMSO distribute, use s20 only, fixed position on C6

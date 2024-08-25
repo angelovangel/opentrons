@@ -22,7 +22,7 @@ def comment(myctx, message):
 def add_parameters(parameters):
     parameters.add_int(
         variable_name="sample_vol",
-        display_name="sample volume for Qbit",
+        display_name="Diluted sample volume for Qbit",
         description="Amount of 10x diluted sample volume",
         default=2,
         minimum=1,
@@ -31,7 +31,7 @@ def add_parameters(parameters):
     )
     parameters.add_int(
         variable_name='ncolumns1', 
-        display_name="Number of columns of stack 1",
+        display_name="Number of columns in stack 1",
         description="How many columns in stack 1",
         default=6,
         minimum=1,
@@ -40,7 +40,7 @@ def add_parameters(parameters):
     )
     parameters.add_int(
         variable_name='ncolumns2', 
-        display_name="Number of columns of stack 2",
+        display_name="Number of columns in stack 2",
         description="How many columns in stack 2",
         default=6,
         minimum=0,
@@ -60,7 +60,7 @@ def add_parameters(parameters):
         default = True
     )
     parameters.add_str(
-        variable_name="beads_reservoir",
+        variable_name="qbit_reservoir",
         display_name="Reservoir for beads",
         description="Select the type reservoir for x-term beads",
         choices=[
@@ -95,7 +95,7 @@ def run(ctx: protocol_api.ProtocolContext):
     qbit_stack1 = ctx.load_labware("stack_plate_biorad96well", "B1")
     qbit_stack2 = ctx.load_labware("stack_plate_biorad96well", "A1")
 
-    res = ctx.load_labware(ctx.params.beads_reservoir, "D2")
+    res = ctx.load_labware(ctx.params.qbit_reservoir, "D2")
     dil_plate = ctx.load_labware("biorad_96_wellplate_200ul_pcr", "C2")
     waterlid = ctx.load_labware("axygen_1_reservoir_90ml", "B2")
 
@@ -131,7 +131,7 @@ def run(ctx: protocol_api.ProtocolContext):
     
         ctx.move_labware(partial1000, 'A3', use_gripper=True)
         pip.distribute(
-            198, 
+            200 - samplevol, 
             res[qbit_pos], 
             qbit_cols, 
             touch_tip=True
@@ -146,11 +146,11 @@ def run(ctx: protocol_api.ProtocolContext):
     
         pip.aspirate(18, waterlid['A1'],rate = 0.5)
         pip.air_gap(3)
-        pip.aspirate(samplevol, start_stack1['A1'], rate = 0.25)
+        pip.aspirate(2, start_stack1['A1'], rate = 0.25)
         pip.dispense(location = dil_plate['A1'])
         pip.mix(10, 15)
     
-        pip.aspirate(2, dil_plate['A1'], rate = 0.25)
+        pip.aspirate(samplevol, dil_plate['A1'], rate = 0.25)
         pip.air_gap(3)
         pip.dispense(location = qbit_stack1['A1'])
         pip.mix(10, 50)
@@ -161,11 +161,11 @@ def run(ctx: protocol_api.ProtocolContext):
     
             pip.aspirate(18, waterlid['A1'],rate = 0.5)
             pip.air_gap(3)
-            pip.aspirate(samplevol, start_stack2['A1'], rate = 0.25)
+            pip.aspirate(2, start_stack2['A1'], rate = 0.25)
             pip.dispense(location = dil_plate['A2'])
             pip.mix(10, 15)
     
-            pip.aspirate(2, dil_plate['A2'], rate = 0.25)
+            pip.aspirate(samplevol, dil_plate['A2'], rate = 0.25)
             pip.air_gap(3)
             pip.dispense(location = qbit_stack2['A1'])
             pip.mix(10, 50)

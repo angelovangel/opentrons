@@ -56,13 +56,13 @@ def add_parameters(parameters):
     parameters.add_bool(
         variable_name = 'prep_qbit',
         display_name = 'Perform qbit',
-        description = 'Dilute 10x and add 2 ul to qbit rgnt',
+        description = 'Dilute 10x and add 2 ul to qbit reagent',
         default = True
     )
     parameters.add_str(
         variable_name="qbit_reservoir",
         display_name="Reservoir for beads",
-        description="Select the type reservoir for x-term beads",
+        description="Select the type reservoir for qbit reagent",
         choices=[
             {"display_name": "Axygen 1 Well Reservoir 90 mL", "value": "axygen_1_reservoir_90ml"},
             {"display_name": "NEST 4 Well Reservoir 40 ml", "value": "nest_4_reservoir_40ml"},
@@ -90,19 +90,20 @@ def run(ctx: protocol_api.ProtocolContext):
     pip = ctx.load_instrument("flex_96channel_1000")
     
     #labware
-    start_stack1 = ctx.load_labware("stack_plate_biorad96well", "D1")
-    start_stack2 = ctx.load_labware("stack_plate_biorad96well", "C1")
-    qbit_stack1 = ctx.load_labware("stack_plate_biorad96well", "B1")
-    qbit_stack2 = ctx.load_labware("stack_plate_biorad96well", "A1")
+    start_stack1 = ctx.load_labware("stack_plate_biorad96well", "D2")
+    start_stack2 = ctx.load_labware("stack_plate_biorad96well", "C2")
+    qbit_stack1 = ctx.load_labware("stack_plate_biorad96well", "B2")
+    qbit_stack2 = ctx.load_labware("stack_plate_biorad96well", "A2")
 
-    res = ctx.load_labware(ctx.params.qbit_reservoir, "D2")
-    dil_plate = ctx.load_labware("biorad_96_wellplate_200ul_pcr", "C2")
-    waterlid = ctx.load_labware("axygen_1_reservoir_90ml", "B2")
+    res = ctx.load_labware(ctx.params.qbit_reservoir, "D1")
+    dil_plate = ctx.load_labware("biorad_96_wellplate_200ul_pcr", "C1")
+    waterlid = ctx.load_labware("axygen_1_reservoir_90ml", "B1")
 
-    final_plate = ctx.load_labware("biorad_96_wellplate_200ul_pcr", "A2")
+    final_plate = ctx.load_labware("biorad_96_wellplate_200ul_pcr", "A1")
     
     trash = ctx.load_waste_chute()
     qbit_pos = 'A1'
+    totalcols = ncols1 + ncols2
 
     # helper functions
     def pip_config(type, rack):
@@ -130,12 +131,16 @@ def run(ctx: protocol_api.ProtocolContext):
         comment(ctx, "Adding qbit reagent to " + str(ncols1 + ncols2) + " columns")
     
         ctx.move_labware(partial1000, 'A3', use_gripper=True)
+        # 15 ml are enough for 9 columns
+        
+        pip.well_bottom_clearance.dispense = 15
         pip.distribute(
             200 - samplevol, 
             res[qbit_pos], 
             qbit_cols, 
-            touch_tip=True
+            touch_tip=False
         )
+        pip.well_bottom_clearance.dispense = 1
         ctx.move_labware(partial1000, 'C4', use_gripper=True)
 
         ########################################################################
@@ -144,31 +149,47 @@ def run(ctx: protocol_api.ProtocolContext):
 
         pip.pick_up_tip(rack_full_1['A1'])
     
-        pip.aspirate(18, waterlid['A1'],rate = 0.5)
+        pip.aspirate(18, waterlid['A1'],rate = 0.1)
         pip.air_gap(3)
-        pip.aspirate(2, start_stack1['A1'], rate = 0.25)
+        pip.aspirate(2, start_stack1['A1'], rate = 0.1)
         pip.dispense(location = dil_plate['A1'])
+        pip.well_bottom_clearance.aspirate = 3
+        pip.well_bottom_clearance.dispense = 3
         pip.mix(10, 15)
-    
-        pip.aspirate(samplevol, dil_plate['A1'], rate = 0.25)
+        pip.well_bottom_clearance.aspirate = 1
+        pip.well_bottom_clearance.dispense = 1
+
+        pip.aspirate(samplevol, dil_plate['A1'], rate = 0.1)
         pip.air_gap(3)
         pip.dispense(location = qbit_stack1['A1'])
+        pip.well_bottom_clearance.aspirate = 3
+        pip.well_bottom_clearance.dispense = 3
         pip.mix(10, 50)
+        pip.well_bottom_clearance.aspirate = 1
+        pip.well_bottom_clearance.dispense = 1
         pip.drop_tip()
 
         if ncols2 > 0:
             pip.pick_up_tip(rack_full_2['A1'])
     
-            pip.aspirate(18, waterlid['A1'],rate = 0.5)
+            pip.aspirate(18, waterlid['A1'],rate = 0.1)
             pip.air_gap(3)
-            pip.aspirate(2, start_stack2['A1'], rate = 0.25)
+            pip.aspirate(2, start_stack2['A1'], rate = 0.1)
             pip.dispense(location = dil_plate['A2'])
+            pip.well_bottom_clearance.aspirate = 3
+            pip.well_bottom_clearance.dispense = 3
             pip.mix(10, 15)
+            pip.well_bottom_clearance.aspirate = 1
+            pip.well_bottom_clearance.dispense = 1
     
-            pip.aspirate(samplevol, dil_plate['A2'], rate = 0.25)
+            pip.aspirate(samplevol, dil_plate['A2'], rate = 0.1)
             pip.air_gap(3)
             pip.dispense(location = qbit_stack2['A1'])
+            pip.well_bottom_clearance.aspirate = 3
+            pip.well_bottom_clearance.dispense = 3
             pip.mix(10, 50)
+            pip.well_bottom_clearance.aspirate = 1
+            pip.well_bottom_clearance.dispense = 1
             pip.drop_tip()
 
     if ctx.params.prep_plate:
@@ -183,5 +204,7 @@ def run(ctx: protocol_api.ProtocolContext):
         else:
             final_cols = start_stack1.columns()[::2][:ncols1]
         
+        pip.flow_rate.aspirate = pip.flow_rate.aspirate / 4
+        pip.flow_rate.dispense = pip.flow_rate.dispense / 4
         pip.transfer(25, final_cols, final_plate.columns()[:ncols1 + ncols2], new_tip = 'always')
         ctx.move_labware(partial50, 'B4', use_gripper = True)

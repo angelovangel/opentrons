@@ -132,7 +132,7 @@ def run(ctx: protocol_api.ProtocolContext):
     # setup ODTC
     odtc.open_lid()
     odtc.set_block_temperature(temperature = 15)
-    odtc.set_lid_temperature(100)
+    odtc.set_lid_temperature(90)
 
     # distribute water without tip change first
     ctx.comment("================= Starting water distribute ==========================")

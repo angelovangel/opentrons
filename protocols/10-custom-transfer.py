@@ -16,8 +16,6 @@ metadata = {
 mypipette = 'p20_single_gen2'
 mymount = 'left'
 mytips = 'opentrons_96_filtertiprack_20ul'
-#right_tips = 'opentrons_96_filtertiprack_20ul'
-# active_pip = 'left'
 source_type = 'biorad_96_wellplate_200ul_pcr'
 dest_type = 'opentrons_24_tuberack_eppendorf_1.5ml_safelock_snapcap'
 
@@ -44,17 +42,12 @@ def run(ctx: protocol_api.ProtocolContext):
     tips = [ctx.load_labware(mytips, slot) for slot in ['1', '2', '3']]
     # tips_right = [ctx.load_labware(right_tips, slot) for slot in ['3']]
     pipette = ctx.load_instrument(mypipette, mount = mymount, tip_racks = tips)
-    # if active_pip == 'left':
-    #     pipette = ctx.load_instrument(left_mount, mount = 'left', tip_racks= tips)
-    # elif active_pip == 'right':
-    #     pipette = ctx.load_instrument(right_mount, mount = 'right', tip_racks = tips)
-    # else:
-    #     exit('active_pip can be only left or right')
-
     pipette.flow_rate.aspirate = pipette.flow_rate.aspirate / aspirate_factor
     pipette.flow_rate.dispense = pipette.flow_rate.dispense / dispense_factor
-    ctx.comment('Using aspirate flow rate of ' + str(pipette.flow_rate.aspirate) + ' ul/s')
-    ctx.comment('Using dispense flow rate of ' + str(pipette.flow_rate.dispense) + ' ul/s')
+
+    ctx.comment('Loaded pipette: ' + mypipette + ' on ' + mymount + ' mount')
+    ctx.comment('Aspirate rate : ' + str(pipette.flow_rate.aspirate) + ' ul/s')
+    ctx.comment('Dispense rate : ' + str(pipette.flow_rate.dispense) + ' ul/s')
     ctx.comment('----------------------------------------------------------------')
 
     source = ctx.load_labware(source_type, '4', 'Source')

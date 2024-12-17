@@ -52,7 +52,7 @@ def add_parameters(parameters):
         variable_name='ncolumns', 
         display_name="Number of columns to process",
         description="Number of columns to process",
-        default=10,
+        default=12,
         minimum=1,
         maximum=12,
         unit="columns"
@@ -67,7 +67,7 @@ def run(ctx: protocol_api.ProtocolContext):
     ncols = ctx.params.ncolumns
 
     # tips and pipette
-    full_positions = ['B3', 'C3']
+    full_positions = ['A3', 'B3']
     rack_full_1, rack_full_2 = [
         ctx.load_labware(
             load_name="opentrons_flex_96_filtertiprack_50ul", 
@@ -75,7 +75,7 @@ def run(ctx: protocol_api.ProtocolContext):
             ) for loc in full_positions
     ]
 
-    partial200 = ctx.load_labware(load_name="opentrons_flex_96_filtertiprack_200ul", location='B2')
+    partial200 = ctx.load_labware(load_name="opentrons_flex_96_filtertiprack_200ul", location='C3')
     
     pip = ctx.load_instrument("flex_96channel_1000")
     
@@ -104,23 +104,25 @@ def run(ctx: protocol_api.ProtocolContext):
     ########################################################################
     pip_config('partial', partial200)
     ########################################################################
-    
-    pip.well_bottom_clearance.dispense = 1
-    pip.distribute(10 ,res[mm_pos], rxn_stack.rows()[0][:ncols])
+    pip.flow_rate.aspirate = 10
+    pip.flow_rate.dispense = 30
+    pip.well_bottom_clearance.dispense = 2
+    pip.distribute(10 ,res[mm_pos], rxn_stack.rows()[0][:ncols], disposal_volume = 10, touch_tip=True)
     
 
     # transfer reactions
     ########################################################################
     pip_config('full', rack_full_1)
     ########################################################################
-    pip.well_bottom_clearance.aspirate = 0
+    pip.well_bottom_clearance.aspirate = 1
     pip.well_bottom_clearance.dispense = 3
-    pip.flow_rate.aspirate = 30
+    
     
     pip.transfer(
         samplevol, 
         start_plate['A1'], 
         rxn_stack['A1'], 
-        mix_after = (6, 10)
+        mix_after = (6, 10), 
+        touch_tip=True
     )
     

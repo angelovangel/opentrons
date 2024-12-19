@@ -57,6 +57,12 @@ def add_parameters(parameters):
         maximum=12,
         unit="columns"
     )
+    parameters.add_bool(
+        variable_name="return_tips",
+        display_name="Return tips to tip box",
+        description="Select this to return tips to tip box (discard in waste bin otherwise)",
+        default=False
+    )
     
 
 
@@ -65,6 +71,7 @@ def run(ctx: protocol_api.ProtocolContext):
     samplevol = ctx.params.sample_vol
     mmvol = ctx.params.mm_vol
     ncols = ctx.params.ncolumns
+    trashtips = not ctx.params.return_tips
 
     # tips and pipette
     full_positions = ['A3', 'B3']
@@ -107,7 +114,7 @@ def run(ctx: protocol_api.ProtocolContext):
     pip.flow_rate.aspirate = 10
     pip.flow_rate.dispense = 30
     pip.well_bottom_clearance.dispense = 2
-    pip.distribute(10 ,res[mm_pos], rxn_stack.rows()[0][:ncols], disposal_volume = 10, touch_tip=True)
+    pip.distribute(10 ,res[mm_pos], rxn_stack.rows()[0][:ncols], disposal_volume = 10, touch_tip=False)
     
 
     # transfer reactions
@@ -123,6 +130,7 @@ def run(ctx: protocol_api.ProtocolContext):
         start_plate['A1'], 
         rxn_stack['A1'], 
         mix_after = (6, 10), 
-        touch_tip=True
+        touch_tip = True, 
+        trash = trashtips
     )
     

@@ -48,6 +48,8 @@ def run(ctx: protocol_api.ProtocolContext):
     pip = ctx.load_instrument(mypipette)
     pip.flow_rate.aspirate = pip.flow_rate.aspirate / aspirate_factor
     pip.flow_rate.dispense = pip.flow_rate.dispense / dispense_factor
+    pip.well_bottom_clearance.aspirate = 1
+    pip.well_bottom_clearance.dispense = 3
 
     
     #labware

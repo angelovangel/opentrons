@@ -1,5 +1,5 @@
 from opentrons import protocol_api
-from opentrons.protocol_api import COLUMN, ALL
+from opentrons.protocol_api import SINGLE, COLUMN, ALL
 
 
 metadata = {
@@ -19,7 +19,7 @@ mytips = 'opentrons_flex_96_filtertiprack_200ul'
 source_type = 'nest_12_reservoir_15ml'
 dest_type = 'biorad_96_wellplate_200ul_pcr'
 
-pipetting_type = 'distribute' # can be transfer, distribute, consolidate
+pipetting_type = 'transfer' # can be transfer, distribute, consolidate
 newtip = 'always'
 mbefore = (0,0)
 mafter = (0,0)
@@ -54,11 +54,17 @@ def run(ctx: protocol_api.ProtocolContext):
     
     #labware
     source = ctx.load_labware(source_type, "B1")
-    dest = ctx.load_labware(dest_type, "D1")
+    dest = ctx.load_labware(dest_type, "C1")
     trash = ctx.load_waste_chute()
 
     # helper functions
     def pip_config(type):
+        if type == 'single':
+            pip.configure_nozzle_layout(
+                style=SINGLE,
+                start="A12",
+                tip_racks=[partial_tips]
+            )
         if type == 'partial':
             pip.configure_nozzle_layout(
                 style=COLUMN,

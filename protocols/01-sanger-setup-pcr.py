@@ -294,6 +294,7 @@ def run(ctx: protocol_api.ProtocolContext):
 
     # this is optional in the Shiny app to cover rxn plate
     if nopcr_run:
+        odtc.deactivate()
         comment(ctx, "Protocol finished!")
     else:
         message2 = "Cover plate with aluminum foil and press 'Continue' when ready"

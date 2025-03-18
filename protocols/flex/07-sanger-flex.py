@@ -107,6 +107,10 @@ def run(ctx: protocol_api.ProtocolContext):
     )
     
     pip = ctx.load_instrument("flex_96channel_1000")
+    pip.flow_rate.aspirate = 20
+    pip.flow_rate.dispense = 40
+    pip.well_bottom_clearance.aspirate = ctx.params.aspirate_offset
+    pip.well_bottom_clearance.dispense = ctx.params.dispense_offset
     
     #labware
     start_plate = ctx.load_labware(ctx.params.source_type, "C2")
@@ -133,27 +137,20 @@ def run(ctx: protocol_api.ProtocolContext):
     ########################################################################
     pip_config('partial', partial200)
     ########################################################################
-    pip.well_bottom_clearance.aspirate = ctx.params.aspirate_offset
-    pip.well_bottom_clearance.dispense = ctx.params.dispense_offset
 
-    pip.flow_rate.aspirate = 10
-    pip.flow_rate.dispense = 30
-    pip.distribute(10 ,res[mm_pos], rxn_stack.rows()[0][:ncols], disposal_volume = 10, touch_tip=False)
+    pip.distribute(mmvol ,res[mm_pos], rxn_stack.rows()[0][:ncols], disposal_volume = 3, touch_tip=False)
     
 
     # transfer reactions
     ########################################################################
     pip_config('full', full50)
     ########################################################################
-    pip.well_bottom_clearance.aspirate = ctx.params.aspirate_offset
-    pip.well_bottom_clearance.dispense = ctx.params.dispense_offset
 
     pip.transfer(
         samplevol, 
         start_plate['A1'], 
         rxn_stack['A1'], 
-        mix_after = (6, 10), 
+        mix_after = (10, (mmvol+samplevol)*0.8), 
         touch_tip = True, 
         trash = trashtips
     )
-    

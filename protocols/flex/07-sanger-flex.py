@@ -3,8 +3,8 @@ from opentrons.protocol_api import COLUMN, ALL
 
 
 metadata = {
-    "protocolName": "Sanger Flex Protocol",
-    "description": """Transfer sample from plate or strips, add BigDye, variable number of columns""",
+    "protocolName": "Sanger Flex Protocol full plate",
+    "description": """ Add BigDye (variable number of columns), transfer sample from plate or strips""",
     "author": "angel.angelov@kaust.edu.sa"
     }
 
@@ -21,7 +21,7 @@ def add_parameters(parameters):
     parameters.add_int(
         variable_name="sample_vol",
         display_name="Sample volume",
-        description="Sanger sample volume (ul)",
+        description="Sample volume to transfer (ul)",
         default=15,
         minimum=5,
         maximum=15,
@@ -30,7 +30,7 @@ def add_parameters(parameters):
     parameters.add_int(
         variable_name="mm_vol",
         display_name="Mastermix volume",
-        description="BigDye mastermix volume (ul)",
+        description="BigDye mastermix volume to transfer (ul)",
         default=10,
         minimum=5,
         maximum=10,
@@ -57,6 +57,26 @@ def add_parameters(parameters):
         maximum=12,
         unit="columns"
     )
+
+    parameters.add_int(
+        variable_name="aspirate_offset",
+        display_name="Aspirate offset",
+        description="Aspirate offset from the bottom of the well",
+        default=2,
+        minimum=0,
+        maximum=5,
+        unit="mm"   
+    )
+
+    parameters.add_int(
+        variable_name="dispense_offset",
+        display_name="Dispense offset",
+        description="Dispense offset from the bottom of the well",
+        default=3,
+        minimum=0,
+        maximum=5,
+        unit="mm"
+    )
     parameters.add_bool(
         variable_name="return_tips",
         display_name="Return tips to tip box",
@@ -74,15 +94,17 @@ def run(ctx: protocol_api.ProtocolContext):
     trashtips = not ctx.params.return_tips
 
     # tips and pipette
-    full_positions = ['A3', 'B3']
-    rack_full_1, rack_full_2 = [
-        ctx.load_labware(
-            load_name="opentrons_flex_96_filtertiprack_50ul", 
-            location=loc, adapter="opentrons_flex_96_tiprack_adapter"
-            ) for loc in full_positions
-    ]
+    
+    full50 = ctx.load_labware(
+        load_name="opentrons_flex_96_filtertiprack_50ul", 
+        location='A3', 
+        adapter="opentrons_flex_96_tiprack_adapter"
+            ) 
 
-    partial200 = ctx.load_labware(load_name="opentrons_flex_96_filtertiprack_200ul", location='C3')
+    partial200 = ctx.load_labware(
+        load_name="opentrons_flex_96_filtertiprack_200ul", 
+        location='C3'
+    )
     
     pip = ctx.load_instrument("flex_96channel_1000")
     
@@ -111,20 +133,21 @@ def run(ctx: protocol_api.ProtocolContext):
     ########################################################################
     pip_config('partial', partial200)
     ########################################################################
+    pip.well_bottom_clearance.aspirate = ctx.params.aspirate_offset
+    pip.well_bottom_clearance.dispense = ctx.params.dispense_offset
+
     pip.flow_rate.aspirate = 10
     pip.flow_rate.dispense = 30
-    pip.well_bottom_clearance.dispense = 2
     pip.distribute(10 ,res[mm_pos], rxn_stack.rows()[0][:ncols], disposal_volume = 10, touch_tip=False)
     
 
     # transfer reactions
     ########################################################################
-    pip_config('full', rack_full_1)
+    pip_config('full', full50)
     ########################################################################
-    pip.well_bottom_clearance.aspirate = 1
-    pip.well_bottom_clearance.dispense = 3
-    
-    
+    pip.well_bottom_clearance.aspirate = ctx.params.aspirate_offset
+    pip.well_bottom_clearance.dispense = ctx.params.dispense_offset
+
     pip.transfer(
         samplevol, 
         start_plate['A1'], 

@@ -65,7 +65,7 @@ def add_parameters(parameters):
         variable_name="dispense_offset",
         display_name="Dispense offset",
         description="Dispense offset from the bottom of the well",
-        default=3, minimum=0, maximum=5,
+        default=4, minimum=0, maximum=5,
         unit="mm"
     )
     parameters.add_bool(
@@ -155,7 +155,9 @@ def run(ctx: protocol_api.ProtocolContext):
         rxn_stack['A1'].bottom().move(types.Point(0, 0, ctx.params.aspirate_offset))
     )
 
-    pip.drop_tip()
+    pip.drop_tip(
+        location = trash if trashtips else full50['A1']
+    )
 
     # pip.transfer(
     #     samplevol, 

@@ -53,8 +53,8 @@ def run(ctx: protocol_api.ProtocolContext):
 
     
     #labware
-    source = ctx.load_labware(source_type, "B1")
-    dest = ctx.load_labware(dest_type, "C1")
+    source = ctx.load_labware(source_type, "B1", "Source labware")
+    dest = ctx.load_labware(dest_type, "C1", "Destination labware")
     trash = ctx.load_waste_chute()
 
     # helper functions

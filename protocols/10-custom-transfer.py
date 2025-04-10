@@ -50,8 +50,8 @@ def run(ctx: protocol_api.ProtocolContext):
     ctx.comment('Dispense rate : ' + str(pipette.flow_rate.dispense) + ' ul/s')
     ctx.comment('----------------------------------------------------------------')
 
-    source = ctx.load_labware(source_type, '4', 'Source')
-    dest = ctx.load_labware(dest_type, '5', 'Destination')
+    source = ctx.load_labware(source_type, '4', 'Source labware')
+    dest = ctx.load_labware(dest_type, '5', 'Destination labware')
     if pipetting_type == 'transfer':
         pipette.transfer(
             [v for v in volumes if v > 0],

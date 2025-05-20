@@ -38,7 +38,7 @@ volumes = [3, 3, 1, 1, 0, 0]
 def run(ctx: protocol_api.ProtocolContext):
     ctx.comment('Starting custom transfer protocol: ' + pipetting_type + ' from ' + str(source_wells) + ' to ' + str(dest_wells))
     ctx.comment('----------------------------------------------------------------')
-    odtc = ctx.load_module(module_name='thermocyclerModuleV2') # just a placeholder
+    # odtc = ctx.load_module(module_name='thermocyclerModuleV2') # just a placeholder
     tips = [ctx.load_labware(mytips, slot) for slot in ['1', '2', '3']]
     # tips_right = [ctx.load_labware(right_tips, slot) for slot in ['3']]
     pipette = ctx.load_instrument(mypipette, mount = mymount, tip_racks = tips)

@@ -104,9 +104,9 @@ def run(ctx: protocol_api.ProtocolContext):
     pip.well_bottom_clearance.dispense = ctx.params.dispense_offset
     
     #labware
-    start_plate = ctx.load_labware(ctx.params.source_type, "C2")
-    res         = ctx.load_labware("nest_12_reservoir_15ml", "D2")
-    rxn_stack   = ctx.load_labware("stack_plate_biorad96well", "C1")
+    start_plate = ctx.load_labware(ctx.params.source_type, "C2", "Source Plate")
+    res         = ctx.load_labware("nest_12_reservoir_15ml", "D2", "Reservoir")
+    rxn_stack   = ctx.load_labware("stack_plate_biorad96well", "C1", "Destination Plate")
     trash       = ctx.load_waste_chute()
     mm_pos      = 'A1'
 
@@ -152,7 +152,7 @@ def run(ctx: protocol_api.ProtocolContext):
     pip.mix(
         10, 
         (mmvol + samplevol*0.8), 
-        rxn_stack['A1'].bottom().move(types.Point(0, 0, ctx.params.aspirate_offset))
+        rxn_stack['A1'].bottom().move(types.Point(0, 0, ctx.params.dispense_offset))
     )
 
     pip.drop_tip(

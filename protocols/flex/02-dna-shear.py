@@ -16,7 +16,7 @@ requirements = {
     
 ###     Variables            ###
 samples = 2
-tips = "opentrons_flex_96_filtertiprack_1000ul"
+tips = "opentrons_flex_96_filtertiprack_200ul"
 reps = 8
 single_col_load = True
 ################################
@@ -24,20 +24,21 @@ single_col_load = True
 cols = math.ceil(samples/8)
 
 def run(ctx: protocol_api.ProtocolContext):
-    ctx.load_trash_bin("A3")
+    ctx.load_waste_chute()
+
     if single_col_load:
-        rack1000 = ctx.load_labware(load_name=tips, location="B3")
+        rack200 = ctx.load_labware(load_name=tips, location="B3")
     else:
-        rack1000 = ctx.load_labware(load_name=tips, location="B3", adapter='opentrons_flex_96_tiprack_adapter')
+        rack200 = ctx.load_labware(load_name=tips, location="B3", adapter='opentrons_flex_96_tiprack_adapter')
         
     samples = ctx.load_labware('nest_96_wellplate_2ml_deep', 'B1')
-    pip = ctx.load_instrument("flex_96channel_1000", mount='left', tip_racks=[rack1000])
+    pip = ctx.load_instrument("flex_96channel_1000", mount='left', tip_racks=[rack200])
     
     if single_col_load:
         pip.configure_nozzle_layout(
             style=COLUMN,
             start="A12",
-            tip_racks=[rack1000]
+            tip_racks=[rack200]
         )
     
     
@@ -47,5 +48,5 @@ def run(ctx: protocol_api.ProtocolContext):
     for x in range(cols):
         pip.pick_up_tip()
         for i in range(reps):
-            pip.mix(100, 200, samples[x])
+            pip.mix(100, 190, samples[x])
         pip.drop_tip()

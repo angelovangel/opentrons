@@ -30,8 +30,11 @@ def run(ctx: protocol_api.ProtocolContext):
         rack200 = ctx.load_labware(load_name=tips, location="B3")
     else:
         rack200 = ctx.load_labware(load_name=tips, location="B3", adapter='opentrons_flex_96_tiprack_adapter')
-        
-    samples = ctx.load_labware('nest_96_wellplate_2ml_deep', 'B1')
+    
+    
+    sampleplate = ctx.load_labware('nest_96_wellplate_2ml_deep', 'B1')
+    samples=sampleplate.rows()[0][:12]
+    
     pip = ctx.load_instrument("flex_96channel_1000", mount='left', tip_racks=[rack200])
     
     if single_col_load:

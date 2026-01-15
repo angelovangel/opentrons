@@ -15,15 +15,45 @@ requirements = {
     }
     
 ###     Variables            ###
-samples = 2
 tips = "opentrons_flex_96_filtertiprack_200ul"
-reps = 8
 single_col_load = True
 ################################
 
-cols = math.ceil(samples/8)
+def add_parameters(parameters: protocol_api.Parameters):
+    parameters.add_int(
+        variable_name="samples",
+        display_name="Number of samples",
+        description="Number of DNA samples to shear",
+        default=8,
+        minimum=1,
+        maximum=96,
+        unit="samples"
+    )
+    parameters.add_int(
+        variable_name="reps",
+        display_name="Number of repetitions",
+        description="Number of mixing cycles (each rep is 100 cycles)",
+        default=8,
+        minimum=6,
+        maximum=15,
+        unit="x100 cycle"
+    )
+    parameters.add_float(
+        variable_name="tip_offset",
+        display_name="Tip offset from bottom",
+        description="Tip offset from the bottom of the well in mm",
+        default=2.0,
+        minimum=0.5,
+        maximum=10.0,
+        unit="mm"
+    )
 
 def run(ctx: protocol_api.ProtocolContext):
+    samples_count = ctx.params.samples
+    reps_count = ctx.params.reps
+    offset = ctx.params.tip_offset
+    cols = math.ceil(samples_count / 8)
+
     ctx.load_waste_chute()
 
     if single_col_load:
@@ -33,7 +63,7 @@ def run(ctx: protocol_api.ProtocolContext):
     
     
     sampleplate = ctx.load_labware('nest_96_wellplate_2ml_deep', 'B1')
-    samples=sampleplate.rows()[0][:12]
+    sample_wells = sampleplate.rows()[0][:12]
     
     pip = ctx.load_instrument("flex_96channel_1000", mount='left', tip_racks=[rack200])
     
@@ -44,12 +74,12 @@ def run(ctx: protocol_api.ProtocolContext):
             tip_racks=[rack200]
         )
     
-    
-
-    pip.flow_rate.aspirate=1000
-    pip.flow_rate.dispense=1000
+    pip.flow_rate.aspirate = 1000
+    pip.flow_rate.dispense = 1000
+    pip.well_bottom_clearance.aspirate = offset
+    pip.well_bottom_clearance.dispense = offset
     for x in range(cols):
         pip.pick_up_tip()
-        for i in range(reps):
-            pip.mix(100, 190, samples[x])
+        for i in range(reps_count):
+            pip.mix(100, 190, sample_wells[x])
         pip.drop_tip()

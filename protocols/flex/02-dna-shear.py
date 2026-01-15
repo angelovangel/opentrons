@@ -68,7 +68,7 @@ def run(ctx: protocol_api.ProtocolContext):
     sampleplate_mag = mag_block.load_labware('nest_96_wellplate_2ml_deep')
 
     # 
-    if ctx.params.plate_on_mag:
+    if ctx.params.plate_on_magnet:
         sample_wells = sampleplate_mag.rows()[0][:12]
     else:
         sample_wells = sampleplate.rows()[0][:12]

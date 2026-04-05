@@ -4,8 +4,8 @@ from opentrons import types
 from opentrons.protocol_api import COLUMN, ALL
 
 metadata = {
-    "protocolName": "DNA shear 96 head",
-    "description": """This protocol is for performing DNA shearing on Flex with 96 channel pipette""",
+    "protocolName": "DNA shear 8-channel head",
+    "description": """This protocol is for performing DNA shearing on Flex with 8-channel pipette""",
     "author": "angel.angelov@kaust.edu.sa"
     }
 
@@ -16,7 +16,7 @@ requirements = {
     
 ###     Variables            ###
 tips = "opentrons_flex_96_filtertiprack_200ul"
-single_col_load = True
+# single_col_load = True
 ################################
 
 def add_parameters(parameters: protocol_api.Parameters):
@@ -73,20 +73,20 @@ def run(ctx: protocol_api.ProtocolContext):
     else:
         sample_wells = sampleplate.rows()[0][:12]
 
-    if single_col_load:
-        rack200 = ctx.load_labware(load_name=tips, location="B3")
-    else:
-        rack200 = ctx.load_labware(load_name=tips, location="B3", adapter='opentrons_flex_96_tiprack_adapter')
+    #if single_col_load:
+    rack200 = ctx.load_labware(load_name=tips, location="B3")
+    #else:
+    #    rack200 = ctx.load_labware(load_name=tips, location="B3", adapter='opentrons_flex_96_tiprack_adapter')
     
     
-    pip = ctx.load_instrument("flex_96channel_1000", mount='left', tip_racks=[rack200])
+    pip = ctx.load_instrument("flex_8channel_1000", mount='right', tip_racks=[rack200])
     
-    if single_col_load:
-        pip.configure_nozzle_layout(
-            style=COLUMN,
-            start="A12",
-            tip_racks=[rack200]
-        )
+    #if single_col_load:
+    #pip.configure_nozzle_layout(
+    #    style=COLUMN,
+    #    start="A12",
+    #        tip_racks=[rack200]
+    #    )
     
     pip.flow_rate.aspirate = 1000
     pip.flow_rate.dispense = 1000

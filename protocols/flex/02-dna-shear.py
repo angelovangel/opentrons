@@ -20,12 +20,6 @@ tips = "opentrons_flex_96_filtertiprack_200ul"
 ################################
 
 def add_parameters(parameters: protocol_api.Parameters):
-    parameters.add_bool(
-        variable_name="plate_on_magnet",
-        display_name="Sample plate on magnet",
-        description="Run with sample plate on magnet on A3",
-        default=False
-    )
     parameters.add_int(
         variable_name="samples",
         display_name="Number of samples",
@@ -39,9 +33,9 @@ def add_parameters(parameters: protocol_api.Parameters):
         variable_name="reps",
         display_name="Number of repetitions",
         description="Number of mixing cycles (each rep is 100 cycles)",
-        default=8,
-        minimum=6,
-        maximum=15,
+        default=2,
+        minimum=1,
+        maximum=12,
         unit="x100 cycle"
     )
     parameters.add_float(
@@ -62,36 +56,17 @@ def run(ctx: protocol_api.ProtocolContext):
 
     ctx.load_waste_chute()
     
-    sampleplate = ctx.load_labware('nest_96_wellplate_2ml_deep', 'B1')
+    sampleplate = ctx.load_labware('nest_96_wellplate_2ml_deep', 'B1')    
+    sample_wells = sampleplate.rows()[0][:12]
 
-    mag_block = ctx.load_module('magneticBlockV1', 'D1')
-    sampleplate_mag = mag_block.load_labware('nest_96_wellplate_2ml_deep')
-
-    # 
-    if ctx.params.plate_on_magnet:
-        sample_wells = sampleplate_mag.rows()[0][:12]
-    else:
-        sample_wells = sampleplate.rows()[0][:12]
-
-    #if single_col_load:
     rack200 = ctx.load_labware(load_name=tips, location="B3")
-    #else:
-    #    rack200 = ctx.load_labware(load_name=tips, location="B3", adapter='opentrons_flex_96_tiprack_adapter')
-    
-    
     pip = ctx.load_instrument("flex_8channel_1000", mount='right', tip_racks=[rack200])
-    
-    #if single_col_load:
-    #pip.configure_nozzle_layout(
-    #    style=COLUMN,
-    #    start="A12",
-    #        tip_racks=[rack200]
-    #    )
     
     pip.flow_rate.aspirate = 1000
     pip.flow_rate.dispense = 1000
     pip.well_bottom_clearance.aspirate = offset
     pip.well_bottom_clearance.dispense = offset
+    
     for x in range(cols):
         pip.pick_up_tip()
         for i in range(reps_count):

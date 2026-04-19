@@ -186,14 +186,34 @@ def run(ctx: protocol_api.ProtocolContext):
     message1 = str(f"MM distribute. \nFor {rxns} reactions, please prepare {mastermix:.1f} ul mastermix and place it in D6 of Eppendorf tube rack.")
     comment(ctx, message1)
     
-    # distribute MM without changing tip
-    s20.distribute(
-        5, 
-        sourcetube[mm_pos], 
-        [ destplate.wells_by_name()[v] for v in destwells_all_pcr ],
-        blow_out = True, 
-        blowout_location = "source well"
-    )
+    # distribute MM (change tip once in between if > 48 samples)
+    mm_dest_wells = [ destplate.wells_by_name()[v] for v in destwells_all_pcr ]
+    if rxns > 48:
+        midpoint = len(mm_dest_wells) // 2
+        # First half
+        s20.distribute(
+            5, 
+            sourcetube[mm_pos], 
+            mm_dest_wells[:midpoint],
+            blow_out = True, 
+            blowout_location = "source well"
+        )
+        # Second half
+        s20.distribute(
+            5, 
+            sourcetube[mm_pos], 
+            mm_dest_wells[midpoint:],
+            blow_out = True, 
+            blowout_location = "source well"
+        )
+    else:
+        s20.distribute(
+            5, 
+            sourcetube[mm_pos], 
+            mm_dest_wells,
+            blow_out = True, 
+            blowout_location = "source well"
+        )
 
     # DMSO distribute, use s20 only, fixed position on C6
     dmsorxns = len(list(filter(lambda x: x > 0, dmso)))

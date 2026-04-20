@@ -32,11 +32,11 @@ def add_parameters(parameters: protocol_api.Parameters):
     parameters.add_int(
         variable_name="reps",
         display_name="Number of repetitions",
-        description="Number of mixing cycles (each rep is 25 cycles)",
+        description="Number of mixing cycles (each rep is 5 cycles)",
         default=2,
         minimum=1,
-        maximum=20,
-        unit="x25 cycle"
+        maximum=1000,
+        unit="x5 cycle"
     )
     parameters.add_float(
         variable_name="tip_offset",
@@ -70,5 +70,5 @@ def run(ctx: protocol_api.ProtocolContext):
     for x in range(cols):
         pip.pick_up_tip()
         for i in range(reps_count):
-            pip.mix(25, 190, sample_wells[x])
+            pip.mix(5, 190, sample_wells[x])
         pip.drop_tip()

@@ -56,16 +56,27 @@ def add_parameters(parameters: protocol_api.Parameters):
         maximum=10.0,
         unit="mm"
     )
+    parameters.add_str(
+        variable_name="plate_type",
+        display_name="Sample plate type",
+        description="Choose the sample plate type",
+        choices=[
+            {"display_name": "Bio-Rad 96 Well PCR 200µL", "value": "biorad_96_wellplate_200ul_pcr"},
+            {"display_name": "NEST 96 Deep Well 2mL", "value": "nest_96_wellplate_2ml_deep"}
+        ],
+        default="nest_96_wellplate_2ml_deep"
+    )
 
 def run(ctx: protocol_api.ProtocolContext):
     samples_count = ctx.params.samples
     reps_count = ctx.params.reps
     offset = ctx.params.tip_offset
+    plate_type = ctx.params.plate_type
     cols = math.ceil(samples_count / 8)
 
     ctx.load_waste_chute()
     
-    sampleplate = ctx.load_labware('nest_96_wellplate_2ml_deep', 'B1')    
+    sampleplate = ctx.load_labware(plate_type, 'B1')    
     sample_wells = sampleplate.rows()[0][:12]
 
     rack200 = ctx.load_labware(load_name=tips, location="B3")

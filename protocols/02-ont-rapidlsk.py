@@ -6,7 +6,7 @@ metadata = {
     'protocolName': '02-ont-rapid-pcr.py',
     'author': 'BCL <angel.angelov@kaust.edu.sa>',
     'description': 'ONT plasmid sequencing - normalise templates, add rapid adapter, incubate, pool',
-    'apiLevel': '2.15'
+    'apiLevel': '2.18'
 }
 
 # Variables replaced by the Shiny app

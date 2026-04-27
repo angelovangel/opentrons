@@ -38,6 +38,15 @@ def add_parameters(parameters: protocol_api.Parameters):
         maximum=1000,
         unit="x5 cycle"
     )
+    parameters.add_int(
+        variable_name="volume",
+        display_name="Volume",
+        description="Volume of DNA to shear",
+        default=190,
+        minimum=30,
+        maximum=190,
+        unit="ul"
+    )
     parameters.add_float(
         variable_name="tip_offset",
         display_name="Tip offset from bottom",
@@ -70,5 +79,5 @@ def run(ctx: protocol_api.ProtocolContext):
     for x in range(cols):
         pip.pick_up_tip()
         for i in range(reps_count):
-            pip.mix(5, 190, sample_wells[x])
+            pip.mix(5, ctx.params.volume, sample_wells[x])
         pip.drop_tip()

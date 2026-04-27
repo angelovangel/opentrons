@@ -178,6 +178,48 @@ def run(ctx: protocol_api.ProtocolContext):
     m20 = ctx.load_instrument('p20_multi_gen2', mount='right', tip_racks=tips20_multi)
 
     s20_original_flowrate = s20.flow_rate.aspirate
+
+    # Define and load liquids
+    liquid_mm = ctx.define_liquid(name="Master Mix", description="Sequencing Master Mix", display_color="#00CC00")
+    liquid_dmso = ctx.define_liquid(name="DMSO", description="DMSO", display_color="#0000CC")
+    liquid_primer = ctx.define_liquid(name="Primer", description="Sequencing Primer", display_color="#CC0000")
+    liquid_template1 = ctx.define_liquid(name="Template (Plate)", description="DNA Template", display_color="#CCCC00")
+    liquid_template2 = ctx.define_liquid(name="Template (Strip)", description="DNA Template", display_color="#CC00CC")
+
+    sourcetube.wells_by_name()[mm_pos].load_liquid(liquid=liquid_mm, volume=mastermix + 20)
+    
+    dmso_vol = sum(dmso)
+    if dmso_vol > 0:
+        sourcetube.wells_by_name()[dmso_pos].load_liquid(liquid=liquid_dmso, volume=dmso_vol + 10)
+    
+    primer_vols = {}
+    for w, vol in zip(sourcewells3, volume3):
+        if w and vol > 0:
+            primer_vols[w] = primer_vols.get(w, 0) + vol
+    for w, vol in primer_vols.items():
+        sourcetube.wells_by_name()[w].load_liquid(liquid=liquid_primer, volume=vol + 10)
+
+    template1_vols = {}
+    for w, vol in zip(sourcewells1, volume1):
+        if w and vol > 0:
+            template1_vols[w] = template1_vols.get(w, 0) + vol
+    for c, vol in zip(scols1_fulltransfer, svol1_fulltransfer):
+        for r in 'ABCDEFGH':
+            w = r + c
+            template1_vols[w] = template1_vols.get(w, 0) + vol
+    for w, vol in template1_vols.items():
+        sourceplate.wells_by_name()[w].load_liquid(liquid=liquid_template1, volume=vol + 5)
+
+    template2_vols = {}
+    for w, vol in zip(sourcewells2, volume2):
+        if w and vol > 0:
+            template2_vols[w] = template2_vols.get(w, 0) + vol
+    for c, vol in zip(scols2_fulltransfer, svol2_fulltransfer):
+        for r in 'ABCDEFGH':
+            w = r + c
+            template2_vols[w] = template2_vols.get(w, 0) + vol
+    for w, vol in template2_vols.items():
+        sourcestrip.wells_by_name()[w].load_liquid(liquid=liquid_template2, volume=vol + 5)
     
     # ODTC
     odtc.open_lid()

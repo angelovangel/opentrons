@@ -21,13 +21,21 @@ tips = "opentrons_flex_96_filtertiprack_200ul"
 
 def add_parameters(parameters: protocol_api.Parameters):
     parameters.add_int(
-        variable_name="samples",
-        display_name="Number of samples",
-        description="Number of DNA samples to shear",
-        default=8,
+        variable_name="ncols",
+        display_name="Number of columns",
+        description="Number of columns to shear",
+        default=1,
         minimum=1,
-        maximum=96,
-        unit="samples"
+        maximum=12,
+        unit="columns"
+    )
+    parameters.add_int(
+        variable_name="start_col",
+        display_name="Start column",
+        description="Column to start from",
+        default=1,
+        minimum=1,
+        maximum=12,
     )
     parameters.add_int(
         variable_name="reps",
@@ -68,11 +76,12 @@ def add_parameters(parameters: protocol_api.Parameters):
     )
 
 def run(ctx: protocol_api.ProtocolContext):
-    samples_count = ctx.params.samples
+    if ctx.params.start_col + ctx.params.ncols - 1 > 12:
+        raise ValueError("Start column and number of columns exceed 12")
+
     reps_count = ctx.params.reps
     offset = ctx.params.tip_offset
     plate_type = ctx.params.plate_type
-    cols = math.ceil(samples_count / 8)
 
     ctx.load_waste_chute()
     
@@ -87,7 +96,7 @@ def run(ctx: protocol_api.ProtocolContext):
     pip.well_bottom_clearance.aspirate = offset
     pip.well_bottom_clearance.dispense = offset
     
-    for x in range(cols):
+    for x in range(ctx.params.start_col - 1, ctx.params.start_col - 1 + ctx.params.ncols):
         pip.pick_up_tip()
         for i in range(reps_count):
             pip.mix(5, ctx.params.volume, sample_wells[x])

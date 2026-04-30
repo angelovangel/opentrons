@@ -44,7 +44,16 @@ def add_parameters(parameters: protocol_api.Parameters):
         default=2,
         minimum=1,
         maximum=1000,
-        unit="x5 cycle"
+        unit="repetitions"
+    )
+    parameters.add_int(
+        variable_name="cycles_per_rep",
+        display_name="Cycles per repetition",
+        description="Number of cycles per repetition",
+        default=5,
+        minimum=1,
+        maximum=100,
+        unit="cycles"
     )
     parameters.add_int(
         variable_name="volume",
@@ -99,5 +108,5 @@ def run(ctx: protocol_api.ProtocolContext):
     for x in range(ctx.params.start_col - 1, ctx.params.start_col - 1 + ctx.params.ncols):
         pip.pick_up_tip()
         for i in range(reps_count):
-            pip.mix(5, ctx.params.volume, sample_wells[x])
+            pip.mix(ctx.params.cycles_per_rep, ctx.params.volume, sample_wells[x])
         pip.drop_tip()

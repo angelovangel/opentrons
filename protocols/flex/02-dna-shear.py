@@ -44,7 +44,7 @@ def add_parameters(parameters: protocol_api.Parameters):
         default=2,
         minimum=1,
         maximum=1000,
-        unit="repetitions"
+        unit="reps"
     )
     parameters.add_int(
         variable_name="cycles_per_rep",

@@ -83,15 +83,18 @@ def run(ctx: protocol_api.ProtocolContext):
 	if ctx.params.prep_qbit:
 		for col in range(ncols):
 			pip_right.pick_up_tip()
-			pip_right.aspirate(18, waterlid['A1'], rate=0.1)
-			pip_right.aspirate(2, start_stack.rows()[0][col], rate=0.1)
-			pip_right.dispense(20, dil_plate.rows()[0][col])
-			pip_right.mix(repetitions = 3, volume = 18, location = dil_plate.rows()[0][col])
+			pip_right.aspirate(8, waterlid['A1'], rate=0.01)
+			pip_right.aspirate(2, start_stack.rows()[0][col], rate=0.01)
+			pip_right.dispense(10, dil_plate.rows()[0][col])
+			pip_right.mix(repetitions = 5, volume = 18, location = dil_plate.rows()[0][col])
+			pip_right.aspirate(5, dil_plate.rows()[0][col], rate=0.1)
+			pip_right.dispense(5, qbit_plate.rows()[0][col])
+			pip_right.mix(repetitions = 5, volume = 40, location = qbit_plate.rows()[0][col])
 			pip_right.drop_tip()
 	
 	if ctx.params.prep_plate:
-		pip_right.flow_rate.aspirate = 50
-		pip_right.flow_rate.dispense = 150
+		pip_right.flow_rate.aspirate = 5
+		pip_right.flow_rate.dispense = 50
 		pip_right.transfer(
 			20, 
 			start_stack.rows()[0][:ncols], 

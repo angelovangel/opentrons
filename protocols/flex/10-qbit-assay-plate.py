@@ -72,7 +72,7 @@ def add_parameters(parameters):
 		variable_name='disp_offset',
 		display_name="Dispense offset",
 		description="Offset from bottom of well for dispense (mm)",
-		default=1,
+		default=3,
 		minimum=0,
 		maximum=20
 	)

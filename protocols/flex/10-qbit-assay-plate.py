@@ -36,7 +36,7 @@ def add_parameters(parameters):
 	parameters.add_bool(
 		variable_name = 'prep_qbit',
 		display_name = 'Perform qbit',
-		description = 'Dilute 10x and add 2 ul to qbit reagent',
+		description = 'Dilute 5x and add 5 ul to qbit reagent (=1 ul sample)',
 		default = True
 	)
 	parameters.add_str(
@@ -70,6 +70,8 @@ def run(ctx: protocol_api.ProtocolContext):
 	trash = ctx.load_waste_chute()
 
 	# distribute qbit reagent
+	pip_right.flow_rate.aspirate = 50
+	pip_right.flow_rate.dispense = 150
 	pip_right.well_bottom_clearance.dispense = 15
 	pip_right.distribute(
 		195, 
@@ -83,8 +85,8 @@ def run(ctx: protocol_api.ProtocolContext):
 	if ctx.params.prep_qbit:
 		for col in range(ncols):
 			pip_right.pick_up_tip()
-			pip_right.aspirate(8, waterlid['A1'], rate=0.01)
-			pip_right.aspirate(2, start_stack.rows()[0][col], rate=0.01)
+			pip_right.aspirate(8, waterlid['A1'], rate=0.1)
+			pip_right.aspirate(2, start_stack.rows()[0][col], rate=0.1)
 			pip_right.dispense(10, dil_plate.rows()[0][col])
 			pip_right.mix(repetitions = 5, volume = 18, location = dil_plate.rows()[0][col])
 			pip_right.aspirate(5, dil_plate.rows()[0][col], rate=0.1)
@@ -94,7 +96,7 @@ def run(ctx: protocol_api.ProtocolContext):
 	
 	if ctx.params.prep_plate:
 		pip_right.flow_rate.aspirate = 5
-		pip_right.flow_rate.dispense = 50
+		pip_right.flow_rate.dispense = 25
 		pip_right.transfer(
 			20, 
 			start_stack.rows()[0][:ncols], 

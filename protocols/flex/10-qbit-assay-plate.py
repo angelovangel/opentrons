@@ -64,7 +64,7 @@ def add_parameters(parameters):
 		variable_name='asp_offset',
 		display_name="Aspiration offset",
 		description="Offset from bottom of well for aspiration (mm)",
-		default=1,
+		default=2,
 		minimum=0,
 		maximum=10,
 	)
@@ -72,7 +72,7 @@ def add_parameters(parameters):
 		variable_name='disp_offset',
 		display_name="Dispense offset",
 		description="Offset from bottom of well for dispense (mm)",
-		default=3,
+		default=4,
 		minimum=0,
 		maximum=20
 	)
@@ -104,7 +104,10 @@ def run(ctx: protocol_api.ProtocolContext):
 	pip_right.distribute(
 		195, 
 		res['A1'].bottom(asp),
-		[col[0].bottom(disp) for col in qbit_plate.columns()[:ncols]]
+		[col[0].bottom(disp) for col in qbit_plate.columns()[:ncols]],
+		disposal_volume = 10,
+		blow_out = True,
+		blowout_location = 'source well'
 	)
 	
 

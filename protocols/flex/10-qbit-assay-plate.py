@@ -61,14 +61,14 @@ def run(ctx: protocol_api.ProtocolContext):
 	pip_right = ctx.load_instrument('flex_8channel_1000', 'right', tip_racks = [tips1000])
 
 	#labware
-	start_stack = ctx.load_labware("stack_plate_biorad96well", "D2")
-	dil_plate = ctx.load_labware("biorad_96_wellplate_200ul_pcr", "C2")
-	qbit_plate = ctx.load_labware("biorad_96_wellplate_200ul_pcr", "C1")
-	final_plate = ctx.load_labware("biorad_96_wellplate_200ul_pcr", "B1")
-	res = ctx.load_labware(ctx.params.qbit_reservoir, "D1")
-	waterlid = ctx.load_labware("axygen_1_reservoir_90ml", "C3")
+	start_stack = ctx.load_labware(load_name = "stack_plate_biorad96well", location = "D2", label = "Stacked strips (samples)")
+	dil_plate = ctx.load_labware(load_name = "biorad_96_wellplate_200ul_pcr", location = "C2", label = "Dilution plate")
+	qbit_plate = ctx.load_labware(load_name = "biorad_96_wellplate_200ul_pcr", location = "C1", label = "Qbit plate")
+	final_plate = ctx.load_labware(load_name = "biorad_96_wellplate_200ul_pcr", location = "B1", label = "Final plate")
+	res = ctx.load_labware(load_name = ctx.params.qbit_reservoir, location = "D1", label = "Qbit reagent reservoir")
+	waterlid = ctx.load_labware(load_name = "axygen_1_reservoir_90ml", location = "C3", label = "Water lid")
 	trash = ctx.load_waste_chute()
-
+		
 	# distribute qbit reagent
 	pip_right.flow_rate.aspirate = 50
 	pip_right.flow_rate.dispense = 150

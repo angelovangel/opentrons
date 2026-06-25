@@ -22,7 +22,7 @@ def add_parameters(parameters):
 		variable_name='num_columns', 
 		display_name="Number of columns",
 		description="How many columns to quantify (max 12 are allowed)",
-		default=2,
+		default=3,
 		minimum=1,
 		maximum=12,
 		unit="columns"
@@ -87,10 +87,9 @@ def run(ctx: protocol_api.ProtocolContext):
 		f'Estimated qbit reagent needed for {ncols} columns: {required_qbit} µl.\n'
 	)
 
-	if ctx.params.qbit_reservoir == "nest_12_reservoir_15ml" and ncols > 9:
-		ctx.pause(
-			'WARNING: nest_12_reservoir_15ml can not hold enough reagent for more than 9 columns.\n'
-			'Consider reducing num_columns to 9 or selecting a larger reservoir.'
+	if ctx.params.qbit_reservoir == "nest_12_reservoir_15ml" and ncols > 6:
+		raise ValueError(
+			'ERROR: nest_12_reservoir_15ml can not hold enough reagent for more than 6 columns'
 		)
 
 	tips50 = [ctx.load_labware("opentrons_flex_96_filtertiprack_50ul", loc) for loc in ['B3', 'B2']]
@@ -128,12 +127,12 @@ def run(ctx: protocol_api.ProtocolContext):
 		for col in range(ncols):
 			pip_right.pick_up_tip()
 			pip_right.aspirate(8, waterlid['A1'].bottom(asp), rate=0.1)
-			pip_right.aspirate(2, start_stack.rows()[0][col].bottom(asp), rate=0.1)
+			pip_right.aspirate(2, start_stack.rows()[0][col].bottom(asp), rate=0.05)
 			pip_right.dispense(10, dil_plate.rows()[0][col].bottom(disp))
 			pip_right.mix(repetitions = 5, volume = 18, location = dil_plate.rows()[0][col].bottom(disp))
 			pip_right.aspirate(5, dil_plate.rows()[0][col].bottom(asp), rate=0.1)
 			pip_right.dispense(5, qbit_plate.rows()[0][col].bottom(disp))
-			pip_right.mix(repetitions = 5, volume = 40, location = qbit_plate.rows()[0][col].bottom(disp))
+			pip_right.mix(repetitions = 7, volume = 40, location = qbit_plate.rows()[0][col].bottom(disp + 2))
 			pip_right.drop_tip()
 	
 	if ctx.params.prep_plate:

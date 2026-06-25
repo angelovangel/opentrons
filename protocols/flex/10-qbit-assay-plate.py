@@ -82,6 +82,17 @@ def run(ctx: protocol_api.ProtocolContext):
 	asp = ctx.params.asp_offset
 	disp = ctx.params.disp_offset
 
+	required_qbit = int(round(ncols * 8 * 195 * 1.1))
+	ctx.pause(
+		f'Estimated qbit reagent needed for {ncols} columns: {required_qbit} µl.\n'
+	)
+
+	if ctx.params.qbit_reservoir == "nest_12_reservoir_15ml" and ncols > 9:
+		ctx.pause(
+			'WARNING: nest_12_reservoir_15ml can not hold enough reagent for more than 9 columns.\n'
+			'Consider reducing num_columns to 9 or selecting a larger reservoir.'
+		)
+
 	tips50 = [ctx.load_labware("opentrons_flex_96_filtertiprack_50ul", loc) for loc in ['B3', 'B2']]
 	tips1000 = ctx.load_labware("opentrons_flex_96_filtertiprack_1000ul", "A3")
 	

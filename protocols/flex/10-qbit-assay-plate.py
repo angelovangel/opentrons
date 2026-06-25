@@ -88,8 +88,9 @@ def run(ctx: protocol_api.ProtocolContext):
 	)
 
 	if ctx.params.qbit_reservoir == "nest_12_reservoir_15ml" and ncols > 6:
-		raise ValueError(
-			'ERROR: nest_12_reservoir_15ml can not hold enough reagent for more than 6 columns'
+		raise Exception(
+			'ERROR: nest_12_reservoir_15ml cannot hold enough reagent for more than 6 columns. '
+			'Reduce num_columns to 6 or select a larger reservoir.'
 		)
 
 	tips50 = [ctx.load_labware("opentrons_flex_96_filtertiprack_50ul", loc) for loc in ['B3', 'B2']]

@@ -32,8 +32,8 @@ else:
 change_primer_tip = True
 nopcr_run = True # use stack in ODTC !! so in this case open lid and DO NOT CLOSE it
 sourceplate_type = 'stack_plate_biorad96well'
-mm_pos = 'D6'
-dmso_pos = 'C6'
+mm_pos = 'C6'
+dmso_pos = 'D6'
 
 ### Replaced by Shiny app
 
@@ -225,7 +225,7 @@ def run(ctx: protocol_api.ProtocolContext):
     odtc.open_lid()
     odtc.set_block_temperature(temperature = 10)
 
-    message1 = str(f"MM distribute. \nFor {rxns} reactions, please prepare {mastermix:.1f} ul mastermix and place it in D6 of Eppendorf tube rack.")
+    message1 = str(f"MM distribute. \nFor {rxns} reactions, please prepare {mastermix:.1f} ul mastermix and place it in {mm_pos} of Eppendorf tube rack.")
     comment(ctx, message1)
     
     # distribute MM (change tip once in between if > 48 samples)

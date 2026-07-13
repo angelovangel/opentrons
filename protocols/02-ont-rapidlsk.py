@@ -30,7 +30,7 @@ source_labware = 'stack_plate_biorad96well'
 aspirate_factor = 1
 dispense_factor = 1
 pool_reuse_tip = True #for the consolidate step only, but switch to transfer if tip change is needed (consolidate does not change tips)
-lsk = True # decide if LSK114 protocol is run or just rapid. Fork at the necessary points if True
+lsk = False # decide if LSK114 protocol is run or just rapid. Fork at the necessary points if True
 barcode_vol = 1
 total_rxn_vol = 11
 # Variables replaced by the Shiny app
@@ -143,7 +143,7 @@ def run(ctx: protocol_api.ProtocolContext):
         touch_tip = False, 
         disposal_volume = 2, 
         blow_out = True, 
-        blowout_location = 'trash'
+        blowout_location = 'source well'
     )
     
     # distribute End Repair MM if LSK
@@ -162,7 +162,7 @@ def run(ctx: protocol_api.ProtocolContext):
     
     s20.transfer(
         [v for v in volume1 if v > 0],
-        [ sourceplate.wells_by_name()[v] for i, v in enumerate(sourcewells1) if volume1[i] > 0],
+        [ sourceplate.wells_by_name()[v].bottom(0.2) for i, v in enumerate(sourcewells1) if volume1[i] > 0],
         [ destplate.wells_by_name()[v] for i, v in enumerate(destwells1) if volume1[i] > 0], 
         new_tip = 'always',
         mix_after = (5, total_rxn_vol/1.5) if lsk else (0, 0),
@@ -236,7 +236,7 @@ def run(ctx: protocol_api.ProtocolContext):
         ctx.comment("Full column transfer barcode plate: " + str(barcode_vol) + "ul from A" + v + " to A" + dcols3_fulltransfer[i])
         m20.transfer(
         barcode_vol, 
-        barcodeplate.wells_by_name()['A' + scols3_fulltransfer[i]], 
+        barcodeplate.wells_by_name()['A' + scols3_fulltransfer[i]].bottom(0.2), 
         workingplate.wells_by_name()['A' + dcols3_fulltransfer[i]], 
         new_tip = 'always', 
         mix_after = (8, total_rxn_vol/1.5), 
@@ -290,13 +290,13 @@ def run(ctx: protocol_api.ProtocolContext):
     if pool_reuse_tip:
         s20.consolidate(
             total_rxn_vol * consolidate_vol_fraction,
-            [ workingplate.wells_by_name()[v] for i, v in enumerate(destwells1) if volume1[i] > 0 ], 
+            [ workingplate.wells_by_name()[v].bottom(0.2) for i, v in enumerate(destwells1) if volume1[i] > 0 ], 
             tube_block.wells_by_name()[finaltube]
         )
     else:
         s20.transfer(
             total_rxn_vol * consolidate_vol_fraction,
-            [ workingplate.wells_by_name()[v] for i, v in enumerate(destwells1) if volume1[i] > 0 ],
+            [ workingplate.wells_by_name()[v].bottom(0.2) for i, v in enumerate(destwells1) if volume1[i] > 0 ],
             tube_block.wells_by_name()[finaltube], 
             new_tip = 'always'
         )

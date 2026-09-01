@@ -14,6 +14,10 @@ metadata = {
     'apiLevel': '2.18'
 }
 
+requirements = {
+    'robotType': 'OT-2'
+}
+
 def comment(myctx, message):
     myctx.comment("-----------")
     myctx.comment(message)

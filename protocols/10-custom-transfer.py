@@ -11,6 +11,10 @@ metadata = {
 	'apiLevel': '2.18'
 }
 
+requirements = {
+    'robotType': 'OT-2'
+}
+
 # Variables replaced by the Shiny app
 
 mypipette = 'p20_single_gen2'
